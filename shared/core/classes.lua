@@ -1,0 +1,69 @@
+-- Creates empty table to hold classes
+Classes = {
+    
+    -- Registers a new class
+    New = function (ClassName, InitialState)
+
+        -- Checks for class existence
+        if Classes.Exists(ClassName) then
+            return false
+        end
+
+        -- Set to empty table by default
+        Classes[ClassName] = {}
+
+        -- Set metatable data
+        Classes[ClassName] = setmetatable(Classes[ClassName], {
+            __index = Classes.DefaultClassMethods
+        })
+    
+        -- Call the constructor with the initial state
+        Classes[ClassName]:Constructor(InitialState or {})
+
+        -- Debug print
+        Utilities.Log({
+            title = "Class Registered",
+            message = "[" .. ClassName .. "] has been registered"
+        })
+    end,
+
+    -- Checks if a class exists
+    Exists = function (ClassName)
+        if Classes[ClassName] then
+            return true
+        end
+
+        return false
+    end,
+
+    -- Default methods to initialize class with
+    DefaultClassMethods = {
+
+        -- Sets initial state
+        Constructor = function(self, state)
+            if state then
+                self.state = state
+            end
+            
+            return self
+        end,
+
+        -- Gets the state of the class
+        GetState = function (self, key)
+            if not key then return self.state end
+            if not self.state[key] then return nil end
+            return self.state[key]
+        end,
+        
+        -- Updates the state of the class
+        UpdateState = function (self, key, value, cb)
+            if self.state[key] == nil then return self end
+            self.state[key] = value
+            
+            if not cb then return self.state[key] end
+            if type(cb) == "function" then
+                cb(self.state[key])
+            end
+        end
+    },
+}
