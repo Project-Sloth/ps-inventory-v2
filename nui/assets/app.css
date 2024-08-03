@@ -5,8 +5,8 @@
  **/
 
 :root {
-  --ui-highlight-color: #f68523;
-  --ui-highlight-box-shadow-color: rgba(246, 133, 35, 0.6);
+  --ui-highlight-color: #beda17;
+  --ui-highlight-box-shadow-color: rgba(190, 218, 23, 0.6);
   --ui-border-radius: 5px;
 }
 
@@ -125,7 +125,7 @@ body {
   border-top-left-radius: var(--ui-border-radius);
   border-bottom-right-radius: 5px;
   background: var(--ui-highlight-color);
-  color: #fff;
+  color: #000;
   font-size: 9px;
   font-weight: bold;
   display: block;
@@ -646,6 +646,10 @@ input[type="number"] {
 
 .color-box:hover {
   opacity: 1;
+}
+
+.color-box.ps {
+  background-color: #beda17;
 }
 
 .color-box.orange {

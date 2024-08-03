@@ -6,6 +6,24 @@
 Classes.New("Inventory", { Loaded = false, Items = {}, IsOpen = false, External = false })
 
 -------------------------------------------------
+--- Inventory events
+-------------------------------------------------
+Classes.Inventory.Events = {
+
+    OnOpen = function ()
+        lib.callback.await(Config.ServerEventPrefix .. 'Event', false, {
+            event = "open"
+        })
+    end,
+
+    OnClose = function ()
+        lib.callback.await(Config.ServerEventPrefix .. 'Event', false, {
+            event = "close"
+        })
+    end
+}
+
+-------------------------------------------------
 --- Load Inventory Items
 -------------------------------------------------
 function Classes.Inventory.Load(cb)
@@ -24,6 +42,9 @@ function Classes.Inventory.Load(cb)
     end
 end
 
+-------------------------------------------------
+--- Update external inventory state
+-------------------------------------------------
 function Classes.Inventory.UpdateExternalState(external, cb)
     Classes.Inventory:UpdateState("External", external)
 
@@ -60,12 +81,21 @@ function Classes.Inventory.Move(data)
 end
 
 -------------------------------------------------
+--- Can Open Inventory
+-------------------------------------------------
+function Classes.Inventory.CanOpen(data)
+    if not Framework.Client.CanOpenInventory() then return false end
+    if LocalPlayer.state.inventoryBusy == true then return false end
+    return true
+end
+
+-------------------------------------------------
 --- Open Inventory
 -------------------------------------------------
 function Classes.Inventory.Open(data)
 
     -- Check if can open inventory
-    if not Framework.Client.CanOpenInventory() then return false end
+    if not Classes.Inventory.CanOpen() then return false end
 
     Classes.Inventory.Load(function (inventory)
         if not data.external then data.external = nil end
@@ -82,6 +112,8 @@ function Classes.Inventory.Open(data)
             title = "Inventory Event",
             message = "Inventory was opened"
         })
+
+        Classes.Inventory.Events.OnOpen()
     end)
 end
 
@@ -100,6 +132,8 @@ function Classes.Inventory.Close()
         title = "Inventory Event",
         message = "Inventory was closed"
     })
+
+    Classes.Inventory.Events.OnClose()
 end
 
 exports('CloseInventory', Classes.Inventory.Close)

@@ -81,7 +81,7 @@ end
 -------------------------------------------------
 Framework.Server.SavePlayerInventory = function (src, inventory, database)
 	local Player = Framework.Server.GetPlayer(src)
-	if not Player then return end
+	if not Player then return false end
 
 	if type(inventory) == "table" then
 		Player.Functions.SetPlayerData("items", inventory)
@@ -102,6 +102,8 @@ Framework.Server.SavePlayerInventory = function (src, inventory, database)
 			message = "Saved inventory for " .. Player.PlayerData.citizenid
 		})
 	end
+
+	return true
 end
 
 -------------------------------------------------
@@ -210,7 +212,7 @@ end
 -------------------------------------------------
 --- Override QB Functions
 -------------------------------------------------
-Framework.Server.SetupPlayer = function (Player)
+Framework.Server.SetupPlayer = function (Player, initial)
 
 	Player.PlayerData.inventory = Player.PlayerData.items
 	Player.PlayerData.identifier = Player.PlayerData.citizenid
@@ -252,7 +254,7 @@ AddEventHandler('QBCore:Server:PlayerLoaded', function (Player)
 	local citizenid = Player.PlayerData.citizenid
 	local inventory = MySQL.prepare.await('SELECT inventory FROM players WHERE citizenid = ?', { citizenid })
 	Player.Functions.SetPlayerData('items', json.decode(inventory))
-	Framework.Server.SetupPlayer(Player)
+	Framework.Server.SetupPlayer(Player, true)
 end)
 
 -------------------------------------------------
@@ -282,9 +284,34 @@ end)
 -------------------------------------------------
 --- Event overrides
 -------------------------------------------------
-Utilities.ExportHandler('qb-inventory', 'HasItem', Framework.Server.HasItem)
-Utilities.ExportHandler('ps-inventory', 'HasItem', Framework.Server.HasItem)
-Utilities.ExportHandler('qb-inventory', 'RemoveItem', Classes.Inventory.RemoveItem)
-Utilities.ExportHandler('ps-inventory', 'RemoveItem', Classes.Inventory.RemoveItem)
-Utilities.ExportHandler('qb-inventory', 'AddItem', Classes.Inventory.AddItem)
-Utilities.ExportHandler('ps-inventory', 'AddItem', Classes.Inventory.AddItem)
+local resourcesToOverride = { 'qb-inventory', 'ps-inventory' }
+local exportsToOverride   = {
+	{
+		name = 'HasItem',
+		func = Framework.Server.HasItem
+	},
+	{
+		name = 'RemoveItem',
+		func = Framework.Server.RemoveItem
+	},
+	{
+		name = 'AddItem',
+		func = Framework.Server.AddItem
+	},
+	{
+		name = 'OpenInventoryById',
+		func = Framework.Server.OpenInventoryById
+	},
+	{
+		name = 'OpenInventory',
+		func = function (src, stashName)
+			Classes.Inventory.LoadExternalInventoryAndOpen(src, false, stashName)
+		end
+	}
+}
+
+for _, resource in pairs(resourcesToOverride) do
+	for _, export in pairs(exportsToOverride) do
+		Utilities.ExportHandler(resource, export.name, export.func)
+	end
+end

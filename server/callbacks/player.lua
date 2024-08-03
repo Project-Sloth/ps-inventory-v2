@@ -25,3 +25,16 @@ end)
 lib.callback.register(Config.ServerEventPrefix .. 'Drop', function (source, data)
     return Classes.Drops.Create(source, data)
 end)
+
+-------------------------------------------------
+--- Event callback
+-------------------------------------------------
+lib.callback.register(Config.ServerEventPrefix .. 'Event', function (source, data)
+    if data.event == "open" then
+        Player(source).state.inventoryBusy = true
+    end
+
+    if data.event == "close" then
+        Player(source).state.inventoryBusy = false
+    end
+end)

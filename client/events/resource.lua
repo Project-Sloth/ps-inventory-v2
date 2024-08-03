@@ -14,6 +14,7 @@ end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
+        Classes.Inventory.Close()
         Classes.Shops.Cleanup()
         Classes.Drops.Cleanup()
     end

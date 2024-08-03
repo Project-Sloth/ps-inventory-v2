@@ -231,7 +231,7 @@ function Classes.Inventory.SavePlayerInventory(src, inventory)
     inventory = Classes.Inventory.ValidateItems(inventory)
 
     -- Save player inventory
-    Framework.Server.SavePlayerInventory(src, inventory)
+    return Framework.Server.SavePlayerInventory(src, inventory)
 end
 
 exports("SaveInventory", Classes.Inventory.SaveInventory)
@@ -361,6 +361,38 @@ function Classes.Inventory.OpenInventory(src, external)
 end
 
 exports("OpenInventory", Classes.Inventory.OpenInventory)
+
+-------------------------------------------------
+--- Open target player inventory
+--- Server Event: ir8-inventory:Server:OpenInventoryById
+--- Export: exports['ir8-inventory']:OpenInventoryById(src, target)
+-------------------------------------------------
+function Classes.Inventory.OpenInventoryById(src, target)
+    if src == target then return false end
+
+    local Player = Framework.Server.GetPlayer(src)
+    if not Player then return false end
+
+    local Target = Framework.Server.GetPlayer(target)
+    if not Target then return false end
+
+    Classes.Inventory.CloseInventory(target)
+
+    if not Player(target).state.inventoryBusy then
+        Player(target).state.inventoryBusy = true
+    end
+
+    local items = Classes.Inventory.LoadExternalInventory('player', target)
+    return Classes.Inventory.OpenInventory(src, {
+        type = "player",
+        id = target,
+        name = Framework.Server.GetPlayerName(src),
+        slots = #items,
+        items = items
+    })
+end
+
+exports("OpenInventoryById", Classes.Inventory.OpenInventoryById)
 
 -------------------------------------------------
 --- Close player inventory
@@ -496,7 +528,7 @@ function Classes.Inventory.AddItem(source, item, amount, slot, info, reason, cre
 
     -- If is a weapon, set the serial number and quality
     if itemInfo.type == 'weapon' then
-        info.serie = info.serie or nil -- @TODO: Generate serial number
+        info.serie = info.serie or nil
         info.quality = info.quality or 100
     end
 
@@ -689,6 +721,8 @@ function Classes.Inventory.SaveExternalInventory (type, inventoryId, items)
         local res = Classes.Drops.SaveItems(inventoryId, items)
         if not res then return false end
         return true
+    elseif type == "player" then
+        return Classes.Inventory.SavePlayerInventory(inventoryId, items)
     else
         local res = Framework.Server.SaveExternalInventory(type, inventoryId, items)
         if not res then return false end
@@ -730,10 +764,50 @@ function Classes.Inventory.LoadExternalInventory (type, typeId)
         return items
     end
 
+    -- If external type is player
+    if type == "player" then
+        local items = Classes.Inventory.GetPlayerInventory(typeId) or {}
+        return items
+    end
+
     return false
 end
 
 exports("LoadExternalInventory", Classes.Inventory.LoadExternalInventory)
+
+-------------------------------------------------
+--- Loads an external inventory and opens it
+--- Server Event: ir8-inventory:Server:LoadExternalInventoryAndOpen
+--- Export: exports['ir8-inventory']:LoadExternalInventoryAndOpen
+-------------------------------------------------
+function Classes.Inventory.LoadExternalInventoryAndOpen(src, type, typeId)
+
+    if not type then
+        
+        -- Check the name for the type, if it's not there, default to stash
+        if typeId:find('stash') then
+            type = 'stash'
+        elseif typeId:find('trunk') then
+            type = 'stash'
+        elseif typeId:find('glovebox') then
+            type = 'stash'
+        elseif typeId:find('otherplayer') then
+            type = 'player'
+        else
+            type = 'stash' 
+        end
+    end
+
+    local items = Classes.Inventory.LoadExternalInventory(type, typeId)
+    Classes.Inventory.OpenInventory(src, {
+        type = type,
+        id = typeId,
+        name = type,
+        items = items
+    })
+end
+
+exports("LoadExternalInventoryAndOpen", Classes.Inventory.LoadExternalInventoryAndOpen)
 
 -------------------------------------------------
 --- Performs swapping of items
@@ -984,3 +1058,30 @@ function Classes.Inventory.Move (src, data)
 end
 
 exports("Move", Classes.Inventory.Move)
+
+-------------------------------------------------
+--- Open Stash
+-------------------------------------------------
+function Classes.Inventory.OpenStash (src, stashId)
+    local Player = Framework.Server.GetPlayer(src)
+    local stash = Config.Stashes[stashId]
+
+    if not stash then
+        return Utilities.Log({
+            type = "error",
+            title = "OpenStash",
+            message = "Stash[" .. stashId .. "] does not exist"
+        })
+    end
+
+    local items = Classes.Inventory.LoadExternalInventory('stash', stashId)
+
+    Classes.Inventory.OpenInventory(src, {
+        type = "stash",
+        id = stashId,
+        name = stash.name,
+        items = items
+    })
+end
+
+exports("OpenStash", Classes.Inventory.OpenStash)

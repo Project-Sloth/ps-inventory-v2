@@ -42,7 +42,7 @@ Utilities = {
 
     -- Register an export event handler
     ExportHandler = function (resourceName, exportName, func)
-        print("Registering event handler: " .. ('__cfx_export_%s_%s'):format(resourceName, exportName))
+        print("Registering export handler: " .. ('__cfx_export_%s_%s'):format(resourceName, exportName))
         AddEventHandler(('__cfx_export_%s_%s'):format(resourceName, exportName), function(setCallback)
             setCallback(func)
         end)

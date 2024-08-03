@@ -16,7 +16,7 @@ Config = {
     Language = "en",
 
     -- Framework
-    Framework = "qb", -- "qb" | "standalone" (NOTE: ONLY "qb" IS AVAILABLE AT THIS TIME)
+    Framework = "qb", -- "qb"
 
     -- Event prefixes
     ClientEventPrefix = GetCurrentResourceName() .. ":Client:",
@@ -32,8 +32,9 @@ Config = {
 
     -- Command permissions
     CommandPermissions = {
-        GiveItem       = { "admin" },
-        ClearInventory = { "admin" }
+        GiveItem        = { "admin" },
+        ClearInventory  = { "admin" },
+        PlayerInventory = { "admin" }
     },
 
     -------------------------------------------------
