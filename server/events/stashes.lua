@@ -2,5 +2,5 @@
 --- Opens stash
 -------------------------------------------------
 RegisterNetEvent(Config.ServerEventPrefix .. 'OpenStash', function(stashId)
-    Classes.Inventory.OpenStash(source, stashId)
+    Core.Classes.Inventory.OpenStash(source, stashId)
 end)

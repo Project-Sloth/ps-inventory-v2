@@ -2,7 +2,7 @@
 --- Closes the UI
 -------------------------------------------------
 RegisterNUICallback('close', function(_, cb)
-    Classes.Inventory.Close()
+    Core.Classes.Inventory.Close()
     cb({ status = true })
 end)
 
@@ -10,7 +10,7 @@ end)
 --- Sends of the moving of an item
 -------------------------------------------------
 RegisterNUICallback('move', function(data, cb)
-    local res = Classes.Inventory.Move(data)
+    local res = Core.Classes.Inventory.Move(data)
     cb(res)
 end)
 
@@ -18,7 +18,7 @@ end)
 --- Drops item
 -------------------------------------------------
 RegisterNUICallback('drop', function(data, cb)
-    local res = Classes.Inventory.Drop(data)
+    local res = Core.Classes.Inventory.Drop(data)
     cb(res)
 end)
 
@@ -29,7 +29,7 @@ RegisterNUICallback('updateExternalState', function(data, cb)
 
     -- Only update if provided
     if data.external then
-        Classes.Inventory.UpdateExternalState(data.external)
+        Core.Classes.Inventory.UpdateExternalState(data.external)
     end
 
     cb({ success = true })
@@ -39,7 +39,15 @@ end)
 --- Calls method for buying an item
 -------------------------------------------------
 RegisterNUICallback('buy', function(data, cb)
-    local res = Classes.Shops.Buy(data)
+    local res = Core.Classes.Shops.Buy(data)
+    cb(res)
+end)
+
+-------------------------------------------------
+--- Calls method for crafting an item
+-------------------------------------------------
+RegisterNUICallback('craft', function(data, cb)
+    local res = Core.Classes.Crafting.Craft(data)
     cb(res)
 end)
 

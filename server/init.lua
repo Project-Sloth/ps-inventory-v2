@@ -20,4 +20,4 @@ print('--------------------------------------------------')
 Framework.Determine()
 
 -- Load the inventory items
-Classes.Inventory:Load()
+Core.Classes.Inventory:Load(true)

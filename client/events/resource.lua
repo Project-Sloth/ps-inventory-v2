@@ -6,7 +6,7 @@ AddEventHandler('onResourceStart', function(resource)
 
         Wait(500)
 
-        Classes.Inventory.Load(function ()
+        Core.Classes.Inventory.Load(function ()
             SendNUIMessage(InventoryInitPayload())
         end)
     end
@@ -14,8 +14,9 @@ end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
-        Classes.Inventory.Close()
-        Classes.Shops.Cleanup()
-        Classes.Drops.Cleanup()
+        Core.Classes.Crafting.Cleanup()
+        Core.Classes.Inventory.Close()
+        Core.Classes.Shops.Cleanup()
+        Core.Classes.Drops.Cleanup()
     end
 end)

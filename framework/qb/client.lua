@@ -1,4 +1,8 @@
-Framework.Client.CurrentWeapon = false
+-------------------------------------------------
+--- FRAMEWORK FUNCTION OVERRIDES
+--- These files are loaded based on the value set
+--- for Config.Framework
+-------------------------------------------------
 
 -------------------------------------------------
 --- GETS CORE OBJECT
@@ -69,12 +73,70 @@ Framework.Client.UseWeapon = function (src, weaponData, shootBool)
 end
 
 -------------------------------------------------
+--- Has Group
+-------------------------------------------------
+Framework.Client.HasGroup = function(group)
+    local PlayerData = Framework.Core.Functions.GetPlayerData()
+    if not PlayerData.job then return false end
+
+    local groups = {
+        [PlayerData.job.name] = PlayerData.job.grade.level,
+        [PlayerData.gang.name] = PlayerData.gang.grade.level,
+    }
+
+	if type(group) == 'table' then
+		for name, rank in pairs(group) do
+			local groupRank = groups[name]
+			if groupRank and groupRank >= (rank or 0) then
+				return name, groupRank
+			end
+		end
+	else
+		local groupRank = groups[group]
+		if groupRank then
+			return group, groupRank
+		end
+	end
+end
+
+-------------------------------------------------
+--- Progress bar
+-------------------------------------------------
+Framework.Client.Progressbar = function (
+    name, 
+    label, 
+    duration, 
+    useWhileDead, 
+    canCancel, 
+    disableControls, 
+    animation, 
+    prop, 
+    propTwo, 
+    onFinish, 
+    onCancel
+)
+    return Framework.Core.Functions.Progressbar(
+        name, 
+        label, 
+        duration, 
+        useWhileDead, 
+        canCancel, 
+        disableControls, 
+        animation, 
+        prop, 
+        propTwo, 
+        onFinish, 
+        onCancel
+    )
+end
+
+-------------------------------------------------
 --- When player data is updated
 -------------------------------------------------
 RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
 	if not source or source == '' then return end
 	if PlayerData.metadata["isdead"] or PlayerData.metadata["inlaststand"] or PlayerData.metadata["ishandcuffed"] then
-		Classes.Inventory.Close()
+		Core.Classes.Inventory.Close()
 	end
 end)
 

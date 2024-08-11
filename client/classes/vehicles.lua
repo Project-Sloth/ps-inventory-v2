@@ -3,18 +3,18 @@
 -------------------------------------------------
 
 -- Creates the vehicles class
-Classes.New("Vehicles", { nearVehicle = false })
+Core.Classes.New("Vehicles", { nearVehicle = false })
 
 -------------------------------------------------
 --- Dinstance checker for vehicles
 -------------------------------------------------
-function Classes.Vehicles.VehicleAccessible()
+function Core.Classes.Vehicles.VehicleAccessible()
     local ped = PlayerPedId()
 
     if IsPedInAnyVehicle(ped, false) then
         local vehicle = GetVehiclePedIsIn(ped, false)
         local vehicleProperties = lib.getVehicleProperties(vehicle)
-        Classes.Vehicles:UpdateState('nearVehicle', vehicle)
+        Core.Classes.Vehicles:UpdateState('nearVehicle', vehicle)
         return {
             type = "stash",
             id = "glovebox-" .. vehicleProperties.plate,
@@ -43,7 +43,7 @@ function Classes.Vehicles.VehicleAccessible()
 
         local vehicleProperties = lib.getVehicleProperties(closestVehicle)
 
-        Classes.Vehicles:UpdateState('nearVehicle', closestVehicle)
+        Core.Classes.Vehicles:UpdateState('nearVehicle', closestVehicle)
 
         return {
             type = "stash",
@@ -59,22 +59,22 @@ end
 -------------------------------------------------
 --- Dinstance checker for vehicles
 -------------------------------------------------
-function Classes.Vehicles.DistanceCheck()
-    if Classes.Inventory:GetState('IsOpen') and Classes.Inventory:GetState('External') ~= false and Classes.Vehicles:GetState('nearVehicle') then
-        local external = Classes.Inventory:GetState('External')
-        local nearVehicle = Classes.Vehicles:GetState('nearVehicle')
+function Core.Classes.Vehicles.DistanceCheck()
+    if Core.Classes.Inventory:GetState('IsOpen') and Core.Classes.Inventory:GetState('External') ~= false and Core.Classes.Vehicles:GetState('nearVehicle') then
+        local external = Core.Classes.Inventory:GetState('External')
+        local nearVehicle = Core.Classes.Vehicles:GetState('nearVehicle')
 
         if type(external) == "table" then
             if external.id then
                 if external.id:find('trunk-') then
-                    local checkVehicle = Classes.Vehicles.VehicleAccessible()
+                    local checkVehicle = Core.Classes.Vehicles.VehicleAccessible()
 
                     if checkVehicle == false then
-                        Classes.Inventory.Close()
+                        Core.Classes.Inventory.Close()
                     end
 
                     if type(checkVehicle) == "table" and checkVehicle.vehicle ~= nearVehicle then
-                        Classes.Inventory.Close()
+                        Core.Classes.Inventory.Close()
                     end
                 end
             end

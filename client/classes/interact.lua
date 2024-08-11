@@ -3,10 +3,10 @@
 -------------------------------------------------
 
 -- Creates the interact class
-Classes.New("Interact")
+Core.Classes.New("Interact")
 
 -- Adds item in NUI
-function Classes.Interact.Show(message)
+function Core.Classes.Interact.Show(message)
     SendNUIMessage({
         action = "interact",
         process = "show",
@@ -15,7 +15,7 @@ function Classes.Interact.Show(message)
 end
 
 -- Removes item in NUI
-function Classes.Interact.Hide()
+function Core.Classes.Interact.Hide()
     SendNUIMessage({
         action = "interact",
         process = "hide",

@@ -11,12 +11,12 @@ Framework.Determine()
 if Framework.Client.EventPlayerLoaded then
     RegisterNetEvent(Framework.Client.EventPlayerLoaded)
     AddEventHandler (Framework.Client.EventPlayerLoaded, function()
-        Classes.Inventory.Load(function ()
+        Core.Classes.Inventory.Load(function ()
             SendNUIMessage(InventoryInitPayload())
         end)
     end)
 else
-    Classes.Inventory.Load(function ()
+    Core.Classes.Inventory.Load(function ()
         SendNUIMessage(InventoryInitPayload())
     end)
 end
@@ -31,8 +31,8 @@ local keybind = lib.addKeybind({
     onReleased = function(self)
 
         -- Checking for external types
-        local vehicleStorage = Classes.Vehicles.VehicleAccessible()
-        local drop = Classes.Drops.IsNearDrop()
+        local vehicleStorage = Core.Classes.Vehicles.VehicleAccessible()
+        local drop = Core.Classes.Drops.IsNearDrop()
         local external = false
 
         if drop then

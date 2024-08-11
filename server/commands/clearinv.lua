@@ -15,15 +15,15 @@ lib.addCommand('clearinv', {
 
     -- Validate that player is available
     if Player then
-        Classes.Inventory.ClearInventory(args.target)
+        Core.Classes.Inventory.ClearInventory(args.target)
 
-        return Utilities.Log({
+        return Core.Utilities.Log({
             type = "success",
             title = "ClearInventoryCommand",
             message = "Cleared inventory for player: " .. args.target
         })
     else
-        return Utilities.Log({
+        return Core.Utilities.Log({
             type = "error",
             title = "ClearInventoryCommand",
             message = "Unable to clear inventory for player: " .. args.target .. " - Player not online"

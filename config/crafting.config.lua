@@ -1,0 +1,81 @@
+Config.Crafting = {
+
+    Placeables = {
+
+        -- Creates useable / placeable bench
+        ['crafting_bench'] = {
+            recipes = { 'weapons' },
+            prop = 'gr_prop_gr_bench_01b'
+        }
+    },
+
+    Locations = {
+
+        -- Example of a crafting bench
+        ['weaponbench1'] = {
+            name = "Weapon Crafting Bench",
+            prop = 'gr_prop_gr_bench_01b',
+            location = vector4(-61.4, -149.13, 57.33, 66.5),
+            recipes = { 'weapons' },
+            blip = { sprite = 110, scale = 0.6, color = 0 }
+        }
+    },
+
+    Recipes = {
+
+        -- Recipes by category
+        ['weapons'] = {
+            {
+                item = 'weapon_pistol',
+                time = 30, -- In Seconds
+                amount = 1,
+                materials = {
+                    { item = "iron", amount = 50 },
+                    -- { item = "steel", amount = 50 },
+                    -- { item = "copper", amount = 50 },
+                    -- { item = "plastic", amount = 20 },
+                    -- { item = "rubber", amount = 15 },
+                }
+            },
+
+            {
+                item = "weapon_combatpistol",
+                time = 45,
+                amount = 1,
+                materials = {
+                    { item = "iron", amount = 75 },
+                    { item = "steel", amount = 75 },
+                    { item = "copper", amount = 75 },
+                    { item = "plastic", amount = 40 },
+                    { item = "rubber", amount = 25 },
+                }
+            },
+
+            {
+                item = "weapon_snspistol",
+                time = 45,
+                amount = 1,
+                materials = {
+                    { item = "iron", amount = 75 },
+                    { item = "steel", amount = 75 },
+                    { item = "copper", amount = 75 },
+                    { item = "plastic", amount = 40 },
+                    { item = "rubber", amount = 25 },
+                }
+            },
+
+            {
+                item = "weapon_heavypistol",
+                time = 45,
+                amount = 1,
+                materials = {
+                    { item = "iron", amount = 100 },
+                    { item = "steel", amount = 100 },
+                    { item = "copper", amount = 75 },
+                    { item = "plastic", amount = 60 },
+                    { item = "rubber", amount = 50 },
+                }
+            },
+        }
+    },
+}

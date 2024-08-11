@@ -20,7 +20,7 @@ lib.addCommand('giveitem', {
 }, function(source, args, raw)
 
     local PlayerIdentity = Framework.Server.GetPlayerIdentity(args.target)
-    local itemData = Classes.Inventory:GetState("Items")[args.item:lower()]
+    local itemData = Core.Classes.Inventory:GetState("Items")[args.item:lower()]
 
     -- Validate that player identity is available
     if PlayerIdentity then
@@ -48,7 +48,7 @@ lib.addCommand('giveitem', {
             -- If weapon, set amount to 1 automatically and generate serial number
             elseif itemData["type"] == "weapon" then
                 args.amount = 1
-                info.serie = Utilities.GenerateSerialNumber()
+                info.serie = Core.Utilities.GenerateSerialNumber()
                 info.quality = 100
 
             -- If harness, set uses to 20
@@ -72,28 +72,28 @@ lib.addCommand('giveitem', {
                 info.quality = 100
             end
 
-            if Classes.Inventory.AddItem(args.target, itemData.name, args.amount, false, info) then
-                return Utilities.Log({
+            if Core.Classes.Inventory.AddItem(args.target, itemData.name, args.amount, false, info) then
+                return Core.Utilities.Log({
                     type = "success",
                     title = "GiveItem",
                     message = itemData.name .. "[x" .. args.amount .. "] was given to " .. PlayerIdentity.name .. " by admin"
                 })
             else
-                return Utilities.Log({
+                return Core.Utilities.Log({
                     type = "error",
                     title = "GiveItem",
                     message = itemData.name .. "[x" .. args.amount .. "] could not be given to " .. PlayerIdentity.name
                 })
             end
         else
-            return Utilities.Log({
+            return Core.Utilities.Log({
                 type = "error",
                 title = "GiveItem",
                 message = args.item .. "[x" .. args.amount .. "] could not be given to " .. PlayerIdentity.name .. " - Item does not exist"
             })
         end
     else
-        return Utilities.Log({
+        return Core.Utilities.Log({
             type = "error",
             title = "GiveItem",
             message = args.item .. "[x" .. args.amount .. "] could not be given to player: " .. args.target .. " - Player not online"

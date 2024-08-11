@@ -6,7 +6,7 @@ RegisterServerEvent(Config.ServerEventPrefix .. 'OpenInventory', function (exter
 
     if external then
         local Player = Framework.Server.GetPlayer(src)
-        local items = Classes.Inventory.LoadExternalInventory(external.type, external.id)
+        local items = Core.Classes.Inventory.LoadExternalInventory(external.type, external.id)
         external.items = items
 
         if external.id:find('glovebox') then
@@ -14,19 +14,19 @@ RegisterServerEvent(Config.ServerEventPrefix .. 'OpenInventory', function (exter
         end
 
         -- Item check for drops
-        if external.type == "drop" and Utilities.TableLength(external.items) == 0 then
+        if external.type == "drop" and Core.Utilities.TableLength(external.items) == 0 then
             external = false
         end
     end
 
-    Classes.Inventory.OpenInventory(src, external)
+    Core.Classes.Inventory.OpenInventory(src, external)
 end)
 
 -------------------------------------------------
 --- Closes player inventory
 -------------------------------------------------
 RegisterServerEvent(Config.ServerEventPrefix .. 'CloseInventory', function ()
-    Classes.Inventory.CloseInventory(source)
+    Core.Classes.Inventory.CloseInventory(source)
 end)
 
 -------------------------------------------------
@@ -34,9 +34,9 @@ end)
 -------------------------------------------------
 RegisterNetEvent(Config.ServerEventPrefix .. 'UseItemSlot', function(slot)
     local src = source
-    local itemData = Classes.Inventory.GetSlot(src, slot)
+    local itemData = Core.Classes.Inventory.GetSlot(src, slot)
     if not itemData then return false end
-    Classes.Inventory.ValidateAndUseItem(src, itemData)
+    Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
 end)
 
 -------------------------------------------------
@@ -44,6 +44,6 @@ end)
 -------------------------------------------------
 RegisterNetEvent(Config.ServerEventPrefix .. 'UseItem', function(inventory, item)
     local src = source
-    local itemData = Classes.Inventory.GetSlot(src, item.slot)
-    Classes.Inventory.ValidateAndUseItem(src, itemData)
+    local itemData = Core.Classes.Inventory.GetSlot(src, item.slot)
+    Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
 end)

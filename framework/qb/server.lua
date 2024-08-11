@@ -1,4 +1,10 @@
 -------------------------------------------------
+--- FRAMEWORK FUNCTION OVERRIDES
+--- These files are loaded based on the value set
+--- for Config.Framework
+-------------------------------------------------
+
+-------------------------------------------------
 --- GETS CORE OBJECT
 -------------------------------------------------
 Framework.GetCoreObject = function ()
@@ -89,6 +95,10 @@ Framework.Server.SavePlayerInventory = function (src, inventory, database)
 		inventory = Framework.Server.GetPlayerInventory(src)
 	end
 
+	if type(inventory) ~= "table" then
+		return false
+	end
+
 	-- Only update the database under the following conditionals
 	if (Config.Player.DatabaseSyncingThread == true and database == true) or (not Config.Player.DatabaseSyncingThread and database == false)  then
 		MySQL.prepare('UPDATE players SET inventory = ? WHERE citizenid = ?', { 
@@ -96,7 +106,7 @@ Framework.Server.SavePlayerInventory = function (src, inventory, database)
 			Player.PlayerData.citizenid 
 		})
 
-		Utilities.Log({
+		Core.Utilities.Log({
 			type = "success",
 			title = "PlayerInventory",
 			message = "Saved inventory for " .. Player.PlayerData.citizenid
@@ -210,6 +220,32 @@ Framework.Server.HasItem = function (source, items, amount)
 end
 
 -------------------------------------------------
+--- Has Group
+-------------------------------------------------
+Framework.Server.HasGroup = function(src, group)
+	local Player = Framework.Core.Functions.GetPlayer(src)
+
+	local groups = {
+        [Player.PlayerData.job.name] = Player.PlayerData.job.grade.level,
+        [Player.PlayerData.gang.name] = Player.PlayerData.gang.grade.level
+    }
+
+	if type(group) == 'table' then
+		for name, rank in pairs(group) do
+			local groupRank = groups[name]
+			if groupRank and groupRank >= (rank or 0) then
+				return name, groupRank
+			end
+		end
+	else
+		local groupRank = groups[group]
+		if groupRank then
+			return group, groupRank
+		end
+	end
+end
+
+-------------------------------------------------
 --- Override QB Functions
 -------------------------------------------------
 Framework.Server.SetupPlayer = function (Player, initial)
@@ -219,27 +255,27 @@ Framework.Server.SetupPlayer = function (Player, initial)
 	Player.PlayerData.name = ('%s %s'):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "AddItem", function(item, amount, slot, info)
-		return Classes.Inventory.AddItem(Player.PlayerData.source, item, amount, slot, info)
+		return Core.Classes.Inventory.AddItem(Player.PlayerData.source, item, amount, slot, info)
 	end)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "RemoveItem", function(item, amount, slot)
-		return Classes.Inventory.RemoveItem(Player.PlayerData.source, item, amount, slot)
+		return Core.Classes.Inventory.RemoveItem(Player.PlayerData.source, item, amount, slot)
 	end)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "GetItemBySlot", function(slot)
-		return Classes.Inventory.GetSlot(Player.PlayerData.source, slot)
+		return Core.Classes.Inventory.GetSlot(Player.PlayerData.source, slot)
     end)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "GetItemByName", function(itemName)
-		return Classes.Inventory.GetSlotWithItem(Player.PlayerData.source, itemName)
+		return Core.Classes.Inventory.GetSlotWithItem(Player.PlayerData.source, itemName)
 	end)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "GetItemsByName", function(itemName)
-		return Classes.Inventory.GetSlotsWithItem(Player.PlayerData.source, itemName)
+		return Core.Classes.Inventory.GetSlotsWithItem(Player.PlayerData.source, itemName)
 	end)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "ClearInventory", function(filterItems)
-		return Classes.Inventory.ClearInventory(Player.PlayerData.source, filterItems)
+		return Core.Classes.Inventory.ClearInventory(Player.PlayerData.source, filterItems)
 	end)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "SetInventory", function(items)
@@ -248,13 +284,31 @@ Framework.Server.SetupPlayer = function (Player, initial)
 end
 
 -------------------------------------------------
+--- Sets player inventory and function overrides
+-------------------------------------------------
+function PlayerLoadedEvent (Player)
+	local citizenid = Player.PlayerData.citizenid
+	local inventory = {}
+	local inventoryRes = MySQL.single.await('SELECT inventory FROM players WHERE citizenid = ?', { citizenid })
+	if inventoryRes then inventory = json.decode(inventoryRes.inventory) end
+	Player.Functions.SetPlayerData('items', inventory)
+	Framework.Server.SetupPlayer(Player, true)
+end
+
+-------------------------------------------------
+--- Reset overrides on restart
+-------------------------------------------------
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+		for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(Player) end
+    end
+end)
+
+-------------------------------------------------
 --- Load inventory items on playerload then setup
 -------------------------------------------------
 AddEventHandler('QBCore:Server:PlayerLoaded', function (Player)
-	local citizenid = Player.PlayerData.citizenid
-	local inventory = MySQL.prepare.await('SELECT inventory FROM players WHERE citizenid = ?', { citizenid })
-	Player.Functions.SetPlayerData('items', json.decode(inventory))
-	Framework.Server.SetupPlayer(Player, true)
+	PlayerLoadedEvent(Player)
 end)
 
 -------------------------------------------------
@@ -270,7 +324,7 @@ end)
 SetTimeout(500, function()
 
 	-- Stop the following resources if they are started
-	local resourcesToStop = { 'qb-shops' }
+	local resourcesToStop = { 'qb-shops', 'qb-inventory' }
 	for _, resource in pairs(resourcesToStop) do
 		local resourceState = GetResourceState(resource)
 		if resourceState ~= 'missing' and (resourceState == 'started' or resourceState == 'starting') then
@@ -278,40 +332,16 @@ SetTimeout(500, function()
 		end
 	end
 
-	for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do Framework.Server.SetupPlayer(Player) end
+	for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(Player) end
 end)
 
 -------------------------------------------------
 --- Event overrides
 -------------------------------------------------
-local resourcesToOverride = { 'qb-inventory', 'ps-inventory' }
-local exportsToOverride   = {
-	{
-		name = 'HasItem',
-		func = Framework.Server.HasItem
-	},
-	{
-		name = 'RemoveItem',
-		func = Framework.Server.RemoveItem
-	},
-	{
-		name = 'AddItem',
-		func = Framework.Server.AddItem
-	},
-	{
-		name = 'OpenInventoryById',
-		func = Framework.Server.OpenInventoryById
-	},
-	{
-		name = 'OpenInventory',
-		func = function (src, stashName)
-			Classes.Inventory.LoadExternalInventoryAndOpen(src, false, stashName)
-		end
-	}
-}
 
-for _, resource in pairs(resourcesToOverride) do
-	for _, export in pairs(exportsToOverride) do
-		Utilities.ExportHandler(resource, export.name, export.func)
-	end
-end
+Core.Utilities.ExportHandler('qb-inventory', 'HasItem', Framework.Server.HasItem)
+Core.Utilities.ExportHandler('qb-inventory', 'RemoveItem', Core.Classes.Inventory.RemoveItem)
+Core.Utilities.ExportHandler('qb-inventory', 'AddItem', Core.Classes.Inventory.AddItem)
+Core.Utilities.ExportHandler('qb-inventory', 'OpenInventory', function (src, stashName)
+	Core.Classes.Inventory.LoadExternalInventoryAndOpen(src, false, stashName)
+end)

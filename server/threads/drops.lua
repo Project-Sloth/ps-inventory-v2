@@ -2,7 +2,7 @@
 --- Thread for clearing expired drops
 -------------------------------------------------
 
-Utilities.Log({
+Core.Utilities.Log({
     title = "Drops.ClearExpired",
     message = "Thread is running every " .. Config.Drops.ExpirationTime .. " seconds"
 })
@@ -10,6 +10,6 @@ Utilities.Log({
 CreateThread(function ()
     while true do
         Wait(Config.Drops.ExpirationTime * 1000)
-        Classes.Drops.ClearExpired()
+        Core.Classes.Drops.ClearExpired()
     end
 end)

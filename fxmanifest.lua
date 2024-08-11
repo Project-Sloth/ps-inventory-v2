@@ -7,6 +7,7 @@ lua54 'yes'
 games { "gta5" }
 
 client_script {
+    "framework/base/client.lua",
     "client/classes/*.lua",
     "client/events/*.lua",
     "client/functions.lua",
@@ -15,30 +16,33 @@ client_script {
 }
 
 server_script { 
-    '@oxmysql/lib/MySQL.lua', 
+    '@oxmysql/lib/MySQL.lua',
+    "framework/base/server.lua",
     "server/classes/*.lua",
     "server/callbacks/*.lua",
     "server/events/*.lua",
     "server/init.lua",
-    "server/setup/*.lua",
     "server/commands/*.lua",
     "server/threads/*.lua",
 }
 
 shared_script { 
     "@ox_lib/init.lua",
-    "shared/config.lua",
-    "shared/shops.config.lua",
-    "shared/stashes.config.lua",
-    "shared/vehicles.config.lua",
+    "config/config.lua",
+    "config/shops.config.lua",
+    "config/stashes.config.lua",
+    "config/vehicles.config.lua",
+    "config/crafting.config.lua",
+    "config/useables.config.lua",
+    "shared/core/core.lua",
     "shared/core/utilities.lua",
     "shared/core/classes.lua",
-    "shared/core/framework.lua"
+    "framework/framework.lua"
 }
 
 files { 
     'nui/**/*',
-    'bridge/**/*.lua'
+    'framework/**/*.lua'
 }
 
 ui_page 'nui/index.html'

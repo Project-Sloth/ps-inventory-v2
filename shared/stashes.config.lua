@@ -1,8 +1,0 @@
-Config.Stashes = {
-
-    -- Test stash
-    ['test'] = {
-        name = "Test Stash",
-        location = vector3(-37.64, -143.87, 56.17)
-    }
-}

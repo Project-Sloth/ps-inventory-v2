@@ -2,28 +2,42 @@
 --- Get Player Inventory Callback
 -------------------------------------------------
 lib.callback.register(Config.ServerEventPrefix .. 'GetPlayerInventory', function(source)
-    return Classes.Inventory.GetPlayerInventory(source)
+    return Core.Classes.Inventory.GetPlayerInventory(source)
 end)
 
 -------------------------------------------------
 --- Save Player Inventory Callback
 -------------------------------------------------
 lib.callback.register(Config.ServerEventPrefix .. 'SavePlayerInventory', function(source)
-    return Classes.Inventory.SavePlayerInventory(source)
+    return Core.Classes.Inventory.SavePlayerInventory(source)
+end)
+
+-------------------------------------------------
+--- Remove item
+-------------------------------------------------
+lib.callback.register(Config.ServerEventPrefix .. 'RemoveItem', function(source, item)
+    return Core.Classes.Inventory.RemoveItem(source, item.name, item.amount, item.slot)
+end)
+
+-------------------------------------------------
+--- Add item
+-------------------------------------------------
+lib.callback.register(Config.ServerEventPrefix .. 'AddItem', function(source, item)
+    return Core.Classes.Inventory.AddItem(source, item.name, item.amount)
 end)
 
 -------------------------------------------------
 --- Move inventory item callback
 -------------------------------------------------
 lib.callback.register(Config.ServerEventPrefix .. 'Move', function (source, data)
-    return Classes.Inventory.Move(source, data)
+    return Core.Classes.Inventory.Move(source, data)
 end)
 
 -------------------------------------------------
 --- Drop item callback
 -------------------------------------------------
 lib.callback.register(Config.ServerEventPrefix .. 'Drop', function (source, data)
-    return Classes.Drops.Create(source, data)
+    return Core.Classes.Drops.Create(source, data)
 end)
 
 -------------------------------------------------

@@ -36,6 +36,10 @@ const InventoryEvents = {
         })
     },
 
+    /**
+     * Updates various inventory data
+     * @param {object} data 
+     */
     update: (data) => {
 
         if (typeof data.external == 'object') {
@@ -52,8 +56,28 @@ const InventoryEvents = {
         Inventory.Events.UpdateInventory(data);
     },
 
+    /**
+     * Updates player inventory data
+     * @param {object} data 
+     */
     updatePlayerData: (data) => {
         Inventory.UpdatePlayerInformation(data);
+    },
+
+    /**
+     * Adds a crafting queue item
+     * @param {object} data 
+     */
+    addCraftingQueueItem: (data) => {
+        Inventory.Utilities.AddCraftingQueueItem(data)
+    },
+
+    /**
+     * Removes a crafting queue item after completion or cancelation
+     * @param {object} data 
+     */
+    removeCraftingQueueItem: (data) => {
+        Inventory.Utilities.RemoveCraftingQueueItem(data.id)
     },
 
     /**

@@ -3,22 +3,22 @@
 -------------------------------------------------
 
 -- Creates the drop class
-Classes.New("Drops", { Drops = {} })
+Core.Classes.New("Drops", { Drops = {} })
 
 -------------------------------------------------
 --- Creates a new drop
 -------------------------------------------------
-function Classes.Drops.Create (source, data)
+function Core.Classes.Drops.Create (source, data)
 
     -- Log initiation
-    Utilities.Log({
+    Core.Utilities.Log({
         title = "Drops.Create",
         message = "Creation of drop was initiated"
     })
 
     -- Validate item
-    local inventory = Classes.Inventory.GetPlayerInventory(source)
-    local itemData = Classes.Inventory.Utilities.GetItemFromListByName(inventory, data.item.name, data.item.slot) or false
+    local inventory = Core.Classes.Inventory.GetPlayerInventory(source)
+    local itemData = Core.Classes.Inventory.Utilities.GetItemFromListByName(inventory, data.item.name, data.item.slot) or false
     if not itemData then return { success = false } end
 
     -- Set item to be sent to drop
@@ -26,8 +26,8 @@ function Classes.Drops.Create (source, data)
     dropItem.slot = 1
 
     -- Generate drop id
-    local newDropId = Utilities.GenerateDropId()
-    Utilities.Log({
+    local newDropId = Core.Utilities.GenerateDropId()
+    Core.Utilities.Log({
         title = "Drops.Create",
         message = "Generated drop id: " .. newDropId
     })
@@ -40,7 +40,7 @@ function Classes.Drops.Create (source, data)
     local playerCoords = GetEntityCoords(ped)
 
     -- Retrieve current drops
-    local drops = Classes.Drops:GetState('Drops')
+    local drops = Core.Classes.Drops:GetState('Drops')
 
     -- Create new drop
     table.insert(drops, {
@@ -52,12 +52,12 @@ function Classes.Drops.Create (source, data)
     })
 
     -- Update state
-    Classes.Drops:UpdateState('Drops', drops)
+    Core.Classes.Drops:UpdateState('Drops', drops)
 
     -- Verify it was created
-    local dropData = Classes.Drops.Get(newDropId)
+    local dropData = Core.Classes.Drops.Get(newDropId)
     if not dropData then
-        Utilities.Log({
+        Core.Utilities.Log({
             title = "Drops.Create",
             message = "Could not find drop data"
         })
@@ -65,15 +65,15 @@ function Classes.Drops.Create (source, data)
     end
 
     -- Remove from player
-    Classes.Inventory.RemoveItem(source, data.item.name, itemData.amount, data.item.slot)
+    Core.Classes.Inventory.RemoveItem(source, data.item.name, itemData.amount, data.item.slot)
 
     -- Send drops data to everyone
-    Classes.Drops.SendDropsBeacon()
+    Core.Classes.Drops.SendDropsBeacon()
 
     -- Return new drop data
 	return { 
         success = true,
-        items = Classes.Inventory.GetPlayerInventory(source),
+        items = Core.Classes.Inventory.GetPlayerInventory(source),
         external = {
             type = "drop",
             id = dropData.id,
@@ -86,11 +86,11 @@ end
 -------------------------------------------------
 --- Sends drops to everyone
 -------------------------------------------------
-function Classes.Drops.SendDropsBeacon (removed)
+function Core.Classes.Drops.SendDropsBeacon (removed)
 
     -- Payload to send
     local payload = {
-        list = Classes.Drops:GetState('Drops')
+        list = Core.Classes.Drops:GetState('Drops')
     }
 
     -- If removed was passed, send it
@@ -102,7 +102,7 @@ function Classes.Drops.SendDropsBeacon (removed)
     TriggerClientEvent(Config.ClientEventPrefix .. 'UpdateDrops', -1, payload)
 
     -- Log the action
-    Utilities.Log({
+    Core.Utilities.Log({
         title = "Drops.Beacon",
         message = "Sent the following drops data to all clients"
     })
@@ -113,10 +113,10 @@ end
 -------------------------------------------------
 --- Creates a new drop
 -------------------------------------------------
-function Classes.Drops.Get (dropId)
+function Core.Classes.Drops.Get (dropId)
 	local drop = false
 
-    for k, d in pairs(Classes.Drops:GetState('Drops')) do
+    for k, d in pairs(Core.Classes.Drops:GetState('Drops')) do
         if d.id == dropId then
             drop = d
         end
@@ -128,11 +128,11 @@ end
 -------------------------------------------------
 --- Updates a drop
 -------------------------------------------------
-function Classes.Drops.Update (dropId, data)
-	local drops = Classes.Drops:GetState('Drops')
+function Core.Classes.Drops.Update (dropId, data)
+	local drops = Core.Classes.Drops:GetState('Drops')
     local updateKey = false
 
-    for k, d in pairs(Classes.Drops:GetState('Drops')) do
+    for k, d in pairs(Core.Classes.Drops:GetState('Drops')) do
         if d.id == dropId then
             updateKey = k
 
@@ -143,8 +143,8 @@ function Classes.Drops.Update (dropId, data)
         end
     end
 
-    Classes.Drops:UpdateState('Drops', drops)
-    Classes.Drops.SendDropsBeacon()
+    Core.Classes.Drops:UpdateState('Drops', drops)
+    Core.Classes.Drops.SendDropsBeacon()
 
     -- Return the key updated
     return updateKey
@@ -153,49 +153,49 @@ end
 -------------------------------------------------
 --- Removes a drop
 -------------------------------------------------
-function Classes.Drops.Remove (dropId)
-	local drops = Classes.Drops:GetState('Drops')
+function Core.Classes.Drops.Remove (dropId)
+	local drops = Core.Classes.Drops:GetState('Drops')
     local updateKey = false
 
-    for k, d in pairs(Classes.Drops:GetState('Drops')) do
+    for k, d in pairs(Core.Classes.Drops:GetState('Drops')) do
         if d.id == dropId then
             table.remove(drops, k)
         end
     end
 
-    Classes.Drops:UpdateState('Drops', drops)
-    Classes.Drops.SendDropsBeacon({ dropId })
+    Core.Classes.Drops:UpdateState('Drops', drops)
+    Core.Classes.Drops.SendDropsBeacon({ dropId })
 end
 
 -------------------------------------------------
 --- Save drop items
 -------------------------------------------------
-function Classes.Drops.SaveItems (dropId, items)
+function Core.Classes.Drops.SaveItems (dropId, items)
 
-	local updatedKey = Classes.Drops.Update(dropId, {
+	local updatedKey = Core.Classes.Drops.Update(dropId, {
         items = items
     })
 
     if not updatedKey then return false end
-    return Classes.Drops:GetState('Drops')[updatedKey]
+    return Core.Classes.Drops:GetState('Drops')[updatedKey]
 end
 
 -------------------------------------------------
 --- Clears expired drops
 -------------------------------------------------
-function Classes.Drops.ClearExpired ()
+function Core.Classes.Drops.ClearExpired ()
 
     local players = Framework.Server.GetPlayers()
 
-    if Utilities.TableLength(players) == 0 then
-        return Utilities.Log({
+    if Core.Utilities.TableLength(players) == 0 then
+        return Core.Utilities.Log({
             title = "Drops.ClearExpired",
             message = "Skipping clear expired drops, no players are online"
         })
     end
 
     -- Retrieve current drops
-    local drops = Classes.Drops:GetState('Drops')
+    local drops = Core.Classes.Drops:GetState('Drops')
     local removed = {}
 
     -- Check created time for expiration
@@ -207,8 +207,8 @@ function Classes.Drops.ClearExpired ()
     end
 
     -- Update state
-    Classes.Drops:UpdateState('Drops', drops)
+    Core.Classes.Drops:UpdateState('Drops', drops)
 	
     -- Send drops data to everyone
-    Classes.Drops.SendDropsBeacon(removed)
+    Core.Classes.Drops.SendDropsBeacon(removed)
 end

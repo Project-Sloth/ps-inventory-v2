@@ -3,10 +3,10 @@
 -------------------------------------------------
 
 -- Creates the inventory notify class
-Classes.New("InventoryNotify")
+Core.Classes.New("InventoryNotify")
 
 -- Adds item in NUI
-function Classes.InventoryNotify.AddItem(item, amount)
+function Core.Classes.InventoryNotify.AddItem(item, amount)
     SendNUIMessage({
         action = "notify",
         process = "add",
@@ -17,7 +17,7 @@ function Classes.InventoryNotify.AddItem(item, amount)
 end
 
 -- Removes item in NUI
-function Classes.InventoryNotify.RemoveItem(item, amount)
+function Core.Classes.InventoryNotify.RemoveItem(item, amount)
     SendNUIMessage({
         action = "notify",
         process = "remove",

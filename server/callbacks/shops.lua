@@ -11,10 +11,10 @@ lib.callback.register(Config.ServerEventPrefix .. "Buy", function (source, data)
     -- Validate shop
     local shop = Config.Shops[data.shop.id]
     if not shop then return { success = false } end
-    local items = Classes.Shops.BuildItemList(shop.items)
+    local items = Core.Classes.Shops.BuildItemList(shop.items)
 
     -- Verify the item by name and slot
-    -- @todo switch to Classes.Inventory.Utilities.GetItemFromListByName()
+    -- @todo switch to Core.Classes.Inventory.Utilities.GetItemFromListByName()
     local itemVerified = false
     for k, item in pairs(items) do
         if item.name == data.itemData.item.name and tonumber(item.slot) == tonumber(data.itemData.slot) then
@@ -39,7 +39,7 @@ lib.callback.register(Config.ServerEventPrefix .. "Buy", function (source, data)
     if not charged then return { success = false, message = "Unable to charge, please try again."} end
 
     -- Add item and send response
-    Classes.Inventory.AddItem(src, itemVerified.name, data.amount)
-    TriggerClientEvent(Config.ClientEventPrefix .. "Update", src, { items = Classes.Inventory.GetPlayerInventory(src) })
+    Core.Classes.Inventory.AddItem(src, itemVerified.name, data.amount)
+    TriggerClientEvent(Config.ClientEventPrefix .. "Update", src, { items = Core.Classes.Inventory.GetPlayerInventory(src) })
     return { success = true }
 end)

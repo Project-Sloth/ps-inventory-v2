@@ -3,8 +3,34 @@ Config = {
     -- Debugging
     Debugging = true,
 
+    -- Debug logging
+    Logging = {
+
+        -- Logging to console
+        Console = {
+            Drops = false,
+            Syncing = false,
+            Crafting = false
+        },
+
+        -- Logging to providers
+        Remote = {
+            Drops = false,
+            Syncing = false,
+            Crafting = false
+        },
+
+        -- Remove logging configuration
+        Providers = {
+            ['fm-logs'] = false
+        }
+    },
+
     -- If you set this to true, it will trump settings for interact
     UseTarget = GetConvar('UseTarget', 'false') == 'true',
+
+    Target = "qb", -- "qb", "ox"
+    TargetDebugging = false, -- Ox shows box zones in red
 
     -- An alert to interact with shops, stashes, etc will show
     Interact = true,
@@ -21,14 +47,6 @@ Config = {
     -- Event prefixes
     ClientEventPrefix = GetCurrentResourceName() .. ":Client:",
     ServerEventPrefix = GetCurrentResourceName() .. ":Server:",
-
-    -- Inventory images path
-    InventoryImagesPath = "nui://" .. GetCurrentResourceName() .. "/nui/assets/images",
-
-    -- Logging libraries
-    Logging = {
-        ['fm-logs'] = false
-    },
 
     -- Command permissions
     CommandPermissions = {
@@ -57,4 +75,28 @@ Config = {
         ExpirationTime = 10, -- Time before drop expires (Seconds)
         Prop = 'prop_cs_heist_bag_01' -- Prop that is placed on ground for drops
     },
+
+    -------------------------------------------------
+    --- Vending Configuration
+    -------------------------------------------------
+    Vending = {
+
+        Props = {
+            'prop_vend_soda_01',
+            'prop_vend_soda_02',
+            'prop_vend_water_01',
+            'prop_vend_coffe_01',
+        },
+
+        Items = {
+            { item = 'kurkakola',    price = 4 },
+            { item = 'water_bottle', price = 4 },
+        }
+    },
+
+    Placeables = {
+        ItemPlacementModeRadius = 10.0,
+        minZOffset = -2.0,
+        maxZOffset = 2.0
+    }
 }

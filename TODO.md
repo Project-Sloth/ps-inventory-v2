@@ -1,13 +1,8 @@
  # TODO List for Release Completion
 
- - Crafting
- - Vending Machines
- - Making sure all exports are compatible
- - Finish a couple of stacking issues
- - Better way to handle zones for shops, drops, and stashes
- - Support targeting
- - Finish handling of max weights / slots
- - Shops: (Jobs, etc)
- - Stashes: (Jobs, etc)
- - Work on decay
- - Integrate fm logs
+- Add targetting for crafting benches
+- Fix finding first empty slot in inventory for adding items
+- Give item to closest player
+- Split
+- Item descriptions (popover)
+- Weight checking

@@ -101,7 +101,7 @@ const InventoryNotify = {
                                     data.process == "notification" ?
                                     `<i style="${data.color ? 'color: ' + data.color : ''}" class="${data.icon ? data.icon : 'fas fa-check-circle'}"></i>` : 
                                     `
-                                    <div style="background-image: url('nui://ir8-inventory/nui/assets/images/${data.item.image}');" class="image"></div>
+                                    <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.item.image}');" class="image"></div>
                                     <div class="amount">${data.amount}x</div>
                                     <div class="name">${data.item.label}</div>
                                     <div class="durability"></div>

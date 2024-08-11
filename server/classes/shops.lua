@@ -3,17 +3,17 @@
 -------------------------------------------------
 
 -- Creates the shops class
-Classes.New("Shops")
+Core.Classes.New("Shops")
 
 -------------------------------------------------
 --- Builds item list from shop item list
 -------------------------------------------------
-function Classes.Shops.BuildItemList(items)
+function Core.Classes.Shops.BuildItemList(items)
     local itemList = {}
 
     for slotId, item in pairs(items) do
 
-        local itemData = Classes.Inventory:GetState("Items")[item.item]
+        local itemData = Core.Classes.Inventory:GetState("Items")[item.item]
         if itemData then
             itemData.price = item.price
             itemData.slot = slotId
@@ -28,21 +28,21 @@ end
 -------------------------------------------------
 --- Open Shop
 -------------------------------------------------
-function Classes.Shops.Open (src, shopId)
+function Core.Classes.Shops.Open (src, shopId)
     local Player = Framework.Server.GetPlayer(src)
     local shop = Config.Shops[shopId]
 
     if not shop then
-        return Utilities.Log({
+        return Core.Utilities.Log({
             type = "error",
             title = "OpenShop",
             message = "Shop[" .. shopId .. "] does not exist"
         })
     end
 
-    local items = Classes.Shops.BuildItemList(shop.items)
+    local items = Core.Classes.Shops.BuildItemList(shop.items)
 
-    Classes.Inventory.OpenInventory(src, {
+    Core.Classes.Inventory.OpenInventory(src, {
         type = "shop",
         id = shopId,
         name = shop.name,
@@ -51,4 +51,4 @@ function Classes.Shops.Open (src, shopId)
     })
 end
 
-exports("OpenShop", Classes.Shops.Open)
+exports("OpenShop", Core.Classes.Shops.Open)

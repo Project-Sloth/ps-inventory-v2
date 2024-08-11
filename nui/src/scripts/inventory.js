@@ -48,6 +48,7 @@ const Inventory = {
         Hot: '#hot-slots',
         Inventory: '#inventory-slots',
         External: '#external-slots',
+        CraftingQueue: '#crafting-queue',
 
         ExternalInventory: '#external-inventory',
         
@@ -408,6 +409,59 @@ const Inventory = {
                     message: "Unable to complete action"
                 })
             }
+        },
+
+        /**
+         * Craft an item
+         * @param {string} slotInfo (Ex. External-1)
+         * @returns 
+         */
+        Craft: async (slotInfo, amount) => {
+            let payload = {};
+
+            payload.crafting = {
+                id:   $(Inventory.Selectors.ExternalInventory).data('id'),
+                name: $(Inventory.Selectors.ExternalInventory).data('name'),
+                type: $(Inventory.Selectors.ExternalInventory).data('type')
+            }
+
+            payload.amount = amount;
+            payload.itemData = Inventory.Utilities.ConvertSlotInformationFromString(slotInfo);
+
+            /**
+             * Process the moving
+             */
+            try {
+                const res = await Nui.request('craft', payload);
+
+                /**
+                 * If payload expected is not returned
+                 */
+                if (!res.success) {
+
+                    if (res.message) {
+                        InventoryNotify.Events.Process({
+                            process: "notification",
+                            icon: "fas fa-times-circle",
+                            color: "#ff0000",
+                            message: res.message
+                        })
+                    }
+
+                    InventoryEvents.update(res);
+                }
+            } catch (error) {
+                
+                /**
+                 * If the request fails
+                 */
+                InventoryNotify.Events.Process({
+                    process: "notification",
+                    icon: "fas fa-times-circle",
+                    color: "#ff0000",
+                    message: "Unable to complete action"
+                })
+            }
         }
     },
 
@@ -442,6 +496,16 @@ const Inventory = {
                 if (typeof data.external.type !== "undefined") {
                     $(Inventory.Selectors.ExternalInventory)
                         .data('type', data.external.type)
+
+                    if (data.external.type == "crafting") {
+                        $(Inventory.Selectors.ExternalInventory).addClass('height-includes-crafting-queue');
+                        $(Inventory.Selectors.ExternalInventory + ' .box').addClass('height-includes-crafting-queue');
+                        $(Inventory.Selectors.CraftingQueue).show();
+                    } else {
+                        $(Inventory.Selectors.ExternalInventory).removeClass('height-includes-crafting-queue');
+                        $(Inventory.Selectors.ExternalInventory + ' .box').removeClass('height-includes-crafting-queue');
+                        $(Inventory.Selectors.CraftingQueue).hide();
+                    } 
                 }
 
                 /**
@@ -472,7 +536,7 @@ const Inventory = {
                         Inventory.RenderSlots('External', slots, Inventory.State.ExternalItems, data.external.type);
                         
                         // Update weights
-                        Inventory.UpdateInventoryWeights('External')
+                        Inventory.UpdateInventoryWeights('External', data.external.type)
                     }
                 }
 
@@ -485,7 +549,15 @@ const Inventory = {
      * Updates the inventory weights on the ui
      * @param {string} inventory 
      */
-    UpdateInventoryWeights: (inventory) => {
+    UpdateInventoryWeights: (inventory, type) => {
+
+        if (typeof type !== 'undefined') {
+            if (type == "shop" || type == "crafting") {
+                $('#external-weights').hide();
+                return false;
+            }
+        }
+
         let totalWeight = Inventory.GetTotalWeight(inventory);
         let maxWeight = Inventory.GetMaxWeight(inventory);
         
@@ -500,6 +572,7 @@ const Inventory = {
         $(Inventory.Selectors.Weights[`${inventory == "External" ? "External" : ""}InventoryWeight`]).html(Inventory.GetTotalWeight(inventory))
         $(Inventory.Selectors.Weights[`${inventory == "External" ? "External" : ""}InventoryMaxWeight`]).html(Inventory.GetMaxWeight(inventory))
         Inventory.SetWeightCirculars(inventory, percent);
+        $('#external-weights').css('display', 'flex');
     },
 
     /**
@@ -645,6 +718,8 @@ const Inventory = {
 
             if (inv == "External" && type == "shop") {
                 $(Inventory.Selectors[inv]).append(Inventory.Templates.ShopItem(inv, (i + 1), (item ? item : false)));
+            } else if (inv == "External" && type == "crafting") {
+                $(Inventory.Selectors[inv]).append(Inventory.Templates.CraftItem(inv, (i + 1), (item ? item : false)));
             } else {
                 $(Inventory.Selectors[inv]).append(Inventory.Templates.Slot(inv, (i + 1), (item ? item : false), (inv != 'Hot' ? '5ths' : false)));
             }
@@ -701,8 +776,8 @@ const Inventory = {
             if (data) {
                 slotMeta = `
                     <div data-inventory="${inventoryType}" class="slot ${slotNumber > 0 & slotNumber < 6 & inv == 'Hot' ? 'limited' : ''} ripple" data-slotid="${inv}-${slotNumber}">
-                        <div style="background-image: url('nui://ir8-inventory/nui/assets/images/${data.image}');" class="image"></div>
-                        <div class="amount">${data.amount}x</div>
+                        <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.image}');" class="image"></div>
+                        ${typeof data.amount !== 'undefined' ? `<div class="amount">${data.amount}x</div>` : ''}
                         <div class="name">${data.label}</div>
                         <div class="durability"></div>
                     </div>
@@ -725,13 +800,68 @@ const Inventory = {
             return `
                 <div class="col-12">
                     <div class="shop-item" data-slotid="${inv}-${slotNumber}">
-                        <div style="background-image: url('nui://ir8-inventory/nui/assets/images/${data.image}');" class="image"></div>
+                        <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.image}');" class="image"></div>
                         <div class="name">${data.label}</div>
                         <div class="options">
                             <span class="badge text-bg-dark">$${data.price}</span>
                             <input ${data.unique == true ? 'readonly="readonly"' : ''} id="${inv}-${slotNumber}-amount-value" type="number" value="1" class="form-control d-inline-block" style="width: 40px;position: relative; top: 2px; text-align: center;" />
                             <a onclick="Inventory.Events.Buy('${inv}-${slotNumber}');" class="btn btn-success d-inline-block" href="javascript:void(0);">Buy</a>
                         </div>
+                    </div>
+                </div>
+            `
+        },
+
+        /**
+         * Craft item template
+         * @param {int} slotNumber 
+         * @param {mixed} data 
+         * @returns {string}
+         */
+        CraftItem: (inv, slotNumber, data = false) => { 
+            console.log(JSON.stringify(data.crafting.materials))
+
+            let recipe = "";
+            for (let i = 0; i < data.crafting.materials.length; i++) {
+                const item = data.crafting.materials[i];
+                recipe += `<li class="list-group-item">${item.item} x${item.amount}</li>`;
+            }
+
+            return `
+                <div class="col-6">
+                    <div class="craft-item" id="craft-item-${slotNumber}" data-slotid="${inv}-${slotNumber}">
+                        <div class="w-100 mb-3 text-center">
+                            <image src="nui://${GetParentResourceName()}/nui/assets/images/${data.image}" />
+                        </div>
+                        <div class="w-100 text-center mb-2">${data.label} <span class="badge text-bg-light">x1</span></div>
+                        <div class="w-100">
+                            <a onclick="Inventory.Events.Craft('${inv}-${slotNumber}', ${data.crafting.amount});" class="btn btn-success d-inline-block w-100 fw-bold" href="javascript:void(0);">Craft Item</a>
+                        </div>
+                        <div class="time">
+                            ${data.crafting.time} seconds
+                        </div>
+                        <div class="crafting-info">
+                            <ul class="list-group">
+                                ${recipe}
+                            </ul>
+                        </div>
+                        <div class="info" onclick="$('#craft-item-${slotNumber} .crafting-info').fadeToggle();">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+
+        CraftQueueItem: (data) => {
+            console.log(data.queueId)
+            return `
+                <div class="craft-slot-container" data-id="${data.queueId}">
+                    <div class="craft-slot">
+                        <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.item.image}');" class="image"></div>
+                        <div class="amount">${data.amount}x</div>
+                        <div class="name">${data.item.label}</div>
+                        <div class="durability"></div>
                     </div>
                 </div>
             `
@@ -1119,6 +1249,23 @@ const Inventory = {
          */
         PercentToDegress: (percentage) => {
             return percentage / 100 * 360
+        },
+
+        /**
+         * Adds item to crafting queue
+         */
+        AddCraftingQueueItem: (data) => {
+            $(Inventory.Selectors.CraftingQueue).append(
+                Inventory.Templates.CraftQueueItem(data)
+            )
+        },
+
+        /**
+         * Removes items from crafting queue
+         */
+        RemoveCraftingQueueItem: (id) => {
+            console.log('.craft-slot-container[data-id="' + id + '"]')
+            $('.craft-slot-container[data-id="' + id + '"]').remove();
         }
     },
 

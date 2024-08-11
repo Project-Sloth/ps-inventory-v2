@@ -3,12 +3,12 @@
 -------------------------------------------------
 
 -- Creates the inventory class
-Classes.New("Inventory", { Loaded = false, Items = {}, IsOpen = false, External = false })
+Core.Classes.New("Inventory", { Loaded = false, Items = {}, IsOpen = false, External = false })
 
 -------------------------------------------------
 --- Inventory events
 -------------------------------------------------
-Classes.Inventory.Events = {
+Core.Classes.Inventory.Events = {
 
     OnOpen = function ()
         lib.callback.await(Config.ServerEventPrefix .. 'Event', false, {
@@ -26,37 +26,46 @@ Classes.Inventory.Events = {
 -------------------------------------------------
 --- Load Inventory Items
 -------------------------------------------------
-function Classes.Inventory.Load(cb)
+function Core.Classes.Inventory.Load(cb)
     local inventory = lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false)
-    Classes.Inventory:UpdateState("Items", inventory)
+    Core.Classes.Inventory:UpdateState("Items", inventory)
 
-    Utilities.Log({
+    Core.Utilities.Log({
         title = "Inventory Loaded",
-        message = Utilities.TableLength(inventory) .. " items were loaded"
+        message = Core.Utilities.TableLength(inventory) .. " items were loaded"
     })
 
-    Classes.Inventory:UpdateState('Loaded', true)
+    Core.Classes.Inventory:UpdateState('Loaded', true)
 
     if type(cb) == "function" then
-        return cb(Classes.Inventory:GetState("Items"))
+        return cb(Core.Classes.Inventory:GetState("Items"))
     end
+end
+
+-------------------------------------------------
+--- Update inventory
+-------------------------------------------------
+function Core.Classes.Inventory.Update()
+    Core.Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
+    local items = Core.Classes.Inventory:GetState("Items")
+    SendNUIMessage({ action = "update", items = items })
 end
 
 -------------------------------------------------
 --- Update external inventory state
 -------------------------------------------------
-function Classes.Inventory.UpdateExternalState(external, cb)
-    Classes.Inventory:UpdateState("External", external)
+function Core.Classes.Inventory.UpdateExternalState(external, cb)
+    Core.Classes.Inventory:UpdateState("External", external)
 
     if type(cb) == "function" then
-        return cb(Classes.Inventory:GetState("External"))
+        return cb(Core.Classes.Inventory:GetState("External"))
     end
 end
 
 -------------------------------------------------
 --- Drop item
 -------------------------------------------------
-function Classes.Inventory.Drop(data)
+function Core.Classes.Inventory.Drop(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Drop', false, data)
     return res
 end
@@ -64,15 +73,15 @@ end
 -------------------------------------------------
 --- Move item
 -------------------------------------------------
-function Classes.Inventory.Move(data)
+function Core.Classes.Inventory.Move(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Move', false, data)
 
     -- Will load new inventory and render inventory
     if res then
         if res.success then
             if res.success == true then
-                Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
-                res.items = Classes.Inventory:GetState("Items")
+                Core.Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
+                res.items = Core.Classes.Inventory:GetState("Items")
             end
         end
     end
@@ -83,7 +92,7 @@ end
 -------------------------------------------------
 --- Can Open Inventory
 -------------------------------------------------
-function Classes.Inventory.CanOpen(data)
+function Core.Classes.Inventory.CanOpen(data)
     if not Framework.Client.CanOpenInventory() then return false end
     if LocalPlayer.state.inventoryBusy == true then return false end
     return true
@@ -92,48 +101,48 @@ end
 -------------------------------------------------
 --- Open Inventory
 -------------------------------------------------
-function Classes.Inventory.Open(data)
+function Core.Classes.Inventory.Open(data)
 
     -- Check if can open inventory
-    if not Classes.Inventory.CanOpen() then return false end
+    if not Core.Classes.Inventory.CanOpen() then return false end
 
-    Classes.Inventory.Load(function (inventory)
+    Core.Classes.Inventory.Load(function (inventory)
         if not data.external then data.external = nil end
         SendNUIMessage({ action = "open", items = inventory, external = data.external })
         SetNuiFocus(true, true)
-        Classes.Inventory:UpdateState('IsOpen', true)
+        Core.Classes.Inventory:UpdateState('IsOpen', true)
 
         -- If external is passed
         if data.external then
-            Classes.Inventory:UpdateState('External', data.external)
+            Core.Classes.Inventory:UpdateState('External', data.external)
         end
         
-        Utilities.Log({
+        Core.Utilities.Log({
             title = "Inventory Event",
             message = "Inventory was opened"
         })
 
-        Classes.Inventory.Events.OnOpen()
+        Core.Classes.Inventory.Events.OnOpen()
     end)
 end
 
-exports('OpenInventory', Classes.Inventory.Open)
+exports('OpenInventory', Core.Classes.Inventory.Open)
 
 -------------------------------------------------
 --- Close Inventory
 -------------------------------------------------
-function Classes.Inventory.Close()
+function Core.Classes.Inventory.Close()
     SendNUIMessage({ action = "close" })
     SetNuiFocus(false, false)
-    Classes.Inventory:UpdateState('IsOpen', false)
-    Classes.Inventory:UpdateState('External', false)
+    Core.Classes.Inventory:UpdateState('IsOpen', false)
+    Core.Classes.Inventory:UpdateState('External', false)
 
-    Utilities.Log({
+    Core.Utilities.Log({
         title = "Inventory Event",
         message = "Inventory was closed"
     })
 
-    Classes.Inventory.Events.OnClose()
+    Core.Classes.Inventory.Events.OnClose()
 end
 
-exports('CloseInventory', Classes.Inventory.Close)
+exports('CloseInventory', Core.Classes.Inventory.Close)

@@ -1,27 +1,27 @@
 -- Creates empty table to hold classes
-Classes = {
+Core.Classes = {
     
     -- Registers a new class
     New = function (ClassName, InitialState)
 
         -- Checks for class existence
-        if Classes.Exists(ClassName) then
+        if Core.Classes.Exists(ClassName) then
             return false
         end
 
         -- Set to empty table by default
-        Classes[ClassName] = {}
+        Core.Classes[ClassName] = {}
 
         -- Set metatable data
-        Classes[ClassName] = setmetatable(Classes[ClassName], {
-            __index = Classes.DefaultClassMethods
+        Core.Classes[ClassName] = setmetatable(Core.Classes[ClassName], {
+            __index = Core.Classes.DefaultClassMethods
         })
     
         -- Call the constructor with the initial state
-        Classes[ClassName]:Constructor(InitialState or {})
+        Core.Classes[ClassName]:Constructor(InitialState or {})
 
         -- Debug print
-        Utilities.Log({
+        Core.Utilities.Log({
             title = "Class Registered",
             message = "[" .. ClassName .. "] has been registered"
         })
@@ -29,7 +29,7 @@ Classes = {
 
     -- Checks if a class exists
     Exists = function (ClassName)
-        if Classes[ClassName] then
+        if Core.Classes[ClassName] then
             return true
         end
 

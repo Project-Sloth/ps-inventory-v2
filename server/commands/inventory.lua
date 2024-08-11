@@ -20,5 +20,5 @@ lib.addCommand('playerinv', {
     }},
     restricted = Config.CommandPermissions.PlayerInventory
 }, function(source, args, raw)
-    Classes.Inventory.OpenInventoryById(source, args.target)
+    Core.Classes.Inventory.OpenInventoryById(source, args.target)
 end)

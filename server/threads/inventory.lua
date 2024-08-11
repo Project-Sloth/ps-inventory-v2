@@ -5,7 +5,7 @@
 -- Only runs if Config.Player.DatabaseSyncingThread is true
 if Config.Player.DatabaseSyncingThread then
 
-    Utilities.Log({
+    Core.Utilities.Log({
         title = "DatabaseSyncing",
         message = "Database syncing is enabled, player inventories will be synced every " .. Config.Player.DatabaseSyncTime .. " seconds."
     })
@@ -13,7 +13,7 @@ if Config.Player.DatabaseSyncingThread then
     CreateThread(function ()
         while true do
             Wait(Config.Player.DatabaseSyncTime * 1000)
-            Classes.Inventory.SyncDatabase()
+            Core.Classes.Inventory.SyncDatabase()
         end
     end)
 end
