@@ -34,6 +34,13 @@ lib.callback.register(Config.ServerEventPrefix .. 'Move', function (source, data
 end)
 
 -------------------------------------------------
+--- Give item callback
+-------------------------------------------------
+lib.callback.register(Config.ServerEventPrefix .. 'Give', function (source, data)
+    return Core.Classes.Inventory.Give(source, data)
+end)
+
+-------------------------------------------------
 --- Drop item callback
 -------------------------------------------------
 lib.callback.register(Config.ServerEventPrefix .. 'Drop', function (source, data)

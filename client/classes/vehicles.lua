@@ -15,41 +15,37 @@ function Core.Classes.Vehicles.VehicleAccessible()
         local vehicle = GetVehiclePedIsIn(ped, false)
         local vehicleProperties = lib.getVehicleProperties(vehicle)
         Core.Classes.Vehicles:UpdateState('nearVehicle', vehicle)
+        
         return {
             type = "stash",
             id = "glovebox-" .. vehicleProperties.plate,
             name = "Glovebox",
-            vehicle = vehicle
+            vehicle = vehicle,
+            model = vehicleProperties.model
         }
     else
         local pos = GetEntityCoords(ped)
 					          
         local closestVehicle = lib.getClosestVehicle(pos, 5)
-
-        if closestVehicle == 0 or closestVehicle == nil then 
-            return false 
-        end
+        if closestVehicle == 0 or closestVehicle == nil then return false end
 
         local dimensionMin, dimensionMax = GetModelDimensions(GetEntityModel(closestVehicle))
 		local trunkpos = GetOffsetFromEntityInWorldCoords(closestVehicle, 0.0, (dimensionMin.y), 0.0)
 
-        if (Config.Vehicles.BackEngineVehicles[GetEntityModel(closestVehicle)]) then
+        if Core.Utilities.VehicleIsBackEngine(GetEntityModel(closestVehicle)) then
             trunkpos = GetOffsetFromEntityInWorldCoords(closestVehicle, 0.0, (dimensionMax.y), 0.0)
         end
 
-        if #(pos - trunkpos) > 1.5 or IsPedInAnyVehicle(ped) then
-            return false
-        end
-
+        if #(pos - trunkpos) > 1.5 or IsPedInAnyVehicle(ped) then return false end
         local vehicleProperties = lib.getVehicleProperties(closestVehicle)
-
         Core.Classes.Vehicles:UpdateState('nearVehicle', closestVehicle)
 
         return {
             type = "stash",
             id = "trunk-" .. vehicleProperties.plate,
             name = "Trunk",
-            vehicle = closestVehicle
+            vehicle = closestVehicle,
+            model = vehicleProperties.model
         }
     end
 

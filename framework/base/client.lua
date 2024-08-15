@@ -8,6 +8,18 @@ Framework.GetCoreObject = function ()
 end
 
 -------------------------------------------------
+--- Sends NUI a message
+-------------------------------------------------
+Framework.Client.SendNUIMessage = function (data, updateInventory)
+    SendNUIMessage(data)
+
+    -- Update the inventory data
+    if updateInventory then
+        Core.Classes.Inventory.Update()
+    end
+end
+
+-------------------------------------------------
 --- GET PLAYER NAME
 -------------------------------------------------
 Framework.Client.GetPlayerName = function ()

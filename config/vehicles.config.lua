@@ -1,46 +1,60 @@
 Config.Vehicles = {
 
-    MaxWeight = 50000,
-    MaxSlots = 5,
+    SizeOverrides = {
 
-    BackEngineVehicles = {
-        [`ninef`] = true,
-        [`adder`] = true,
-        [`vagner`] = true,
-        [`t20`] = true,
-        [`infernus`] = true,
-        [`zentorno`] = true,
-        [`reaper`] = true,
-        [`comet2`] = true,
-        [`comet3`] = true,
-        [`jester`] = true,
-        [`jester2`] = true,
-        [`cheetah`] = true,
-        [`cheetah2`] = true,
-        [`prototipo`] = true,
-        [`turismor`] = true,
-        [`pfister811`] = true,
-        [`ardent`] = true,
-        [`nero`] = true,
-        [`nero2`] = true,
-        [`tempesta`] = true,
-        [`vacca`] = true,
-        [`bullet`] = true,
-        [`osiris`] = true,
-        [`entityxf`] = true,
-        [`turismo2`] = true,
-        [`fmj`] = true,
-        [`re7b`] = true,
-        [`tyrus`] = true,
-        [`italigtb`] = true,
-        [`penetrator`] = true,
-        [`monroe`] = true,
-        [`ninef2`] = true,
-        [`stingergt`] = true,
-        [`surfer`] = true,
-        [`surfer2`] = true,
-        [`gp1`] = true,
-        [`autarch`] = true,
-        [`tyrant`] = true
+        -- Example of weight and slot overrides for vehicle
+        ['police'] = {
+
+            Glovebox = {
+                MaxWeight = 80000,
+                MaxSlots = 22
+            },
+
+            Trunk = {
+                MaxWeight = 200000,
+                MaxSlots = 100
+            }
+        }
+    },
+
+    BackEngine = {
+        ['ninef'] = true,
+        ['adder'] = true,
+        ['vagner'] = true,
+        ['t20'] = true,
+        ['infernus'] = true,
+        ['zentorno'] = true,
+        ['reaper'] = true,
+        ['comet2'] = true,
+        ['comet3'] = true,
+        ['jester'] = true,
+        ['jester2'] = true,
+        ['cheetah'] = true,
+        ['cheetah2'] = true,
+        ['prototipo'] = true,
+        ['turismor'] = true,
+        ['pfister811'] = true,
+        ['ardent'] = true,
+        ['nero'] = true,
+        ['nero2'] = true,
+        ['tempesta'] = true,
+        ['vacca'] = true,
+        ['bullet'] = true,
+        ['osiris'] = true,
+        ['entityxf'] = true,
+        ['turismo2'] = true,
+        ['fmj'] = true,
+        ['re7b'] = true,
+        ['tyrus'] = true,
+        ['italigtb'] = true,
+        ['penetrator'] = true,
+        ['monroe'] = true,
+        ['ninef2'] = true,
+        ['stingergt'] = true,
+        ['surfer'] = true,
+        ['surfer2'] = true,
+        ['gp1'] = true,
+        ['autarch'] = true,
+        ['tyrant'] = true
     }
 }

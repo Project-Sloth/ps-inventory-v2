@@ -402,7 +402,7 @@ function Core.Classes.Placeables.Pickup(propId)
             Core.Classes.Placeables.RemoveObject(itemEntity)
 
             -- Delete object server-side
-            lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId'))
+            lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId') or propId)
 
             -- Hide interaction text
             Core.Classes.Interact.Hide()

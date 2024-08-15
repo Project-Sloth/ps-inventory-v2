@@ -68,7 +68,7 @@ function Core.Classes.Drops.Create (source, data)
     Core.Classes.Inventory.RemoveItem(source, data.item.name, itemData.amount, data.item.slot)
 
     -- Send drops data to everyone
-    Core.Classes.Drops.SendDropsBeacon()
+    Core.Classes.Drops.Beacon()
 
     -- Return new drop data
 	return { 
@@ -86,7 +86,7 @@ end
 -------------------------------------------------
 --- Sends drops to everyone
 -------------------------------------------------
-function Core.Classes.Drops.SendDropsBeacon (removed)
+function Core.Classes.Drops.Beacon (removed)
 
     -- Payload to send
     local payload = {
@@ -100,14 +100,6 @@ function Core.Classes.Drops.SendDropsBeacon (removed)
 	
     -- Send new drops data to everyone
     TriggerClientEvent(Config.ClientEventPrefix .. 'UpdateDrops', -1, payload)
-
-    -- Log the action
-    Core.Utilities.Log({
-        title = "Drops.Beacon",
-        message = "Sent the following drops data to all clients"
-    })
-
-    print(json.encode(payload))
 end
 
 -------------------------------------------------
@@ -144,7 +136,7 @@ function Core.Classes.Drops.Update (dropId, data)
     end
 
     Core.Classes.Drops:UpdateState('Drops', drops)
-    Core.Classes.Drops.SendDropsBeacon()
+    Core.Classes.Drops.Beacon()
 
     -- Return the key updated
     return updateKey
@@ -164,7 +156,7 @@ function Core.Classes.Drops.Remove (dropId)
     end
 
     Core.Classes.Drops:UpdateState('Drops', drops)
-    Core.Classes.Drops.SendDropsBeacon({ dropId })
+    Core.Classes.Drops.Beacon({ dropId })
 end
 
 -------------------------------------------------
@@ -210,5 +202,5 @@ function Core.Classes.Drops.ClearExpired ()
     Core.Classes.Drops:UpdateState('Drops', drops)
 	
     -- Send drops data to everyone
-    Core.Classes.Drops.SendDropsBeacon(removed)
+    Core.Classes.Drops.Beacon(removed)
 end

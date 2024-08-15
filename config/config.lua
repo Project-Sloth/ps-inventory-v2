@@ -5,31 +5,13 @@ Config = {
 
     -- Debug logging
     Logging = {
-
-        -- Logging to console
-        Console = {
-            Drops = false,
-            Syncing = false,
-            Crafting = false
-        },
-
-        -- Logging to providers
-        Remote = {
-            Drops = false,
-            Syncing = false,
-            Crafting = false
-        },
-
-        -- Remove logging configuration
-        Providers = {
-            ['fm-logs'] = false
-        }
+        ['fm-logs'] = false
     },
 
     -- If you set this to true, it will trump settings for interact
     UseTarget = GetConvar('UseTarget', 'false') == 'true',
 
-    Target = "qb", -- "qb", "ox"
+    Target = "ox", -- "qb", "ox"
     TargetDebugging = false, -- Ox shows box zones in red
 
     -- An alert to interact with shops, stashes, etc will show
@@ -56,12 +38,40 @@ Config = {
     },
 
     -------------------------------------------------
+    --- Default weight and slots
+    -------------------------------------------------
+    Inventories = {
+
+        Player = {
+            MaxWeight = 120000,
+            MaxSlots = 45
+        },
+
+        Drop = {
+            MaxWeight = 120000,
+            MaxSlots = 41
+        },
+
+        Stash = {
+            MaxWeight = 120000,
+            MaxSlots = 41
+        },
+        
+        Glovebox = {
+            MaxWeight = 20000,
+            MaxSlots = 5
+        },
+
+        Trunk = {
+            MaxWeight = 70000,
+            MaxSlots = 10
+        }
+    },
+
+    -------------------------------------------------
     --- Player Inventory Configuration
     -------------------------------------------------
     Player = {
-        MaxInventoryWeight = 120000,
-        MaxInventorySlots = 45,
-
         DatabaseSyncingThread = true, -- If disables, inventory updates on every transaction
         DatabaseSyncTime = 30 -- How often to sync database for inventories (Seconds)
     },
@@ -70,8 +80,6 @@ Config = {
     --- Drop Configuration
     -------------------------------------------------
     Drops = {
-        MaxInventoryWeight = 120000,
-        MaxInventorySlots = 41,
         ExpirationTime = 10, -- Time before drop expires (Seconds)
         Prop = 'prop_cs_heist_bag_01' -- Prop that is placed on ground for drops
     },

@@ -3,18 +3,25 @@ Core.Utilities = {
     -- General logging method
     Log = function(data)
         if type(data) ~= "table" then return end
-
-        if not data.title then
-            return 
-        end
-
-        if not data.message then
-            return
-        end
-
+        if not data.title then return end
+        if not data.message then return end
         if not data.type then data.type = "info" end
+
+        -- If console debugging is enabled
         if Config.Debugging then
             print((data.type == 'error' and "^1" or "") .. "[" .. data.type .. "] " .. data.title .. ": " .. data.message .. (data.type == 'error' and "^0" or ""))
+        end
+
+        -- Process fm-logs
+        if Config.Logging['fm-logs'] then
+            if GetResourceState('fm-logs') ~= "missing" then
+                exports['fm-logs']:createLog({
+                    Resource = GetCurrentResourceName(),
+                    LogType = data.title,
+                    Message = data.message,
+                    Level = data.type,
+                })
+            end
         end
     end,
 
@@ -141,6 +148,21 @@ Core.Utilities = {
         end
     end,
 
+    -- Checks against config for if vehicle has a back engine
+    VehicleIsBackEngine = function (hashKey)
+        local isBackEngine = false
+
+        for model, val in pairs(Config.Vehicles.BackEngine) do
+            if GetHashKey(model) == hashKey then
+                if val == true then
+                    isBackEngine = true
+                end
+            end
+        end
+
+        return isBackEngine
+    end,
+
     -- Creates an object
     CreateObject = function (prop, location)
         Core.Utilities.LoadModelHash(prop)
@@ -199,8 +221,6 @@ Core.Utilities = {
 
     -- Delets a network ped by entity id
     DeleteEntity = function (Entity, type)
-
-        print("Deleting entity " .. Entity .. " of type " .. (type and type or 'ped'))
 
         -- Check if it exists first
         if DoesEntityExist(Entity) then 

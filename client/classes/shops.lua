@@ -125,17 +125,7 @@ end
 -------------------------------------------------
 function Core.Classes.Shops.Buy(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Buy', false, data)
-
-    -- Will load new inventory and render inventory
-    if res then
-        if res.success then
-            if res.success == true then
-                Core.Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
-                res.items = Core.Classes.Inventory:GetState("Items")
-            end
-        end
-    end
-
+    Core.Classes.Inventory.Update()
     return res
 end
 

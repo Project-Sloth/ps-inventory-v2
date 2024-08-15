@@ -15,6 +15,14 @@ RegisterNUICallback('move', function(data, cb)
 end)
 
 -------------------------------------------------
+--- Give item
+-------------------------------------------------
+RegisterNUICallback('give', function(data, cb)
+    local res = Core.Classes.Inventory.Give(data)
+    cb(res)
+end)
+
+-------------------------------------------------
 --- Drops item
 -------------------------------------------------
 RegisterNUICallback('drop', function(data, cb)

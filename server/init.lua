@@ -6,7 +6,7 @@ local version = GetResourceMetadata(GetCurrentResourceName(), 'version')
 
 print('--------------------------------------------------')
 print('|                                                |')
-print('|                  IR8 INVENTORY                 |')
+print('|                   PS INVENTORY                 |')
 print('|                     STARTED                    |')
 print('|                  VERSION ' .. version .. '                 |')
 print('|                                                |')

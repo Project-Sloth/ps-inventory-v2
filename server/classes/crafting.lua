@@ -30,6 +30,24 @@ function Core.Classes.Crafting.BuildItemList(recipes)
 end
 
 -------------------------------------------------
+--- Sets crafting placeables as useable
+-------------------------------------------------
+function Core.Classes.Crafting.CreatePlaceableUseables ()
+    for item, data in pairs(Config.Crafting.Placeables) do
+        Core.Classes.Inventory.CreateUseableItem(item, function (source, itemData)
+            itemData.placeableType = 'crafting'
+            itemData.recipes = data.recipes
+            itemData.prop = data.prop
+            itemData.eventType = "server"
+            itemData.eventName = Config.ServerEventPrefix .. 'OpenCraftingByPlaceable'
+            itemData.interactType = "crafting"
+            itemData.eventParams = { id = item }
+            TriggerClientEvent(Config.ClientEventPrefix .. 'PlaceItem', source, itemData)
+        end)
+    end
+end
+
+-------------------------------------------------
 --- Open Crafting via Placeable Item
 -------------------------------------------------
 function Core.Classes.Crafting.OpenByPlaceable (src, item)
@@ -176,8 +194,14 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
     local Player = Framework.Server.GetPlayer(src)
     if not data.crafting then return false end
 
-    -- Validate crafting bench
-    local items = Core.Classes.Crafting.BuildItemList({ 'weapons' })
+    -- Return all categories
+    local recipeCategories = {}
+    for category, recipeCats in pairs(Config.Crafting.Recipes) do
+        table.insert(recipeCategories, category)
+    end
+
+    -- Get craftable items from config
+    local items = Core.Classes.Crafting.BuildItemList(recipeCategories)
 
     -- Verify the item by name and slot
     local itemToCraft = false
@@ -196,10 +220,10 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
     local materialsToRemove = {}
     for _, item in pairs(itemToCraft.crafting.materials) do
         materials[item.item] = false
-        materialsToRemove[item.item] = item.amount
+        materialsToRemove[item.item] = (tonumber(item.amount) * tonumber(data.amount))
 
         for _, playerItem in pairs(inventory) do
-            if playerItem.name == item.item and playerItem.amount >= item.amount then
+            if playerItem.name == item.item and playerItem.amount >= (tonumber(item.amount) * tonumber(data.amount)) then
                 materials[item.item] = true
             end
         end
@@ -209,7 +233,6 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
     local canCraft = true
     for materialName, material in pairs(materials) do
         if not material then
-            print('Missing ' .. materialName)
             canCraft = false
         end
     end

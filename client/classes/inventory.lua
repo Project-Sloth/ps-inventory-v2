@@ -63,10 +63,20 @@ function Core.Classes.Inventory.UpdateExternalState(external, cb)
 end
 
 -------------------------------------------------
+--- Give item
+-------------------------------------------------
+function Core.Classes.Inventory.Give(data)
+    local res = lib.callback.await(Config.ServerEventPrefix .. 'Give', false, data)
+    Core.Classes.Inventory.Update()
+    return res
+end
+
+-------------------------------------------------
 --- Drop item
 -------------------------------------------------
 function Core.Classes.Inventory.Drop(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Drop', false, data)
+    Core.Classes.Inventory.Update()
     return res
 end
 
@@ -75,17 +85,7 @@ end
 -------------------------------------------------
 function Core.Classes.Inventory.Move(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Move', false, data)
-
-    -- Will load new inventory and render inventory
-    if res then
-        if res.success then
-            if res.success == true then
-                Core.Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
-                res.items = Core.Classes.Inventory:GetState("Items")
-            end
-        end
-    end
-
+    Core.Classes.Inventory.Update()
     return res
 end
 

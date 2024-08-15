@@ -5,7 +5,7 @@
 Framework = {
 
     -- The core name
-    CoreName = "Standalone",
+    CoreName = false,
 
     -- The core object
     Core = false,
@@ -36,7 +36,7 @@ Framework = {
         end
 
         -- Check that framework is valid
-        local availableFrameworks = { 'qb' }
+        local availableFrameworks = { 'qb', 'esx' }
         if not Core.Utilities.TableHasValue(availableFrameworks, Config.Framework) then
             Core.Utilities.Log({
                 type = "error",
@@ -50,7 +50,7 @@ Framework = {
         -- Loads the bridge files based on framework and if server or not
         local frameworkFile = 'framework/' .. Config.Framework .. '/' .. (IsDuplicityVersion() and 'server' or 'client') .. '.lua'
         Core.Utilities.LoadFile(frameworkFile)
-        Framework.Core = Config.Framework ~= 'standalone' and Framework.GetCoreObject() or nil
+        Framework.Core = Framework.GetCoreObject() or nil
         return true
     end,
 }

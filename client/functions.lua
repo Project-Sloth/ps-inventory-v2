@@ -10,6 +10,9 @@ function InventoryInitPayload ()
             identifier = Framework.Client.GetPlayerIdentifier(),
             cash = Framework.Client.GetPlayerCash()
         },
-        inventory = Config.Player
+        inventory = {
+            MaxInventoryWeight = Config.Inventories.Player.MaxWeight,
+            MaxInventorySlots = Config.Inventories.Player.MaxSlots
+        }
     }
 end

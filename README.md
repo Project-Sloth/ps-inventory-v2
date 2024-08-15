@@ -2,37 +2,54 @@
 
 Currently a work-in-progress. Do not expect this to fully work yet. The goal is to make this inventory work out of the box for a fresh install of the new QBCore update.
 
+### Frameworks Supported
+
+- QB Core
+
 ### Features
 - Slot based inventory
 - Stash system
 - Store system
 - View player inventories (Robbing, administration, police)
 - Crafting System (Both locations and placeable items)
+- Give items to closest player
 - Drop system
 - Trunk system
 - Glovebox system
 - Targetting support for qb-target and ox_target
 - Interactive UI when targetting is not available
+- Decay system
+- Hotbar (With toggling capability)
 
 ### Dependencies
 
 - `oxmysql`
 - `ox_lib`
-- `qb-core` (Only integration at the moment)
+- `qb-core`
 
 ### Installation
 
 - Download the resource from the repo
 - Drop the resource into your qb server resources
 - Run `__install/database.sql` in your database
-- Start resource in server.cfg after qb-core (If using targetting, make sure qb-target or ox_target is started before)
-- Remove `qb-inventory`
+- Start resource in server.cfg after qb-core or esx core (If using targetting, make sure qb-target or ox_target is started before)
+- Remove `qb-inventory` (If using QB Core - NOTE: You will receive an export error if you do not remove qb-inventory)
 - Restart server
 
 ### Setup targetting
 
 - In `server.cfg`, set `setr UseTarget true`
 - In `ps-inventory` set `Config.Target` to either `qb` or `ox`
+
+### Decay system
+
+To activate the decay system:
+
+For QBCore, add the following to an item in `qb-core/shared/items.lua`
+
+```
+item_name = { ..., decay = 5 } -- Decay is in minutes
+```
 
 ### Available Server Exports
 

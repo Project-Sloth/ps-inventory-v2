@@ -10,5 +10,8 @@ Config.Stashes = {
 			width = 1.2,
 			height = 4
 		},
+        slots = 20,
+        weight = 40000,
+        --group = { ['police'] = 0 }
     }
 }

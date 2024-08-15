@@ -20,14 +20,14 @@ const Inventory = {
         },
 
         Player: {
-            name: "Test Test",
+            name: "Me",
             identifier: "Not available",
             cash: 0
         },
 
         Titles: {
             PlayerName: 'Me',
-            MyInventory: 'Test Test',
+            MyInventory: 'Me',
             ExternalInventory: 'Drop'
         },
 
@@ -161,6 +161,60 @@ const Inventory = {
         },
 
         /**
+         * Handles giving an item to closest player
+         * @param {object} data 
+         */
+        Give: async (data) => {
+            let payload = data;
+
+            /**
+             * Process the moving
+             */
+            try {
+                // Disables draggables while request is being made
+                Inventory.DisableDraggables();
+
+                // Make request
+                const res = await Nui.request('give', payload);
+
+                /**
+                 * If payload expected is not returned
+                 */
+                if (!res.success) { 
+                    
+                    if (res.message) {
+                        InventoryNotify.Events.Process({
+                            process: "notification",
+                            icon: "fas fa-times-circle",
+                            color: "#ff0000",
+                            message: res.message
+                        })
+                    }
+
+                    Inventory.EnableDraggables() 
+                }
+
+                // Re-enables draggables
+                Inventory.EnableDraggables();
+
+            } catch (error) {
+
+                // Re-enables draggables
+                Inventory.EnableDraggables();
+                
+                /**
+                 * If the request fails
+                 */
+                return InventoryNotify.Events.Process({
+                    process: "notification",
+                    icon: "fas fa-times-circle",
+                    color: "#ff0000",
+                    message: "Unable to complete action"
+                })
+            }
+        },
+
+        /**
          * Handles creation of a drop from item
          * @param {object} data 
          */
@@ -181,9 +235,6 @@ const Inventory = {
                  * If payload expected is not returned
                  */
                 if (!res.success) { Inventory.EnableDraggables() }
-
-                // Update inventory
-                InventoryEvents.update(res)
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
@@ -312,14 +363,21 @@ const Inventory = {
                  * If payload expected is not returned
                  */
                 if (!res.success) {
+
                     // Re-enables draggables
                     Inventory.EnableDraggables();
                 }
 
-                InventoryEvents.update(res)
-
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+
+                if (res.external) {
+                    Inventory.Events.UpdateInventory({
+                        external: {
+                            items: res.external
+                        }
+                    })
+                }
 
             } catch (error) {
 
@@ -392,11 +450,7 @@ const Inventory = {
                             message: res.message
                         })
                     }
-
-                    InventoryEvents.update(res);
                 }
-
-                
             } catch (error) {
                 
                 /**
@@ -447,8 +501,6 @@ const Inventory = {
                             message: res.message
                         })
                     }
-
-                    InventoryEvents.update(res);
                 }
             } catch (error) {
                 
@@ -477,10 +529,27 @@ const Inventory = {
         ExternalInventory: (data) => {
             let slots = Inventory.State.Configuration.MaxExternalInventorySlots;
 
+            console.log(JSON.stringify(data))
+
             /**
              * If an external inventory is provided
              */
             if (typeof data.external !== "undefined") {
+
+                /**
+                 * Set slots
+                 */
+                if (typeof data.external.slots !== "undefined") {
+                    Inventory.State.Configuration.MaxExternalInventorySlots = data.external.slots;
+                    slots = Inventory.State.Configuration.MaxExternalInventorySlots;
+                }
+
+                /**
+                 * Set weight
+                 */
+                if (typeof data.external.weight !== "undefined") {
+                    Inventory.State.Configuration.MaxExternalInventoryWeight = data.external.weight;
+                }
 
                 /**
                  * Set id
@@ -779,7 +848,7 @@ const Inventory = {
                         <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.image}');" class="image"></div>
                         ${typeof data.amount !== 'undefined' ? `<div class="amount">${data.amount}x</div>` : ''}
                         <div class="name">${data.label}</div>
-                        <div class="durability"></div>
+                        <div class="durability" ${typeof data.decayPercent !== 'undefined' ? `style="width: ${data.decayPercent}%;"` : ''}></div>
                     </div>
                 `;
             }
@@ -804,7 +873,7 @@ const Inventory = {
                         <div class="name">${data.label}</div>
                         <div class="options">
                             <span class="badge text-bg-dark">$${data.price}</span>
-                            <input ${data.unique == true ? 'readonly="readonly"' : ''} id="${inv}-${slotNumber}-amount-value" type="number" value="1" class="form-control d-inline-block" style="width: 40px;position: relative; top: 2px; text-align: center;" />
+                            <input ${data.unique == true ? 'readonly="readonly"' : ''} id="${inv}-${slotNumber}-amount-value" type="number" value="1" class="form-control d-inline-block" style="width: 70px;position: relative; top: 2px; text-align: center;" />
                             <a onclick="Inventory.Events.Buy('${inv}-${slotNumber}');" class="btn btn-success d-inline-block" href="javascript:void(0);">Buy</a>
                         </div>
                     </div>
@@ -891,7 +960,8 @@ const Inventory = {
     SetEventHandlers: () => {
 
         /**
-         * Handle double clicking of slot to use
+         * Ctrl + Click to quick move from inventory
+         * to other inventory.
          */
         $(document).on('click', ".slot", function() {
             if (Inventory.State.Keys.Ctrl) {
@@ -953,6 +1023,7 @@ const Inventory = {
             appendTo: 'body',
             helper: 'clone',
             start: (event, ui) => {
+
                 if (Inventory.State.BootstrapMenu) {
                     Inventory.State.BootstrapMenu.close();
                 }
@@ -1139,13 +1210,28 @@ const Inventory = {
                             }
                         }
                     },
-                    // {
-                    //     name: 'Split',
-                    //     iconClass: 'fa-divide',
-                    //     onClick: function($el) {
-                            
-                    //     }
-                    // },
+                    {
+                        name: 'Give',
+                        iconClass: 'fa-hand-holding',
+                        onClick: function($el) {
+                            const item = $el;
+                            const slotData = item.data('slotid').split('-');
+                            const inventoryType = item.data('inventory');
+
+                            if (slotData.length == 2) {
+                                const slotId = slotData[1];
+                                const itemData = Inventory.GetItemBySlot(slotId);
+                                
+                                if (itemData) {
+                                    Inventory.Events.Give({
+                                        slot: slotId,
+                                        inventory: inventoryType,
+                                        item: itemData
+                                    });
+                                }
+                            }
+                        }
+                    },
                     {
                         name: 'Drop',
                         iconClass: 'fa-chevron-down',
@@ -1208,13 +1294,11 @@ const Inventory = {
             var left = $(this).find('.progress-left .progress-bar');
             var right = $(this).find('.progress-right .progress-bar');
         
-            if (value > 0) {
-                if (value <= 50) {
-                    right.css('transform', 'rotate(' + Inventory.Utilities.PercentToDegress(value) + 'deg)')
-                } else {
-                    right.css('transform', 'rotate(180deg)')
-                    left.css('transform', 'rotate(' + Inventory.Utilities.PercentToDegress(value - 50) + 'deg)')
-                }
+            if (value <= 50) {
+                right.css('transform', 'rotate(' + Inventory.Utilities.PercentToDegress(value) + 'deg)')
+            } else {
+                right.css('transform', 'rotate(180deg)')
+                left.css('transform', 'rotate(' + Inventory.Utilities.PercentToDegress(value - 50) + 'deg)')
             }
         
         })

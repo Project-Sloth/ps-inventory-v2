@@ -6,6 +6,13 @@ Core.Classes = {
 
         -- Checks for class existence
         if Core.Classes.Exists(ClassName) then
+
+            Core.Utilities.Log({
+                type = "error",
+                title = "Class Already Exists",
+                message = "[" .. ClassName .. "] has already been registered"
+            })
+
             return false
         end
 
@@ -29,10 +36,7 @@ Core.Classes = {
 
     -- Checks if a class exists
     Exists = function (ClassName)
-        if Core.Classes[ClassName] then
-            return true
-        end
-
+        if Core.Classes[ClassName] then return true end
         return false
     end,
 
@@ -41,10 +45,7 @@ Core.Classes = {
 
         -- Sets initial state
         Constructor = function(self, state)
-            if state then
-                self.state = state
-            end
-            
+            if state then self.state = state end
             return self
         end,
 

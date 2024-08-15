@@ -29,18 +29,17 @@ end)
 RegisterNetEvent(Config.ClientEventPrefix .. 'AddCraftingQueueItem', function (data)
     Core.Classes.Inventory.Update()
     data.action = "addCraftingQueueItem"
-    SendNUIMessage(data)
+    Framework.Client.SendNUIMessage(data, true)
 end)
 
 -------------------------------------------------
 --- Remove crafting queue item
 -------------------------------------------------
 RegisterNetEvent(Config.ClientEventPrefix .. 'RemoveCraftingQueueItem', function (id)
-    Core.Classes.Inventory.Update()
-    SendNUIMessage({
+    Framework.Client.SendNUIMessage({
         action = "removeCraftingQueueItem",
         id = id
-    })
+    }, true)
 end)
 
 -------------------------------------------------
@@ -49,22 +48,9 @@ end)
 RegisterNetEvent(Config.ClientEventPrefix .. 'MoneyChange', function (type, amount)
 
     if (type == "cash") then
-        SendNUIMessage({
+        Framework.Client.SendNUIMessage({
             action = "updatePlayerData",
             cash = Framework.Client.GetPlayerCash()
-        })
+        }, true)
     end
-end)
-
--------------------------------------------------
---- Update inventory item
--------------------------------------------------
-RegisterNetEvent(Config.ClientEventPrefix .. 'ItemBox', function(itemData, type, amount)
-    amount = amount or 1
-    SendNUIMessage({
-        action = "itemBox",
-        item = itemData,
-        type = type,
-        itemAmount = amount
-    })
 end)

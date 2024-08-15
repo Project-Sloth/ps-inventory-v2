@@ -9,7 +9,7 @@ Core.Classes.New("Crafting", { props = {}, blips = {}, nearCraftId = false })
 --- Loads client shop locations
 -------------------------------------------------
 function Core.Classes.Crafting.Load()
-    for _, crafting in pairs(Config.Crafting.Locations) do
+    for craftId, crafting in pairs(Config.Crafting.Locations) do
 
         -- Group check
         if crafting.group then
@@ -23,6 +23,21 @@ function Core.Classes.Crafting.Load()
                 local props = Core.Classes.Crafting:GetState("props")
                 table.insert(props, prop.EntityId)
                 Core.Classes.Crafting:UpdateState("props", props)
+
+                if Config.UseTarget then
+                    Framework.Client.AddTargetEntity(prop.EntityId, {
+                        options = {
+                            {
+                                action = function ()
+                                    Core.Classes.Placeables.Open(craftId)
+                                end,
+                                icon = "fas fa-eye",
+                                label = "Access crafting"
+                            }
+                        },
+                        distance = 1.5
+                    })
+                end
             end
         end
 
@@ -95,25 +110,15 @@ end
 -------------------------------------------------
 function Core.Classes.Crafting.Craft(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'CraftItem', false, data)
-
-    -- Will load new inventory and render inventory
-    if res then
-        if res.success then
-            if res.success == true then
-                Core.Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
-                res.items = Core.Classes.Inventory:GetState("Items")
-            end
-        end
-    end
-
+    Core.Classes.Inventory.Update()
     return res
 end
 
 -------------------------------------------------
 --- Open shop if near one
 -------------------------------------------------
-function Core.Classes.Crafting.Open()
-    local craftId = Core.Classes.Crafting:GetState('nearCraftId')
+function Core.Classes.Crafting.Open(id)
+    local craftId = Core.Classes.Crafting:GetState('nearCraftId') or id
 
     if craftId then
         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenCrafting', craftId)

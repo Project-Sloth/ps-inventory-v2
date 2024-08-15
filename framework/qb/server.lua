@@ -162,25 +162,6 @@ Framework.Server.GetUseableItem = function (itemName)
 end
 
 -------------------------------------------------
---- LOADS EXTERNAL INVENTORY
--------------------------------------------------
-Framework.Server.LoadExternalInventory = function (inventoryId)
-	local query = 'SELECT * FROM inventories WHERE identifier = ?'
-	local res = MySQL.single.await(query, { inventoryId })
-	return res
-end
-
--------------------------------------------------
---- SAVES EXTERNAL INVENTORY
--------------------------------------------------
-Framework.Server.SaveExternalInventory = function (type, inventoryId, items)
-	return MySQL.insert.await('INSERT INTO inventories (identifier, items) VALUES (:identifier, :items) ON DUPLICATE KEY UPDATE items = :items', {
-		['identifier'] = type .. '--' .. inventoryId,
-		['items'] = json.encode(items)
-	})
-end
-
--------------------------------------------------
 --- PLAYER HAS ITEM
 -------------------------------------------------
 Framework.Server.HasItem = function (source, items, amount)

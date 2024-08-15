@@ -5,21 +5,10 @@ RegisterServerEvent(Config.ServerEventPrefix .. 'OpenInventory', function (exter
     local src = source
 
     if external then
-        local Player = Framework.Server.GetPlayer(src)
-        local items = Core.Classes.Inventory.LoadExternalInventory(external.type, external.id)
-        external.items = items
-
-        if external.id:find('glovebox') then
-            external.slots = Config.Vehicles.MaxSlots
-        end
-
-        -- Item check for drops
-        if external.type == "drop" and Core.Utilities.TableLength(external.items) == 0 then
-            external = false
-        end
+        return Core.Classes.Inventory.LoadExternalInventoryAndOpen(src, external.type, external.id, external)
     end
 
-    Core.Classes.Inventory.OpenInventory(src, external)
+    Core.Classes.Inventory.OpenInventory(src)
 end)
 
 -------------------------------------------------

@@ -622,8 +622,15 @@ body {
 }
 
 .shop-item .options {
-  width: 300px;
+  width: calc(50%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
+}
+
+.shop-item .options input {
+  margin-right: 10px;
 }
 
 .btn-success,
