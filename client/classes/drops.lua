@@ -3,7 +3,7 @@
 -------------------------------------------------
 
 -- Creates the drops class
-Core.Classes.New("Drops", { nearDropId = false, drops = {}, props = {} })
+Core.Classes.New("Drops", { nearDropId = false, drops = {}, props = {}, zones = {} })
 
 -------------------------------------------------
 --- Updates the drops table
@@ -20,6 +20,7 @@ function Core.Classes.Drops.UpdateDrops(drops)
             })
 
             Core.Classes.Drops.RemoveProp(dropId)
+            Core.Classes.Drops.RemoveZone(dropId)
 
             -- If they have the inventory open on this drop, close the drop
             if Core.Classes.Inventory:GetState('IsOpen') then
@@ -44,6 +45,17 @@ function Core.Classes.Drops.UpdateDrops(drops)
         if type(drops.list) == "table" then
             for k, drop in pairs(drops.list) do
                 Core.Classes.Drops.AddProp(drop.id, drop.location)
+                Core.Classes.Drops.AddZone(drop.id, lib.zones.sphere({
+                    coords = drop.location,
+                    radius = 4,
+                    debug = false,
+                    onEnter = function ()
+                        Core.Classes.Drops:UpdateState('nearDropId', drop.id)
+                    end,
+                    onExit = function ()
+                        Core.Classes.Drops:UpdateState('nearDropId', false)
+                    end
+                }))
             end
         end
 
@@ -107,34 +119,33 @@ function Core.Classes.Drops.IsNearDrop ()
 end
 
 -------------------------------------------------
---- Distance checker for drops
+--- Adds new zone
 -------------------------------------------------
-function Core.Classes.Drops.DistanceCheck()
-    local playerPos = GetEntityCoords(PlayerPedId())
-    local shortestDistance = math.huge
-    local requiredDistance = 4
-
-    for k, drop in pairs(Core.Classes.Drops:GetState('drops')) do
-        local distance = #(playerPos - drop.location)
-
-        if distance < shortestDistance then
-            shortestDistance = distance
-        end
-
-        if distance <= requiredDistance then
-            Core.Classes.Drops:UpdateState('nearDropId', drop.id)
-
-            while distance <= requiredDistance do
-                Wait(100)
-                playerPos = GetEntityCoords(PlayerPedId())
-                distance = #(playerPos - drop.location)
-            end
-
-            Core.Classes.Drops:UpdateState('nearDropId', false)
+function Core.Classes.Drops.AddZone(id, zone)
+    local zones = Core.Classes.Drops:GetState('zones')
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
         end
     end
 
-    Wait(100 + math.floor(shortestDistance * 10))
+    zones[id] = zone
+    Core.Classes.Drops:GetState('zones', zones)
+end
+
+-------------------------------------------------
+--- Removes existing zone
+-------------------------------------------------
+function Core.Classes.Drops.RemoveZone(id)
+    local zones = Core.Classes.Drops:GetState('zones')
+
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
+            zones[id] = nil
+            Core.Classes.Drops:GetState('zones', zones)
+        end
+    end
 end
 
 -------------------------------------------------
@@ -143,4 +154,7 @@ end
 function Core.Classes.Drops.Cleanup()
     local props = Core.Classes.Drops:GetState('props')
     for _, prop in pairs(props) do Core.Utilities.DeleteEntity(prop) end
+
+    local zones = Core.Classes.Crafting:GetState("zones")
+    for id, zone in pairs(zones) do Core.Classes.Drops.RemoveZone(id) end
 end

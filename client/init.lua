@@ -14,11 +14,15 @@ if Framework.Client.EventPlayerLoaded then
         Core.Classes.Inventory.Load(function ()
             SendNUIMessage(InventoryInitPayload())
         end)
+
+        CreateInventoryThreads()
     end)
 else
     Core.Classes.Inventory.Load(function ()
         SendNUIMessage(InventoryInitPayload())
     end)
+
+    CreateInventoryThreads()
 end
 
 -------------------------------------------

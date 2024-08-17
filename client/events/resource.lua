@@ -9,6 +9,8 @@ AddEventHandler('onResourceStart', function(resource)
         Core.Classes.Inventory.Load(function ()
             SendNUIMessage(InventoryInitPayload())
         end)
+
+        CreateInventoryThreads()
     end
 end)
 
@@ -18,5 +20,6 @@ AddEventHandler('onResourceStop', function(resource)
         Core.Classes.Inventory.Close()
         Core.Classes.Shops.Cleanup()
         Core.Classes.Drops.Cleanup()
+        Core.Classes.Stashes.Cleanup()
     end
 end)

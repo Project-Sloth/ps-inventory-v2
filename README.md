@@ -19,7 +19,7 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Targetting support for qb-target and ox_target
 - Interactive UI when targetting is not available
 - Decay system
-- Hotbar (With toggling capability)
+- Hotbar (With toggling capability) (Coming Soon)
 
 ### Dependencies
 
@@ -33,7 +33,7 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Drop the resource into your qb server resources
 - Run `__install/database.sql` in your database
 - Start resource in server.cfg after qb-core or esx core (If using targetting, make sure qb-target or ox_target is started before)
-- Remove `qb-inventory` (If using QB Core - NOTE: You will receive an export error if you do not remove qb-inventory)
+- Remove `qb-inventory` (If using QB Core)
 - Restart server
 
 ### Setup targetting

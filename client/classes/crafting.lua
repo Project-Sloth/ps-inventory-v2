@@ -3,7 +3,7 @@
 -------------------------------------------------
 
 -- Creates the crafting class
-Core.Classes.New("Crafting", { props = {}, blips = {}, nearCraftId = false })
+Core.Classes.New("Crafting", { props = {}, blips = {}, nearCraftId = false, zones = {} })
 
 -------------------------------------------------
 --- Loads client shop locations
@@ -59,50 +59,64 @@ function Core.Classes.Crafting.Load()
             end
         end
 
+        if not Config.UseTarget then
+            Core.Classes.Crafting.AddZone(craftId, lib.zones.sphere({
+                coords = vector3(crafting.location.x, crafting.location.y, crafting.location.z),
+                radius = 3,
+                debug = false,
+                onEnter = function ()
+                    -- Group check
+                    if crafting.group then
+                        if not Framework.Client.HasGroup(crafting.group) then return end
+                    end
+    
+                    Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access crafting')
+                    Core.Classes.Crafting:UpdateState('nearCraftId', craftId)
+                end,
+                onExit = function ()
+                    -- Group check
+                    if crafting.group then
+                        if not Framework.Client.HasGroup(crafting.group) then return end
+                    end
+    
+                    Core.Classes.Interact.Hide()
+                    Core.Classes.Crafting:UpdateState('nearCraftId', false)
+                end
+            }))
+        end
+
         ::continue::
     end
 end
 
 -------------------------------------------------
---- Dinstance checker for crafting
+--- Adds new zone
 -------------------------------------------------
-function Core.Classes.Crafting.DistanceCheck()
-    local playerPos = GetEntityCoords(PlayerPedId())
-    local shortestDistance = math.huge
-    local requiredDistance = 3
-
-    for craftId, crafting in pairs(Config.Crafting.Locations) do
-
-        -- Group check
-        if crafting.group then
-            if not Framework.Client.HasGroup(crafting.group) then goto continue end
+function Core.Classes.Crafting.AddZone(id, zone)
+    local zones = Core.Classes.Crafting:GetState('zones')
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
         end
-
-        local location = vector3(crafting.location.x, crafting.location.y, crafting.location.z)
-        local distance = #(playerPos - location)
-
-        if distance < shortestDistance then
-            shortestDistance = distance
-        end
-
-        if distance <= (crafting.radius or requiredDistance) then
-            Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access crafting')
-            Core.Classes.Crafting:UpdateState('nearCraftId', craftId)
-
-            while distance <= (crafting.radius or requiredDistance) do
-                Wait(100)
-                playerPos = GetEntityCoords(PlayerPedId())
-                distance = #(playerPos - location)
-            end
-
-            Core.Classes.Interact.Hide()
-            Core.Classes.Crafting:UpdateState('nearCraftId', false)
-        end
-
-        ::continue::
     end
 
-    Wait(100 + math.floor(shortestDistance * 10))
+    zones[id] = zone
+    Core.Classes.Crafting:GetState('zones', zones)
+end
+
+-------------------------------------------------
+--- Removes existing zone
+-------------------------------------------------
+function Core.Classes.Crafting.RemoveZone(id)
+    local zones = Core.Classes.Crafting:GetState('zones')
+
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
+            zones[id] = nil
+            Core.Classes.Crafting:GetState('zones', zones)
+        end
+    end
 end
 
 -------------------------------------------------
@@ -134,4 +148,7 @@ function Core.Classes.Crafting.Cleanup()
 
     local blips = Core.Classes.Crafting:GetState("blips")
     for _, blip in pairs(blips) do RemoveBlip(blip) end
+
+    local zones = Core.Classes.Crafting:GetState("zones")
+    for id, zone in pairs(zones) do Core.Classes.Crafting.RemoveZone(id) end
 end

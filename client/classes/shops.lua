@@ -3,13 +3,12 @@
 -------------------------------------------------
 
 -- Creates the shops class
-Core.Classes.New("Shops", { peds = {}, blips = {}, nearShopId = false })
+Core.Classes.New("Shops", { peds = {}, blips = {}, nearShopId = false, zones = {} })
 
 -------------------------------------------------
 --- Loads client shop locations
 -------------------------------------------------
 function Core.Classes.Shops.Load()
-    print("Loading shops")
     for shopId, shop in pairs(Config.Shops) do
 
         -- Group check
@@ -70,6 +69,27 @@ function Core.Classes.Shops.Load()
                     Core.Classes.Shops:UpdateState("blips", blips)
                 end
             end
+
+            if not Config.UseTarget then
+                Core.Classes.Shops.AddZone(shopId, lib.zones.sphere({
+                    coords = vector3(location.x, location.y, location.z),
+                    radius = 3,
+                    debug = false,
+                    onEnter = function ()
+                        -- Group check
+                        if shop.group then
+                            if not Framework.Client.HasGroup(shop.group) then return end
+                        end
+        
+                        Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access shop')
+                        Core.Classes.Shops:UpdateState('nearShopId', shopId)
+                    end,
+                    onExit = function ()
+                        Core.Classes.Interact.Hide()
+                        Core.Classes.Shops:UpdateState('nearShopId', false)
+                    end
+                }))
+            end
         end
 
         ::continue::
@@ -77,47 +97,34 @@ function Core.Classes.Shops.Load()
 end
 
 -------------------------------------------------
---- Dinstance checker for shops
+--- Adds new zone
 -------------------------------------------------
-function Core.Classes.Shops.DistanceCheck()
-    local playerPos = GetEntityCoords(PlayerPedId())
-    local shortestDistance = math.huge
-    local requiredDistance = 3
-
-    for shopId, shop in pairs(Config.Shops) do
-
-        -- Group check
-        if shop.group then
-            if not Framework.Client.HasGroup(shop.group) then goto continue end
+function Core.Classes.Shops.AddZone(id, zone)
+    local zones = Core.Classes.Shops:GetState('zones') or {}
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
         end
-
-        for _, location in pairs(shop.locations) do
-            location = vector3(location.x, location.y, location.z)
-            local distance = #(playerPos - location)
-
-            if distance < shortestDistance then
-                shortestDistance = distance
-            end
-
-            if distance <= (shop.radius or requiredDistance) then
-                Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access shop')
-                Core.Classes.Shops:UpdateState('nearShopId', shopId)
-
-                while distance <= (shop.radius or requiredDistance) do
-                    Wait(100)
-                    playerPos = GetEntityCoords(PlayerPedId())
-                    distance = #(playerPos - location)
-                end
-
-                Core.Classes.Interact.Hide()
-                Core.Classes.Shops:UpdateState('nearShopId', false)
-            end
-        end
-
-        ::continue::
     end
 
-    Wait(100 + math.floor(shortestDistance * 10))
+    zones[id] = zone
+    Core.Classes.Shops:GetState('zones', zones)
+end
+
+-------------------------------------------------
+--- Removes existing zone
+-------------------------------------------------
+function Core.Classes.Shops.RemoveZone(id)
+    local zones = Core.Classes.Shops:GetState('zones') or {}
+
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
+            zones[id] = nil
+        end
+    end
+
+    Core.Classes.Shops:GetState('zones', zones)
 end
 
 -------------------------------------------------
@@ -155,4 +162,7 @@ function Core.Classes.Shops.Cleanup()
 
     local blips = Core.Classes.Shops:GetState("blips")
     for _, blip in pairs(blips) do RemoveBlip(blip) end
+
+    local zones = Core.Classes.Shops:GetState("zones")
+    for id, zone in pairs(zones) do Core.Classes.Shops.RemoveZone(id) end
 end

@@ -3,15 +3,14 @@
 -------------------------------------------------
 
 -- Creates the stashes class
-Core.Classes.New("Stashes", { nearStashId = false })
+Core.Classes.New("Stashes", { nearStashId = false, zones = {} })
 
 -------------------------------------------------
 --- Loading for stashes
 -------------------------------------------------
 function Core.Classes.Stashes.Load ()
-    if Config.UseTarget then
-
-        for stashId, stash in pairs(Config.Stashes) do
+    for stashId, stash in pairs(Config.Stashes) do
+        if Config.UseTarget then
             Framework.Client.AddBoxZone({
                 id = 'stash-target-' .. stashId,
                 location = stash.location,
@@ -32,48 +31,57 @@ function Core.Classes.Stashes.Load ()
                     }
                 }
             })
+        else
+            Core.Classes.Stashes.AddZone(stashId, lib.zones.sphere({
+                coords = stash.location,
+                radius = 3,
+                debug = false,
+                onEnter = function ()
+                    -- Group check
+                    if stash.group then
+                        if not Framework.Client.HasGroup(stash.group) then return end
+                    end
+    
+                    Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access stash')
+                    Core.Classes.Stashes:UpdateState('nearStashId', stashId)
+                end,
+                onExit = function ()
+                    Core.Classes.Interact.Hide()
+                    Core.Classes.Stashes:UpdateState('nearStashId', false)
+                end
+            }))
         end
     end
 end
 
 -------------------------------------------------
---- Dinstance checker for stashes
+--- Adds new zone
 -------------------------------------------------
-function Core.Classes.Stashes.DistanceCheck()
-    local playerPos = GetEntityCoords(PlayerPedId())
-    local shortestDistance = math.huge
-    local requiredDistance = 4
-
-    for stashId, stash in pairs(Config.Stashes) do
-        -- Group check
-        if stash.group then
-            if not Framework.Client.HasGroup(stash.group) then goto continue end
+function Core.Classes.Stashes.AddZone(id, zone)
+    local zones = Core.Classes.Stashes:GetState('zones')
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
         end
-
-        local distance = #(playerPos - stash.location)
-
-        if distance < shortestDistance then
-            shortestDistance = distance
-        end
-
-        if distance <= (stash.radius or requiredDistance) then
-            Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access stash')
-            Core.Classes.Stashes:UpdateState('nearStashId', stashId)
-
-            while distance <= (stash.radius or requiredDistance) do
-                Wait(100)
-                playerPos = GetEntityCoords(PlayerPedId())
-                distance = #(playerPos - stash.location)
-            end
-
-            Core.Classes.Interact.Hide()
-            Core.Classes.Stashes:UpdateState('nearStashId', false)
-        end
-
-        ::continue::
     end
 
-    Wait(100 + math.floor(shortestDistance * 10))
+    zones[id] = zone
+    Core.Classes.Stashes:GetState('zones', zones)
+end
+
+-------------------------------------------------
+--- Removes existing zone
+-------------------------------------------------
+function Core.Classes.Stashes.RemoveZone(id)
+    local zones = Core.Classes.Stashes:GetState('zones')
+
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
+            zones[id] = nil
+            Core.Classes.Stashes:GetState('zones', zones)
+        end
+    end
 end
 
 -------------------------------------------------
@@ -85,4 +93,12 @@ function Core.Classes.Stashes.Open(stashId)
     if stashId then
         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenStash', stashId)
     end
+end
+
+-------------------------------------------------
+--- Cleanup on resourceStop
+-------------------------------------------------
+function Core.Classes.Stashes.Cleanup()
+    local zones = Core.Classes.Stashes:GetState("zones")
+    for id, zone in pairs(zones) do Core.Classes.Stashes.RemoveZone(id) end
 end

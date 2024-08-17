@@ -11,8 +11,7 @@ client_script {
     "client/classes/*.lua",
     "client/events/*.lua",
     "client/functions.lua",
-    "client/init.lua",
-    "client/threads/*.lua",
+    "client/init.lua"
 }
 
 server_script { 
@@ -23,7 +22,6 @@ server_script {
     "server/events/*.lua",
     "server/init.lua",
     "server/commands/*.lua",
-    "server/threads/*.lua",
 }
 
 shared_script { 
@@ -37,6 +35,7 @@ shared_script {
     "shared/core/core.lua",
     "shared/core/utilities.lua",
     "shared/core/classes.lua",
+    "shared/core/crons.lua",
     "framework/framework.lua"
 }
 

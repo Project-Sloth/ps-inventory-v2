@@ -26,6 +26,9 @@ Config = {
     -- Framework
     Framework = "qb", -- "qb"
 
+    -- Will attempt to pull defined items from framework (Example: QBShared.items)
+    LoadFrameworkInventoryItems = true,
+
     -- Event prefixes
     ClientEventPrefix = GetCurrentResourceName() .. ":Client:",
     ServerEventPrefix = GetCurrentResourceName() .. ":Server:",

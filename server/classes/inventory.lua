@@ -178,7 +178,19 @@ Core.Classes.Inventory.Utilities = {
 --- Load Inventory Items
 -------------------------------------------------
 function Core.Classes.Inventory.Load(init)
-    Core.Classes.Inventory:UpdateState('Items', Framework.Server.GetInventoryItems(), function(items)
+
+    local inventoryItems = {}
+
+    -- Only try to call this method if LoadFrameworkInventoryItems is true in config
+    local frameworkItems = Config.LoadFrameworkInventoryItems and Framework.Server.GetInventoryItems() or {}
+
+    -- Load items from this script
+    local configItems = Config.Items
+
+    -- Merge the tables
+    inventoryItems = Core.Utilities.MergeTables(frameworkItems, configItems)
+
+    Core.Classes.Inventory:UpdateState('Items', inventoryItems, function(items)
         Core.Utilities.Log({
             title = "Inventory Loaded",
             message = Core.Utilities.TableLength(items) .. " were loaded for inventory use"

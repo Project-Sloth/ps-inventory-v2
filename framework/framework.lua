@@ -36,7 +36,7 @@ Framework = {
         end
 
         -- Check that framework is valid
-        local availableFrameworks = { 'qb', 'esx' }
+        local availableFrameworks = { 'qb' }
         if not Core.Utilities.TableHasValue(availableFrameworks, Config.Framework) then
             Core.Utilities.Log({
                 type = "error",

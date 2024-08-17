@@ -61,6 +61,16 @@ Core.Utilities = {
         end)
     end,
 
+    MergeTables = function (a, b)
+        if type(a) == 'table' and type(b) == 'table' then
+            for k, v in pairs(b) do 
+                a[k] = v 
+            end
+        end
+
+        return a
+    end,
+
     -- Get table length
     TableLength = function (tbl)
         local l = 0

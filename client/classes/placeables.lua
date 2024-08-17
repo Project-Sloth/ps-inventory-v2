@@ -3,7 +3,7 @@
 -------------------------------------------------
 
 -- Creates the placeables class
-Core.Classes.New("Placeables", { props = {}, placementMode = false, nearPropId = false })
+Core.Classes.New("Placeables", { props = {}, placementMode = false, nearPropId = false, zones = {} })
 
 -------------------------------------------------
 --- Loads placeables
@@ -63,6 +63,7 @@ function Core.Classes.Placeables.Update(items)
     for id, prop in pairs(props) do
         if not items[id] then
             if prop.entity then Core.Classes.Placeables.RemoveObject(prop.entity) end
+            Core.Classes.Placeables.RemoveZone(id)
             props[id] = nil
         end
     end
@@ -76,51 +77,6 @@ function Core.Classes.Placeables.Update(items)
     end
 
     Core.Classes.Placeables:UpdateState('props', props)
-end
-
--------------------------------------------------
---- Dinstance checker for placeables
--------------------------------------------------
-function Core.Classes.Placeables.DistanceCheck()
-    local playerPos = GetEntityCoords(PlayerPedId())
-    local shortestDistance = math.huge
-    local requiredDistance = 3
-
-    for propId, placeable in pairs(Core.Classes.Placeables:GetState('props')) do
-        if placeable ~= nil then
-            placeable.location = vector3(placeable.coords.x, placeable.coords.y, placeable.coords.z)
-
-            local distance = #(playerPos - placeable.location)
-
-            if distance < shortestDistance then
-                shortestDistance = distance
-            end
-
-            if distance <= requiredDistance then
-
-                -- @todo lookup in config.crafting.items to see if this is a matching prop, then set interact text accordingly
-
-                local interactType = ""
-                if placeable.item.interactType then
-                    interactType = 'Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access ' .. placeable.item.interactType .. '<br />'
-                end
-
-                Core.Classes.Interact.Show(interactType .. 'Press [<span class="active-color">SHIFT + E</span>] to pickup')
-                Core.Classes.Placeables:UpdateState('nearPropId', propId)
-
-                while distance <= requiredDistance do
-                    Wait(100)
-                    playerPos = GetEntityCoords(PlayerPedId())
-                    distance = #(playerPos - placeable.location)
-                end
-
-                Core.Classes.Interact.Hide()
-                Core.Classes.Placeables:UpdateState('nearPropId', false)
-            end
-        end
-    end
-
-    Wait(100 + math.floor(shortestDistance * 10))
 end
 
 -------------------------------------------------
@@ -228,6 +184,25 @@ function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround
         end
 
         Core.Classes.Placeables.AttachTarget(obj, id, options)
+    else
+        Core.Classes.Placeables.AddZone(id, lib.zones.sphere({
+            coords = vector3(item.location.x, item.location.y, item.location.z),
+            radius = 3,
+            debug = false,
+            onEnter = function ()
+                local interactType = ""
+                if item.interactType then
+                    interactType = 'Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access ' .. item.interactType .. '<br />'
+                end
+
+                Core.Classes.Interact.Show(interactType .. 'Press [<span class="active-color">SHIFT + E</span>] to pickup')
+                Core.Classes.Placeables:UpdateState('nearPropId', id)
+            end,
+            onExit = function ()
+                Core.Classes.Interact.Hide()
+                Core.Classes.Placeables:UpdateState('nearPropId', false)
+            end
+        }))
     end
 
     return obj
@@ -400,6 +375,7 @@ function Core.Classes.Placeables.Pickup(propId)
             -- Remove the object
             local coords = GetEntityCoords(itemEntity)
             Core.Classes.Placeables.RemoveObject(itemEntity)
+            Core.Classes.Placeables.RemoveZone(propId)
 
             -- Delete object server-side
             lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId') or propId)
@@ -440,6 +416,36 @@ function Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity
         while not NetworkHasControlOfEntity(itemEntity) do
             Wait(100)
             NetworkRequestControlOfEntity(itemEntity)
+        end
+    end
+end
+
+-------------------------------------------------
+--- Adds new zone
+-------------------------------------------------
+function Core.Classes.Placeables.AddZone(id, zone)
+    local zones = Core.Classes.Placeables:GetState('zones')
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
+        end
+    end
+
+    zones[id] = zone
+    Core.Classes.Placeables:GetState('zones', zones)
+end
+
+-------------------------------------------------
+--- Removes existing zone
+-------------------------------------------------
+function Core.Classes.Placeables.RemoveZone(id)
+    local zones = Core.Classes.Placeables:GetState('zones')
+
+    if zones[id] then
+        if zones[id] ~= nil then
+            zones[id]:remove()
+            zones[id] = nil
+            Core.Classes.Placeables:GetState('zones', zones)
         end
     end
 end
