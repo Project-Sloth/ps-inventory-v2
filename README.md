@@ -19,7 +19,7 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Targetting support for qb-target and ox_target
 - Interactive UI when targetting is not available
 - Decay system
-- Hotbar (With toggling capability) (Coming Soon)
+- Hotbar (With toggling capability)
 
 ### Dependencies
 
@@ -54,47 +54,38 @@ item_name = { ..., decay = 5 } -- Decay is in minutes
 ### Available Server Exports
 
 ```
-exports("Items", Core.Classes.Inventory.Items)
-exports("ItemExists", Core.Classes.Inventory.ItemExists)
-exports("GetPlayerInventory", Core.Classes.Inventory.GetPlayerInventory)
-exports("SaveInventory", Core.Classes.Inventory.SaveInventory)
-exports("SavePlayerInventory", Core.Classes.Inventory.SaveInventory)
-exports("GetTotalWeight", Core.Classes.Inventory.GetTotalWeight)
-exports("HasItem", Core.Classes.Inventory.HasItem)
-exports("GetSlot", Core.Classes.Inventory.GetSlot)
-exports("GetSlotNumberWithItem", Core.Classes.Inventory.GetSlotNumberWithItem)
-exports("GetSlotWithItem", Core.Classes.Inventory.GetSlotWithItem)
-exports("GetSlotsWithItem", Core.Classes.Inventory.GetSlotsWithItem)
-exports("OpenInventory", Core.Classes.Inventory.OpenInventory)
-exports("OpenInventoryById", Core.Classes.Inventory.OpenInventoryById)
-exports("CloseInventory", Core.Classes.Inventory.CloseInventory)
-exports("CreateUseableItem", Core.Classes.Inventory.CreateUseableItem)
-exports("ValidateAndUseItem", Core.Classes.Inventory.ValidateAndUseItem)
-exports("UseItem", Core.Classes.Inventory.UseItem)
-exports("AddItem", Core.Classes.Inventory.AddItem)
-exports("RemoveItem", Core.Classes.Inventory.RemoveItem)
-exports("ClearInventory", Core.Classes.Inventory.ClearInventory)
-exports("SaveExternalInventory", Core.Classes.Inventory.SaveExternalInventory)
-exports("LoadExternalInventory", Core.Classes.Inventory.LoadExternalInventory)
-exports("Move", Core.Classes.Inventory.Move)
-exports("OpenStash", Core.Classes.Inventory.OpenStash)
-exports("OpenShop", Core.Classes.Shops.Open)
+exports['ps-inventory']:Items() -- Returns loaded items
+exports['ps-inventory']:ItemExists(item) -- Checks if item exists in loaded items
+exports['ps-inventory']:GetPlayerInventory(src) -- Gets player inventory items
+exports['ps-inventory']:SaveInventory(src, inventory) -- Saves player inventory
+exports['ps-inventory']:SavePlayerInventory(src, inventory) -- Saves player inventory (Alias for SaveInventory)
+exports['ps-inventory']:GetTotalWeight(items) -- Get total weight of items
+exports['ps-inventory']:HasItem(source, items, count) -- Checks if player has item in inventory
+exports['ps-inventory']:GetSlot(src, slot) -- Gets item data for a specific slot
+exports['ps-inventory']:GetSlotNumberWithItem(src, itemName) -- Gets the slot number of an item in inventory
+exports['ps-inventory']:GetSlotWithItem(src, itemName, items) -- Gets the slot data for specified item
+exports['ps-inventory']:GetSlotsWithItem(src, itemName) -- Get list of slots with item
+exports['ps-inventory']:OpenInventory(src, external) -- Opens player inventory
+exports['ps-inventory']:CloseInventory(src) -- Closes player inventory
+exports['ps-inventory']:CanCarryItem(source, item, amount, maxWeight) -- Checks if item can be carried
+exports['ps-inventory']:OpenInventoryById(src, target) -- Opens target player inventory
+exports['ps-inventory']:CreateUseableItem(src) -- Creates a useable item
+exports['ps-inventory']:ValidateAndUseItem(src, itemData) -- Validates item data and uses it
+exports['ps-inventory']:AddItem(source, item, amount, slot, info, reason, created) -- Adds item to inventory
+exports['ps-inventory']:RemoveItem(source, item, amount, slot) -- Removes item from inventory
+exports['ps-inventory']:ClearInventory(source, filterItems) -- Clears a player's inventory
+exports['ps-inventory']:SaveExternalInventory(type, inventoryId, items) -- Saves an external inventory item list
+exports['ps-inventory']:LoadExternalInventory(type, typeId) -- Loads an external inventory item list
+exports['ps-inventory']:OpenStash(src, stashId) -- Opens a stash
+exports['ps-inventory']:OpenShop(src, shopId) -- Opens a shop
+exports['ps-inventory']:OpenVending() -- Opens vending machine shop
 ```
 
 ### Client Exports
 
 ```
-exports('OpenInventory', Core.Classes.Inventory.Open)
-exports('CloseInventory', Core.Classes.Inventory.Close)
-```
-
-### QB Exports that are overrided
-
-```
-qb-inventory - HasItem
-qb-inventory - RemoveItem
-qb-inventory - AddItem
-qb-inventory - OpenInventory
+exports['ps-inventory']:OpenInventory() -- Opens player inventory
+exports['ps-inventory']:CloseInventory() -- Closes player inventory
 ```
 
 ### Credits

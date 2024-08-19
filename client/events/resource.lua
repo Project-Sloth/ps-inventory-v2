@@ -8,14 +8,14 @@ AddEventHandler('onResourceStart', function(resource)
 
         Core.Classes.Inventory.Load(function ()
             SendNUIMessage(InventoryInitPayload())
+            CreateInventoryThreads()
         end)
-
-        CreateInventoryThreads()
     end
 end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
+        Core.Classes.Player.Reset()
         Core.Classes.Crafting.Cleanup()
         Core.Classes.Inventory.Close()
         Core.Classes.Shops.Cleanup()

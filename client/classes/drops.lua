@@ -47,7 +47,7 @@ function Core.Classes.Drops.UpdateDrops(drops)
                 Core.Classes.Drops.AddProp(drop.id, drop.location)
                 Core.Classes.Drops.AddZone(drop.id, lib.zones.sphere({
                     coords = drop.location,
-                    radius = 4,
+                    radius = Config.Drops.Radius or 4,
                     debug = false,
                     onEnter = function ()
                         Core.Classes.Drops:UpdateState('nearDropId', drop.id)

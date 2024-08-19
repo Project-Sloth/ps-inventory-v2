@@ -27,11 +27,11 @@ server_script {
 shared_script { 
     "@ox_lib/init.lua",
     "config/config.lua",
+    "config/items.config.lua",
     "config/shops.config.lua",
     "config/stashes.config.lua",
     "config/vehicles.config.lua",
     "config/crafting.config.lua",
-    "config/useables.config.lua",
     "shared/core/core.lua",
     "shared/core/utilities.lua",
     "shared/core/classes.lua",

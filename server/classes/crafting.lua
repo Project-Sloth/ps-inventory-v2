@@ -30,24 +30,6 @@ function Core.Classes.Crafting.BuildItemList(recipes)
 end
 
 -------------------------------------------------
---- Sets crafting placeables as useable
--------------------------------------------------
-function Core.Classes.Crafting.CreatePlaceableUseables ()
-    for item, data in pairs(Config.Crafting.Placeables) do
-        Core.Classes.Inventory.CreateUseableItem(item, function (source, itemData)
-            itemData.placeableType = 'crafting'
-            itemData.recipes = data.recipes
-            itemData.prop = data.prop
-            itemData.eventType = "server"
-            itemData.eventName = Config.ServerEventPrefix .. 'OpenCraftingByPlaceable'
-            itemData.interactType = "crafting"
-            itemData.eventParams = { id = item }
-            TriggerClientEvent(Config.ClientEventPrefix .. 'PlaceItem', source, itemData)
-        end)
-    end
-end
-
--------------------------------------------------
 --- Open Crafting via Placeable Item
 -------------------------------------------------
 function Core.Classes.Crafting.OpenByPlaceable (src, item)

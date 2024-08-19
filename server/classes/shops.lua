@@ -29,15 +29,22 @@ end
 --- Buy Item
 -------------------------------------------------
 function Core.Classes.Shops.BuyItem (source, data)
+
     -- Validate player
     local src = source
     local Player = Framework.Server.GetPlayer(src)
     if not data.shop then return { success = false } end
+    local items = {}
 
-    -- Validate shop
-    local shop = Config.Shops[data.shop.id]
-    if not shop then return { success = false } end
-    local items = Core.Classes.Shops.BuildItemList(shop.items)
+    -- If shop id is vending, skip shop validation
+    if data.shop.id == 'vending' then
+        items = Core.Classes.Shops.BuildItemList(Config.Vending.Items)
+    else
+        -- Validate shop
+        local shop = Config.Shops[data.shop.id]
+        if not shop then return { success = false } end
+        items = Core.Classes.Shops.BuildItemList(shop.items)
+    end
 
     -- Verify the item by name and slot
     -- @todo switch to Core.Classes.Inventory.Utilities.GetItemFromListByName()
@@ -83,6 +90,19 @@ function Core.Classes.Shops.Open (src, shopId)
     local Player = Framework.Server.GetPlayer(src)
     local shop = Config.Shops[shopId]
 
+    -- Handle vending
+    if shopId == 'vending' then
+        local items = Core.Classes.Shops.BuildItemList(Config.Vending.Items)
+
+        return Core.Classes.Inventory.OpenInventory(src, {
+            type = "shop",
+            id = 'vending',
+            name = 'Vending Machine',
+            slots = #items,
+            items = items
+        })
+    end
+
     if not shop then
         return Core.Utilities.Log({
             type = "error",
@@ -103,3 +123,6 @@ function Core.Classes.Shops.Open (src, shopId)
 end
 
 exports("OpenShop", Core.Classes.Shops.Open)
+exports("OpenVending", function ()
+    Core.Classes.Shops.Open(source, 'vending')
+end)

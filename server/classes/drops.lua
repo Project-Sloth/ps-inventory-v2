@@ -21,17 +21,6 @@ function Core.Classes.Drops.Create (source, data)
     local itemData = Core.Classes.Inventory.Utilities.GetItemFromListByName(inventory, data.item.name, data.item.slot) or false
     if not itemData then return { success = false } end
 
-    -- Set item to be sent to drop
-    local dropItem = itemData
-    dropItem.slot = 1
-
-    -- Generate drop id
-    local newDropId = Core.Utilities.GenerateDropId()
-    Core.Utilities.Log({
-        title = "Drops.Create",
-        message = "Generated drop id: " .. newDropId
-    })
-
     -- Validate ped exists
     local ped = GetPlayerPed(source)
     if not DoesEntityExist(ped) then return { success = false } end
@@ -39,23 +28,42 @@ function Core.Classes.Drops.Create (source, data)
     -- Get player coords
     local playerCoords = GetEntityCoords(ped)
 
-    -- Retrieve current drops
-    local drops = Core.Classes.Drops:GetState('Drops')
+    local dropId = nil
 
-    -- Create new drop
-    table.insert(drops, {
-        id = newDropId,
-        location = playerCoords,
-        created = os.time(),
-        expiration = (Config.Drops.ExpirationTime) + os.time(),
-        items = { dropItem }
-    })
+    -- If a drop id is supplied, add to it
+    if data.dropId then
+        dropId = data.dropId
+        Core.Classes.Drops.AddItem(data.dropId, itemData)
+    else
+        -- Set item to be sent to drop
+        local dropItem = itemData
+        dropItem.slot = 1
 
-    -- Update state
-    Core.Classes.Drops:UpdateState('Drops', drops)
+        -- Generate drop id
+        dropId = Core.Utilities.GenerateDropId()
+        Core.Utilities.Log({
+            title = "Drops.Create",
+            message = "Generated drop id: " .. dropId
+        })
+
+        -- Retrieve current drops
+        local drops = Core.Classes.Drops:GetState('Drops')
+
+        -- Create new drop
+        table.insert(drops, {
+            id = dropId,
+            location = playerCoords,
+            created = os.time(),
+            expiration = (Config.Drops.ExpirationTime) + os.time(),
+            items = { dropItem }
+        })
+
+        -- Update state
+        Core.Classes.Drops:UpdateState('Drops', drops)
+    end
 
     -- Verify it was created
-    local dropData = Core.Classes.Drops.Get(newDropId)
+    local dropData = Core.Classes.Drops.Get(dropId)
     if not dropData then
         Core.Utilities.Log({
             title = "Drops.Create",
@@ -157,6 +165,21 @@ function Core.Classes.Drops.Remove (dropId)
 
     Core.Classes.Drops:UpdateState('Drops', drops)
     Core.Classes.Drops.Beacon({ dropId })
+end
+
+-------------------------------------------------
+--- Save drop items
+-------------------------------------------------
+function Core.Classes.Drops.AddItem (dropId, item)
+    print('Adding item to drop')
+    local drop = Core.Classes.Drops.Get(dropId)
+    if not drop then return false end
+    local items = drop.items
+    local newSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Drop.MaxSlots)
+    if not newSlot then return false end
+    item.slot = newSlot.slot
+    items[newSlot.key] = item
+    Core.Classes.Drops.SaveItems(dropId, items)
 end
 
 -------------------------------------------------

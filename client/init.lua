@@ -13,16 +13,14 @@ if Framework.Client.EventPlayerLoaded then
     AddEventHandler (Framework.Client.EventPlayerLoaded, function()
         Core.Classes.Inventory.Load(function ()
             SendNUIMessage(InventoryInitPayload())
+            CreateInventoryThreads()
         end)
-
-        CreateInventoryThreads()
     end)
 else
     Core.Classes.Inventory.Load(function ()
         SendNUIMessage(InventoryInitPayload())
+        CreateInventoryThreads()
     end)
-
-    CreateInventoryThreads()
 end
 
 -------------------------------------------

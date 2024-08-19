@@ -7,6 +7,9 @@ const Inventory = {
      * State keeper for inventory
      */
     State: {
+        CanRoutineUpdate: true,
+        RoutineUpdater: null,
+
         Open: false,
 
         Items: [],
@@ -38,6 +41,22 @@ const Inventory = {
 
         Keys: {
             Ctrl: false
+        }
+    },
+
+    Health: {
+        Selector: ".ui-character",
+
+        High: {
+            image: "assets/ui/outlined-male.png"
+        },
+
+        Mid: {
+            image: "assets/ui/outlined-male-mid.png"
+        },
+
+        Low: {
+            image: "assets/ui/outlined-male-low.png"
         }
     },
 
@@ -80,6 +99,16 @@ const Inventory = {
          * @param {object} item 
          */
         OnUse: async (slotId, inventoryType, item) => {
+
+            if (item.decayed) {
+                return InventoryNotify.Events.Process({
+                    process: "notification",
+                    icon: "fas fa-times-circle",
+                    color: "#ff0000",
+                    message: "Item is decayed"
+                })
+            }
+
             const res = await Nui.request('useItem', {
                 slotId: slotId,
                 inventory: inventoryType,
@@ -102,6 +131,14 @@ const Inventory = {
             if (window.Interact.State.Show) {
                 window.Interact.Events.Hide(false);
             }
+
+            if (!Inventory.RoutineUpdater) {
+                Inventory.RoutineUpdater = setInterval(() => {
+                    if (Inventory.CanRoutineUpdate) {
+                        Nui.request('update')
+                    }
+                }, 5000)
+            }
         },
 
         /**
@@ -116,6 +153,39 @@ const Inventory = {
 
             if (window.Interact.State.Show) {
                 window.Interact.Events.Show();
+            }
+
+            if (Inventory.RoutineUpdater) {
+                clearInterval(Inventory.RoutineUpdater);
+                Inventory.RoutineUpdater = null;
+            }
+        },
+
+        /**
+         * Updates health status for player
+         * @param {object} data 
+         */
+        OnHealthUpdate: (data) => {
+
+            /**
+             * If currentHealth is provided
+             */
+            if (typeof data.currentHealth !== 'undefined') {
+                const el = $(Inventory.Health.Selector);
+                const currentHealth = data.currentHealth - 100;
+
+                /**
+                 * Update image based on current health
+                 */
+                if (el.length) {
+                    if (currentHealth < 25) {
+                        el.attr('src', Inventory.Health.Low.image)
+                    } else if (currentHealth < 75) {
+                        el.attr('src', Inventory.Health.Mid.image)
+                    } else {
+                        el.attr('src', Inventory.Health.High.image)
+                    }
+                }
             }
         },
 
@@ -173,6 +243,7 @@ const Inventory = {
             try {
                 // Disables draggables while request is being made
                 Inventory.DisableDraggables();
+                Inventory.DisableRoutineUpdater();
 
                 // Make request
                 const res = await Nui.request('give', payload);
@@ -191,16 +262,18 @@ const Inventory = {
                         })
                     }
 
-                    Inventory.EnableDraggables() 
+                    Inventory.EnableDraggables();
                 }
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+                Inventory.EnableRoutineUpdater();
 
             } catch (error) {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -227,6 +300,7 @@ const Inventory = {
             try {
                 // Disables draggables while request is being made
                 Inventory.DisableDraggables();
+                Inventory.DisableRoutineUpdater();
 
                 // Make request
                 const res = await Nui.request('drop', payload);
@@ -236,13 +310,19 @@ const Inventory = {
                  */
                 if (!res.success) { Inventory.EnableDraggables() }
 
+                if (typeof res.items !== 'undefined' || typeof res.external !== 'undefined') {
+                    Inventory.Events.UpdateInventory(res)
+                }
+
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+                Inventory.EnableRoutineUpdater();
 
             } catch (error) {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -356,20 +436,13 @@ const Inventory = {
             try {
                 // Disables draggables while request is being made
                 Inventory.DisableDraggables();
+                Inventory.DisableRoutineUpdater();
 
                 const res = await Nui.request('move', payload);
 
-                /**
-                 * If payload expected is not returned
-                 */
-                if (!res.success) {
-
-                    // Re-enables draggables
-                    Inventory.EnableDraggables();
-                }
-
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+                Inventory.EnableRoutineUpdater();
 
                 if (res.external) {
                     Inventory.Events.UpdateInventory({
@@ -383,6 +456,7 @@ const Inventory = {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
+                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -435,6 +509,8 @@ const Inventory = {
              * Process the moving
              */
             try {
+                Inventory.DisableRoutineUpdater();
+
                 const res = await Nui.request('buy', payload);
 
                 /**
@@ -451,7 +527,11 @@ const Inventory = {
                         })
                     }
                 }
+
+                Inventory.EnableRoutineUpdater();
             } catch (error) {
+
+                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -486,6 +566,8 @@ const Inventory = {
              * Process the moving
              */
             try {
+                Inventory.DisableRoutineUpdater();
+
                 const res = await Nui.request('craft', payload);
 
                 /**
@@ -502,7 +584,11 @@ const Inventory = {
                         })
                     }
                 }
+
+                Inventory.EnableRoutineUpdater();
             } catch (error) {
+
+                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -1024,6 +1110,8 @@ const Inventory = {
             helper: 'clone',
             start: (event, ui) => {
 
+                Inventory.DisableRoutineUpdater();
+
                 if (Inventory.State.BootstrapMenu) {
                     Inventory.State.BootstrapMenu.close();
                 }
@@ -1035,6 +1123,8 @@ const Inventory = {
                 $('.actionable').show()
             },
             stop: () => {
+                Inventory.EnableRoutineUpdater();
+
                 $('.actionable').fadeOut();
             }
         });
@@ -1368,5 +1458,20 @@ const Inventory = {
                 $("body").get(0).style.setProperty("--ui-highlight-color", color);
             })
         }
+    },
+
+    /**
+     * Stops the routine updater from completing
+     * due to other blocking requests being fulfilled
+     */
+    DisableRoutineUpdater: () => {
+        Inventory.CanRoutineUpdate = false;
+    },
+
+    /**
+     * Re-enables the routine updater
+     */
+    EnableRoutineUpdater: () => {
+        Inventory.CanRoutineUpdate = true;
     }
 };

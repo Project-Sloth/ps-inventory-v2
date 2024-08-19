@@ -7,6 +7,14 @@ RegisterNUICallback('close', function(_, cb)
 end)
 
 -------------------------------------------------
+--- Submits request to update inventory
+-------------------------------------------------
+RegisterNUICallback('update', function(data, cb)
+    Core.Classes.Inventory.Update()
+    cb({ success = true })
+end)
+
+-------------------------------------------------
 --- Sends of the moving of an item
 -------------------------------------------------
 RegisterNUICallback('move', function(data, cb)

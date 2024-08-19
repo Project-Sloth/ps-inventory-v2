@@ -81,6 +81,14 @@ const InventoryEvents = {
     },
 
     /**
+     * Updates health status
+     * @param {object} data 
+     */
+    health: (data) => {
+        Inventory.Events.OnHealthUpdate(data)
+    },
+
+    /**
      * Event for opening the NUI
      * @param {object} data 
      */

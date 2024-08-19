@@ -16,7 +16,7 @@ function Core.Classes.Shops.Load()
             if not Framework.Client.HasGroup(shop.group) then goto continue end
         end
         
-        for _, location in pairs(shop.locations) do
+        for locationKey, location in pairs(shop.locations) do
             if shop.npc then
                 if type(shop.npc) == "table" then
 
@@ -46,7 +46,7 @@ function Core.Classes.Shops.Load()
                                             label = shop.name
                                         }
                                     },
-                                    distance = 1.5
+                                    distance = shop.radius or 1.5
                                 })
                             end
                         end
@@ -71,9 +71,9 @@ function Core.Classes.Shops.Load()
             end
 
             if not Config.UseTarget then
-                Core.Classes.Shops.AddZone(shopId, lib.zones.sphere({
+                Core.Classes.Shops.AddZone(shopId .. "_" .. locationKey, lib.zones.sphere({
                     coords = vector3(location.x, location.y, location.z),
-                    radius = 3,
+                    radius = shop.radius or 3,
                     debug = false,
                     onEnter = function ()
                         -- Group check
@@ -100,7 +100,8 @@ end
 --- Adds new zone
 -------------------------------------------------
 function Core.Classes.Shops.AddZone(id, zone)
-    local zones = Core.Classes.Shops:GetState('zones') or {}
+    local zones = Core.Classes.Shops:GetState('zones')
+
     if zones[id] then
         if zones[id] ~= nil then
             zones[id]:remove()
@@ -115,7 +116,7 @@ end
 --- Removes existing zone
 -------------------------------------------------
 function Core.Classes.Shops.RemoveZone(id)
-    local zones = Core.Classes.Shops:GetState('zones') or {}
+    local zones = Core.Classes.Shops:GetState('zones')
 
     if zones[id] then
         if zones[id] ~= nil then

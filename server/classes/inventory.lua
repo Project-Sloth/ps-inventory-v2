@@ -53,26 +53,26 @@ Core.Classes.Inventory.Utilities = {
     -- Get the first empty slot in inventory
     GetFirstEmptySlot = function (items, numberOfSlots)
         local slotsOccupied = {}
-        local slotKeysOccupied = {}
+        local newSlotKey = nil
 
         -- Enter item slots taken
-        for _, item in pairs(items) do table.insert(slotsOccupied, item.slot) end
-
-        -- Enter item slot keys taken
-        for i = 1, numberOfSlots, 1 do
-            if items[i] then
-                if items[i] ~= nil then
-                    table.insert(slotKeysOccupied, i)
-                end
+        for _, item in pairs(items) do
+            if item ~= nil then
+                table.insert(slotsOccupied, tonumber(item.slot))
             end
         end
 
         -- Find first slot where not taken by either
-        for i = 1, numberOfSlots, 1 do
-            if not Core.Utilities.TableHasValue(slotsOccupied, i) and not Core.Utilities.TableHasValue(slotKeysOccupied, i) then
-                return i
+        for slotKey = 1, numberOfSlots, 1 do
+            if not Core.Utilities.TableHasValue(slotsOccupied, slotKey) then
+                if not newSlotKey then newSlotKey = slotKey end
             end
         end
+
+        return {
+            key = Core.Utilities.TableLength(items) + 1,
+            slot = newSlotKey
+        }
     end,
 
     -- Get the slot key of an item's slot number
@@ -84,6 +84,21 @@ Core.Classes.Inventory.Utilities = {
         for key, item in pairs(items) do
             if tonumber(item.slot) == slot then
                 res = key
+            end
+        end
+
+        return res
+    end,
+
+    -- Get the slot by slot number
+    GetSlotBySlotNumber = function (items, slot)
+        if not slot then return nil end
+        slot = tonumber(slot)
+        local res = nil
+
+        for key, item in pairs(items) do
+            if tonumber(item.slot) == slot then
+                res = item
             end
         end
 
@@ -198,7 +213,6 @@ function Core.Classes.Inventory.Load(init)
         
         if init then
             Core.Classes.Inventory.CreateUseables()
-            Core.Classes.Crafting.CreatePlaceableUseables()
         end
     end)
 end
@@ -206,9 +220,13 @@ end
 -------------------------------------------------
 --- Creates useables defined in useables.config.lua
 -------------------------------------------------
-function Core.Classes.Inventory.CreateUseables ()
-    for item, func in pairs(Config.Useables) do
-        Core.Classes.Inventory.CreateUseableItem(item, func)
+function Core.Classes.Inventory.CreateUseables (items)
+    for item, itemData in pairs(Config.Items) do
+        if itemData.useable and itemData.onUse then
+            if type(itemData.onUse) == "function" then
+                Core.Classes.Inventory.CreateUseableItem(item, itemData.onUse)
+            end
+        end
     end
 end
 
@@ -305,10 +323,7 @@ function Core.Classes.Inventory.GetPlayerInventory(src)
     if not inventory then return {} end
 
     -- Validate and return inventory
-    inventory = Core.Classes.Inventory.ValidateItems(inventory)
-
-    -- Return the inventory items
-    return inventory
+    return Core.Classes.Inventory.ValidateItems(inventory)
 end
 
 -------------------------------------------------
@@ -335,11 +350,13 @@ end
 function Core.Classes.Inventory.GetTotalWeight(items)
     local weight = 0
     if not items then return 0 end
+
     for _, item in pairs(items) do
         if item then
             weight = weight + (item.weight * (item.amount or 1))
         end
     end
+
     return tonumber(weight)
 end
 
@@ -590,9 +607,6 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
     -- If the item does not exist, or the
     if not itemInfo then return false end
 
-    -- Get the current time
-    local time = os.time()
-
     -- Set the quanity
     amount = tonumber(amount) or 1
 
@@ -602,16 +616,9 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
     -- Make sure info is a table
     info = type(info) == "table" and info or {} -- Make sure it's not an empty string and is a table
 
-    -- Set the created time of the info if not provided
-    itemInfo.created = created or time
-
-    -- Set quality of the item
-    info.quality = info.quality or 100
-
     -- If is a weapon, set the serial number and quality
     if itemInfo.type == 'weapon' then
         info.serie = info.serie or nil
-        info.quality = info.quality or 100
     end
 
     -- Check the weight with the new item
@@ -621,35 +628,32 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
         if (slot and items[slot]) and (items[slot].name:lower() == item:lower()) and
             (itemInfo.type == 'item' and not itemInfo.unique) then
 
-            -- Quality must match before stacking
-            if items[slot].info.quality == info.quality then
+            -- If decay of existing item is not fresh, add to new slot
+            if items[slot].decayPercent ~= 100 then
+                local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
+                if not availableSlot then return false end
 
-                items[slot].amount = items[slot].amount + amount
+                items[availableSlot.key] = Core.Classes.Inventory.Utilities.ConvertItem(itemInfo, {
+                    slot = availableSlot.slot,
+                    info = info or {},
+                    amount = amount
+                })
+
                 TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
                 Framework.Server.SavePlayerInventory(source, items)
                 if Player.Offline then return true end
                 return true
 
-                -- If quality does not match, add to a new slot
+            -- Go ahead with stacking if decay check passed
             else
-                local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
-                for i = 1, Config.Inventories.Player.MaxSlots, 1 do
-                    if items[i] == nil then
-                        items[i] = Core.Classes.Inventory.Utilities.ConvertItem(itemInfo, {
-                            slot = availableSlot,
-                            info = info or {},
-                            amount = amount
-                        })
-
-                        TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
-                        Framework.Server.SavePlayerInventory(source, items)
-                        if Player.Offline then return true end
-                        return true
-                    end
-                end
+                items[slot].amount = items[slot].amount + amount
+                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+                Framework.Server.SavePlayerInventory(source, items)
+                if Player.Offline then return true end
+                return true
             end
 
-            -- If stackable
+        -- If slot is available
         elseif not itemInfo.unique and slot or slot and items[slot] == nil then
             items[slot] = Core.Classes.Inventory.Utilities.ConvertItem(itemInfo, {
                 slot = slot,
@@ -662,27 +666,25 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
             if Player.Offline then return true end
             return true
 
-            -- If not stackable
+        -- If not stackable
         elseif itemInfo.unique or (not slot or slot == nil) or itemInfo.type == 'weapon' then
-            local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
-            for i = 1, Config.Inventories.Player.MaxSlots, 1 do
-                if items[i] == nil then
-                    items[i] = Core.Classes.Inventory.Utilities.ConvertItem(itemInfo, {
-                        slot = availableSlot,
-                        info = info or {},
-                        amount = amount
-                    })
 
-                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
-                    Framework.Server.SavePlayerInventory(source, items)
-                    if Player.Offline then return true end
-                    return true
-                end
-            end
+            local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
+            if not availableSlot then return false end
+
+            items[availableSlot.key] = Core.Classes.Inventory.Utilities.ConvertItem(itemInfo, {
+                slot = availableSlot.slot,
+                info = info or {},
+                amount = amount
+            })
+
+            TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+            Framework.Server.SavePlayerInventory(source, items)
+            if Player.Offline then return true end
+            return true
         end
-    elseif not Player.Offline then
-        -- @TODO Notify of too full
     end
+
     return false
 end
 
@@ -1018,12 +1020,28 @@ function Core.Classes.Inventory.Transfer (src, origin, destination, item, destin
     if not itemSlotKey then return false end
 
     -- Check that target slot is empty
-    local targetSlotHasItem = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(destinationItems, destinationSlotId) or false
-    if targetSlotHasItem then return false end
+    local targetSlotHasItem = Core.Classes.Inventory.Utilities.GetSlotBySlotNumber(destinationItems, destinationSlotId) or false
 
-    -- Set the slot, add the item to the destination, and remove from origin
-    item.slot = destinationSlotId
-    table.insert(destinationItems, item)
+    -- Check to see if an item is in that slot.
+    if targetSlotHasItem then
+
+        -- Stack the item if can be stacked
+        if targetSlotHasItem.name == item.name and not item.unique then
+            local destinationSlotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(destinationItems, destinationSlotId) or false
+            if not destinationSlotKey then return false end
+            destinationItems[destinationSlotKey].amount = tonumber(destinationItems[destinationSlotKey].amount) + tonumber(item.amount)
+        else
+
+            -- Slot is taken and is not the same
+            return false
+        end
+    else
+        -- Set the slot, add the item to the destination, and remove from origin
+        item.slot = destinationSlotId
+        table.insert(destinationItems, item)
+    end
+
+    -- Remove old item from origin items
     table.remove(originItems, itemSlotKey)
 
     -- Return response
@@ -1036,7 +1054,6 @@ end
 
 -------------------------------------------------
 --- Move / Transfer Items
---- Export: exports['ps-inventory']:Move
 -------------------------------------------------
 function Core.Classes.Inventory.Move (src, data)
 	local playerInventory = Core.Classes.Inventory.GetPlayerInventory(src)

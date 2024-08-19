@@ -84,6 +84,7 @@ Config = {
     -------------------------------------------------
     Drops = {
         ExpirationTime = 10, -- Time before drop expires (Seconds)
+        Radius = 4, -- Radius of access to drop
         Prop = 'prop_cs_heist_bag_01' -- Prop that is placed on ground for drops
     },
 
@@ -106,8 +107,10 @@ Config = {
     },
 
     Placeables = {
+        Enabled = true,
+        Radius = 1.5, -- Radius for Interaction or Target
         ItemPlacementModeRadius = 10.0,
-        minZOffset = -2.0,
-        maxZOffset = 2.0
+        MinZOffset = -2.0,
+        MaxZOffset = 2.0
     }
 }

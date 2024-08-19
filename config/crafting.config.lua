@@ -1,23 +1,15 @@
 Config.Crafting = {
 
-    Placeables = {
-
-        -- Creates useable / placeable bench
-        ['crafting_bench'] = {
-            recipes = { 'weapons' },
-            prop = 'gr_prop_gr_bench_01b'
-        }
-    },
-
     Locations = {
 
         -- Example of a crafting bench
         ['weaponbench1'] = {
             name = "Weapon Crafting Bench",
             prop = 'gr_prop_gr_bench_01b',
-            location = vector4(-61.4, -149.13, 57.33, 66.5),
+            location = vector4(-61.4, -149.13, 56.33, 66.5),
             recipes = { 'weapons' },
-            blip = { sprite = 110, scale = 0.6, color = 0 }
+            blip = { sprite = 110, scale = 0.6, color = 0 },
+            --group = { ['police'] = 0 }
         }
     },
 

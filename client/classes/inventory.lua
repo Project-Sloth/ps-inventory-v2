@@ -75,6 +75,7 @@ end
 --- Drop item
 -------------------------------------------------
 function Core.Classes.Inventory.Drop(data)
+    data.dropId = Core.Classes.Drops:GetState('nearDropId')
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Drop', false, data)
     Core.Classes.Inventory.Update()
     return res

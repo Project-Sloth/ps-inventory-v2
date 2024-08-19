@@ -2,12 +2,16 @@
 --- Server sends over new drop data
 -------------------------------------------------
 RegisterNetEvent(Config.ClientEventPrefix .. 'UpdatePlaceables', function(items)
-    Core.Classes.Placeables.Update(items)
+    if Config.Placeables.Enabled then
+        Core.Classes.Placeables.Update(items)
+    end
 end)
 
 -------------------------------------------------
 --- Placeable item
 -------------------------------------------------
 RegisterNetEvent(Config.ClientEventPrefix .. 'PlaceItem', function(item)
-    Core.Classes.Placeables.PlacementMode(item)
+    if Config.Placeables.Enabled then
+        Core.Classes.Placeables.PlacementMode(item)
+    end
 end)

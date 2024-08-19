@@ -29,13 +29,13 @@ function Core.Classes.Crafting.Load()
                         options = {
                             {
                                 action = function ()
-                                    Core.Classes.Placeables.Open(craftId)
+                                    Core.Classes.Crafting.Open(craftId)
                                 end,
                                 icon = "fas fa-eye",
                                 label = "Access crafting"
                             }
                         },
-                        distance = 1.5
+                        distance = crafting.radius or 1.5
                     })
                 end
             end
@@ -62,7 +62,7 @@ function Core.Classes.Crafting.Load()
         if not Config.UseTarget then
             Core.Classes.Crafting.AddZone(craftId, lib.zones.sphere({
                 coords = vector3(crafting.location.x, crafting.location.y, crafting.location.z),
-                radius = 3,
+                radius = crafting.radius or 3,
                 debug = false,
                 onEnter = function ()
                     -- Group check

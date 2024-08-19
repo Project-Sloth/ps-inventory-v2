@@ -21,16 +21,32 @@ end
 --- Starts threads for classes
 -------------------------------------------------
 function CreateInventoryThreads ()
+
+    -------------------------------------------------
+    --- Health updates
+    -------------------------------------------------
+    Core.Classes.Player.Reset()
+    CreateThread(function ()
+        while true do
+            Core.Classes.Player.UpdateHealth(true)
+            Wait(2000)
+        end
+    end)
+
     
     -------------------------------------------------
     --- Class loads
     -------------------------------------------------
     CreateThread(function ()
-        if not Core.Classes.Inventory:GetState('Loaded') then Wait(1000) end
         Core.Classes.Crafting.Load()
-        Core.Classes.Placeables.Load()
+
+        if Config.Placeables.Enabled then
+            Core.Classes.Placeables.Load()
+        end
+
         Core.Classes.Stashes.Load()
         Core.Classes.Shops.Load()
+        Core.Classes.Vending.Load()
     end)
 
     -------------------------------------------------
@@ -43,12 +59,14 @@ function CreateInventoryThreads ()
                 -- Pickup placeable item
                 if IsControlJustPressed(0, 38) and IsControlPressed(0, 21) then
                     Core.Classes.Placeables.Pickup()
-                end
-
                 -- General interactive key
-                if IsControlJustPressed(0, Config.InteractKey.Code) then
+                elseif IsControlJustPressed(0, Config.InteractKey.Code) then
                     Core.Classes.Crafting.Open()
-                    Core.Classes.Placeables.Open()
+
+                    if Config.Placeables.Enabled then
+                        Core.Classes.Placeables.Open()
+                    end
+
                     Core.Classes.Stashes.Open()
                     Core.Classes.Shops.Open()
                 end
@@ -63,7 +81,6 @@ function CreateInventoryThreads ()
     -------------------------------------------------
     CreateThread(function ()
         while true do
-            if not Core.Classes.Inventory:GetState('Loaded') then Wait(1000) end
             Core.Classes.Vehicles.DistanceCheck()
         end
     end)

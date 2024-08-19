@@ -50,7 +50,7 @@ function Core.Classes.Placeables.AttachTarget (propId, id, additionalOptions)
 
     Framework.Client.AddTargetEntity(propId, {
         options = targetOptions,
-        distance = 1.5
+        distance = Config.Placeables.Radius or 1.5
     })
 end
 
@@ -187,7 +187,7 @@ function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround
     else
         Core.Classes.Placeables.AddZone(id, lib.zones.sphere({
             coords = vector3(item.location.x, item.location.y, item.location.z),
-            radius = 3,
+            radius = Config.Placeables.Radius or 3,
             debug = false,
             onEnter = function ()
                 local interactType = ""
@@ -295,16 +295,16 @@ function Core.Classes.Placeables.PlacementMode(item)
         -- Shift + Mouse Wheel Up, move item up
         if IsControlPressed(0, 21) and IsControlJustReleased(0, 241) then
             zOffset = zOffset + 0.1
-            if zOffset > Config.Placeables.maxZOffset then
-                zOffset = Config.Placeables.maxZOffset
+            if zOffset > Config.Placeables.MaxZOffset then
+                zOffset = Config.Placeables.MaxZOffset
             end
         end
 
         -- Shift + Mouse Wheel Down, move item down
         if IsControlPressed(0, 21) and IsControlJustReleased(0, 242) then
             zOffset = zOffset - 0.1
-            if zOffset < Config.Placeables.minZOffset then
-                zOffset = Config.Placeables.minZOffset
+            if zOffset < Config.Placeables.MinZOffset then
+                zOffset = Config.Placeables.MinZOffset
             end
         end
 

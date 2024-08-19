@@ -34,7 +34,7 @@ function Core.Classes.Stashes.Load ()
         else
             Core.Classes.Stashes.AddZone(stashId, lib.zones.sphere({
                 coords = stash.location,
-                radius = 3,
+                radius = stash.radius or 3,
                 debug = false,
                 onEnter = function ()
                     -- Group check
