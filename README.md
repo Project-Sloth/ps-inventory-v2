@@ -3,7 +3,6 @@
 Currently a work-in-progress. Do not expect this to fully work yet. The goal is to make this inventory work out of the box for a fresh install of the new QBCore update.
 
 ### Frameworks Supported
-
 - QB Core
 
 ### Features
@@ -20,6 +19,8 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Interactive UI when targetting is not available
 - Decay system
 - Hotbar (With toggling capability)
+- Configurable themes
+- Multi-language support
 
 ### Dependencies
 
@@ -79,6 +80,7 @@ exports['ps-inventory']:LoadExternalInventory(type, typeId) -- Loads an external
 exports['ps-inventory']:OpenStash(src, stashId) -- Opens a stash
 exports['ps-inventory']:OpenShop(src, shopId) -- Opens a shop
 exports['ps-inventory']:OpenVending() -- Opens vending machine shop
+exports['ps-inventory']:OpenCrafting(src, craftId) -- Opens crafting menu
 ```
 
 ### Client Exports

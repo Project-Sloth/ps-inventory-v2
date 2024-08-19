@@ -1,6 +1,4 @@
--------------------------------------------------
---- Craft item
--------------------------------------------------
+-- Craft item
 lib.callback.register(Config.ServerEventPrefix .. "CraftItem", function (source, data)
     local canCraftItem = Core.Classes.Crafting.CanCraftItem(source, data)
     if not canCraftItem then return { success = false, message = "You are missing some materials" } end

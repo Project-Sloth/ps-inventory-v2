@@ -5,9 +5,7 @@
 -- Creates the vehicles class
 Core.Classes.New("Vehicles", { nearVehicle = false })
 
--------------------------------------------------
---- Dinstance checker for vehicles
--------------------------------------------------
+-- Dinstance checker for vehicles
 function Core.Classes.Vehicles.VehicleAccessible()
     local ped = PlayerPedId()
 
@@ -52,9 +50,7 @@ function Core.Classes.Vehicles.VehicleAccessible()
     return false
 end
 
--------------------------------------------------
---- Dinstance checker for vehicles
--------------------------------------------------
+-- Dinstance checker for vehicles
 function Core.Classes.Vehicles.DistanceCheck()
     if Core.Classes.Inventory:GetState('IsOpen') and Core.Classes.Inventory:GetState('External') ~= false and Core.Classes.Vehicles:GetState('nearVehicle') then
         local external = Core.Classes.Inventory:GetState('External')

@@ -5,9 +5,7 @@
 -- Creates the stashes class
 Core.Classes.New("Stashes", { nearStashId = false, zones = {} })
 
--------------------------------------------------
---- Loading for stashes
--------------------------------------------------
+-- Loading for stashes
 function Core.Classes.Stashes.Load ()
     for stashId, stash in pairs(Config.Stashes) do
         if Config.UseTarget then
@@ -17,7 +15,9 @@ function Core.Classes.Stashes.Load ()
                 size = stash.size,
                 options = {
                     {
-                        label = stash.optionLabel or "Open " .. stash.name,
+                        label = stash.optionLabel or Core.Language.Locale('stashTarget', {
+                            stashName = stash.name
+                        }),
                         action = function ()
                             Core.Classes.Stashes.Open(stashId)
                         end,
@@ -42,7 +42,10 @@ function Core.Classes.Stashes.Load ()
                         if not Framework.Client.HasGroup(stash.group) then return end
                     end
     
-                    Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access stash')
+                    Core.Classes.Interact.Show(Core.Language.Locale('stashInteractive', {
+                        key = Config.InteractKey.Label
+                    }))
+
                     Core.Classes.Stashes:UpdateState('nearStashId', stashId)
                 end,
                 onExit = function ()
@@ -54,9 +57,9 @@ function Core.Classes.Stashes.Load ()
     end
 end
 
--------------------------------------------------
---- Adds new zone
--------------------------------------------------
+-- Adds new zone
+---@param id string
+---@param zone CZone
 function Core.Classes.Stashes.AddZone(id, zone)
     local zones = Core.Classes.Stashes:GetState('zones')
     if zones[id] then
@@ -69,9 +72,8 @@ function Core.Classes.Stashes.AddZone(id, zone)
     Core.Classes.Stashes:GetState('zones', zones)
 end
 
--------------------------------------------------
---- Removes existing zone
--------------------------------------------------
+-- Removes existing zone
+---@param id string
 function Core.Classes.Stashes.RemoveZone(id)
     local zones = Core.Classes.Stashes:GetState('zones')
 
@@ -84,9 +86,8 @@ function Core.Classes.Stashes.RemoveZone(id)
     end
 end
 
--------------------------------------------------
---- Open stash if near one
--------------------------------------------------
+-- Open stash if near one
+---@param stashId string
 function Core.Classes.Stashes.Open(stashId)
     local stashId = Core.Classes.Stashes:GetState('nearStashId') or stashId
 
@@ -95,9 +96,7 @@ function Core.Classes.Stashes.Open(stashId)
     end
 end
 
--------------------------------------------------
---- Cleanup on resourceStop
--------------------------------------------------
+-- Cleanup on resourceStop
 function Core.Classes.Stashes.Cleanup()
     local zones = Core.Classes.Stashes:GetState("zones")
     for id, zone in pairs(zones) do Core.Classes.Stashes.RemoveZone(id) end

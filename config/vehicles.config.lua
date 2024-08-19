@@ -7,12 +7,12 @@ Config.Vehicles = {
 
             Glovebox = {
                 MaxWeight = 80000,
-                MaxSlots = 22
+                MaxSlots = 15
             },
 
             Trunk = {
                 MaxWeight = 200000,
-                MaxSlots = 100
+                MaxSlots = 50
             }
         }
     },

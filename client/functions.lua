@@ -1,25 +1,24 @@
--------------------------------------------------
---- Payload for nui init
--------------------------------------------------
+-- Payload for nui init
 function InventoryInitPayload ()
     return {
         action = "init",
+        themes = Config.Themes,
         debugging = Config.Debugging,
         player = {
             name = Framework.Client.GetPlayerName(),
             identifier = Framework.Client.GetPlayerIdentifier(),
-            cash = Framework.Client.GetPlayerCash()
+            cash = Framework.Client.GetPlayerCash(),
+            preferences = lib.callback.await(Config.ServerEventPrefix .. 'GetInventoryPreferences', false)
         },
         inventory = {
             MaxInventoryWeight = Config.Inventories.Player.MaxWeight,
             MaxInventorySlots = Config.Inventories.Player.MaxSlots
-        }
+        },
+        locales = Core.Language.GetLocales()
     }
 end
 
--------------------------------------------------
---- Starts threads for classes
--------------------------------------------------
+-- Starts threads for classes
 function CreateInventoryThreads ()
 
     -------------------------------------------------

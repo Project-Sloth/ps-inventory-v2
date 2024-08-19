@@ -1,6 +1,7 @@
 Core.Utilities = {
 
     -- General logging method
+    ---@param data table
     Log = function(data)
         if type(data) ~= "table" then return end
         if not data.title then return end
@@ -26,7 +27,9 @@ Core.Utilities = {
     end,
 
     -- Loads file in resource
+    ---@param filePath string
     LoadFile = function (filePath)
+
         local file = LoadResourceFile(GetCurrentResourceName(), filePath)
 
         if not file then
@@ -54,6 +57,9 @@ Core.Utilities = {
     end,
 
     -- Register an export event handler
+    ---@param resourceName string
+    ---@param exportName string
+    ---@param func function
     ExportHandler = function (resourceName, exportName, func)
         print("Registering export handler: " .. ('__cfx_export_%s_%s'):format(resourceName, exportName))
         AddEventHandler(('__cfx_export_%s_%s'):format(resourceName, exportName), function(setCallback)
@@ -61,6 +67,9 @@ Core.Utilities = {
         end)
     end,
 
+    -- Merges two tables together
+    ---@param a table
+    ---@param b table
     MergeTables = function (a, b)
         if type(a) == 'table' and type(b) == 'table' then
             for k, v in pairs(b) do 
@@ -72,6 +81,7 @@ Core.Utilities = {
     end,
 
     -- Get table length
+    ---@param tbl table
     TableLength = function (tbl)
         local l = 0
         for n in pairs(tbl) do 
@@ -81,6 +91,8 @@ Core.Utilities = {
     end,
 
     -- Checks a table to see if a key exists
+    ---@param t table
+    ---@param key any
     TableContainsKey = function (t, key)
         local keyExists = false
 
@@ -94,6 +106,8 @@ Core.Utilities = {
     end,
 
     -- Checks if a table has value
+    ---@param t table
+    ---@param value any
     TableHasValue  = function (t, value)
         local hasValue = false
 
@@ -107,6 +121,7 @@ Core.Utilities = {
     end,
 
     -- Generate random string with length
+    ---@param length number
     RandomString = function (length)
         local charset = {}  do
             for c = 48, 57  do table.insert(charset, string.char(c)) end
@@ -119,6 +134,7 @@ Core.Utilities = {
     end,
 
     -- Generate random number with length
+    ---@param length number
     RandomNumber = function (length)
         local charset = {} do
             for i = 48, 57 do table.insert(charset, string.char(i)) end
@@ -150,6 +166,7 @@ Core.Utilities = {
     end,
 
     -- Loads a model hash
+    ---@param ModelHash string
     LoadModelHash = function (ModelHash)
         local modelHash = GetHashKey(ModelHash)
         RequestModel(modelHash)
@@ -159,6 +176,7 @@ Core.Utilities = {
     end,
 
     -- Checks against config for if vehicle has a back engine
+    ---@param hashKey number
     VehicleIsBackEngine = function (hashKey)
         local isBackEngine = false
 
@@ -174,6 +192,8 @@ Core.Utilities = {
     end,
 
     -- Creates an object
+    ---@param prop string
+    ---@param location vector3|table
     CreateObject = function (prop, location)
         Core.Utilities.LoadModelHash(prop)
         local CreatedObject = CreateObjectNoOffset(prop, location.x, location.y, location.z, 1, 0, 1)
@@ -193,6 +213,8 @@ Core.Utilities = {
     end,
 
     -- Creates a blip
+    ---@param settings table
+    ---@param coords vector3|table
     CreateBlip = function (settings, coords)
         AddTextEntry('TEST', settings.name)
         local blip = AddBlipForCoord(coords)
@@ -208,6 +230,12 @@ Core.Utilities = {
     end,
 
     -- Creates a ped and returns information
+    ---@param modelHash string
+    ---@param x number
+    ---@param y number
+    ---@param z number
+    ---@param heading number
+    ---@param scenario string
     CreateNetworkPed = function (modelHash, x, y, z, heading, scenario)
         Core.Utilities.LoadModelHash(modelHash)
 
@@ -230,6 +258,8 @@ Core.Utilities = {
     end,
 
     -- Delets a network ped by entity id
+    ---@param Entity number
+    ---@param type string
     DeleteEntity = function (Entity, type)
 
         -- Check if it exists first

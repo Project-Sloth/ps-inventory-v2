@@ -5,9 +5,7 @@
 -- Creates the shops class
 Core.Classes.New("Shops", { peds = {}, blips = {}, nearShopId = false, zones = {} })
 
--------------------------------------------------
---- Loads client shop locations
--------------------------------------------------
+-- Loads client shop locations
 function Core.Classes.Shops.Load()
     for shopId, shop in pairs(Config.Shops) do
 
@@ -43,7 +41,9 @@ function Core.Classes.Shops.Load()
                                                 TriggerServerEvent(Config.ServerEventPrefix .. 'OpenShop', shopId)
                                             end,
                                             icon = "fas fa-hshopping-basket",
-                                            label = shop.name
+                                            label = Core.Language.Locale('shopTarget', {
+                                                shopName = shop.name
+                                            })
                                         }
                                     },
                                     distance = shop.radius or 1.5
@@ -81,7 +81,10 @@ function Core.Classes.Shops.Load()
                             if not Framework.Client.HasGroup(shop.group) then return end
                         end
         
-                        Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access shop')
+                        Core.Classes.Interact.Show(Core.Language.Locale('shopInteractive', {
+                            key = Config.InteractKey.Label
+                        }))
+
                         Core.Classes.Shops:UpdateState('nearShopId', shopId)
                     end,
                     onExit = function ()
@@ -96,9 +99,9 @@ function Core.Classes.Shops.Load()
     end
 end
 
--------------------------------------------------
---- Adds new zone
--------------------------------------------------
+-- Adds new zone
+---@param id string
+---@param zone CZone
 function Core.Classes.Shops.AddZone(id, zone)
     local zones = Core.Classes.Shops:GetState('zones')
 
@@ -112,9 +115,8 @@ function Core.Classes.Shops.AddZone(id, zone)
     Core.Classes.Shops:GetState('zones', zones)
 end
 
--------------------------------------------------
---- Removes existing zone
--------------------------------------------------
+-- Removes existing zone
+---@param id string
 function Core.Classes.Shops.RemoveZone(id)
     local zones = Core.Classes.Shops:GetState('zones')
 
@@ -128,18 +130,15 @@ function Core.Classes.Shops.RemoveZone(id)
     Core.Classes.Shops:GetState('zones', zones)
 end
 
--------------------------------------------------
---- Open shop if near one
--------------------------------------------------
+-- Open shop if near one
+---@param data table
 function Core.Classes.Shops.Buy(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Buy', false, data)
     Core.Classes.Inventory.Update()
     return res
 end
 
--------------------------------------------------
---- Open shop if near one
--------------------------------------------------
+-- Open shop if near one
 function Core.Classes.Shops.Open()
     local shopId = Core.Classes.Shops:GetState('nearShopId')
 
@@ -148,9 +147,7 @@ function Core.Classes.Shops.Open()
     end
 end
 
--------------------------------------------------
---- Cleanup peds and blips on resourceStop
--------------------------------------------------
+-- Cleanup peds and blips on resourceStop
 function Core.Classes.Shops.Cleanup()
     local peds = Core.Classes.Shops:GetState("peds")
     for _, ped in pairs(peds) do

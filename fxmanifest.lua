@@ -34,13 +34,15 @@ shared_script {
     "config/crafting.config.lua",
     "shared/core/core.lua",
     "shared/core/utilities.lua",
+    "shared/core/language.lua",
     "shared/core/classes.lua",
     "shared/core/crons.lua",
     "framework/framework.lua"
 }
 
 files { 
-    'nui/**/*',
+    'nui/assets/**/*',
+    'nui/index.html',
     'framework/**/*.lua'
 }
 

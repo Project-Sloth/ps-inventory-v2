@@ -1,13 +1,13 @@
--------------------------------------------------
---- Setup Functions
--------------------------------------------------
+-- Determine language
+local LanguageLocales = lib.callback.await(Config.ServerEventPrefix .. 'RetrieveLocales', false)
+if LanguageLocales then
+    Core.Language.SetLanguage(Config.Language).SetLocales(LanguageLocales)
+end
 
 -- Determine framework
 Framework.Determine()
 
--------------------------------------------------
---- Load player inventory
--------------------------------------------------
+-- Load player inventory
 if Framework.Client.EventPlayerLoaded then
     RegisterNetEvent(Framework.Client.EventPlayerLoaded)
     AddEventHandler (Framework.Client.EventPlayerLoaded, function()
@@ -23,9 +23,7 @@ else
     end)
 end
 
--------------------------------------------
---- Open Inventory Keybind
--------------------------------------------
+-- Open Inventory Keybind
 local keybind = lib.addKeybind({
     name = 'inventory',
     description = 'Press tab to open inventory',
@@ -47,9 +45,7 @@ local keybind = lib.addKeybind({
     end
 })
 
--------------------------------------------
---- Keybinds for slot items
--------------------------------------------
+-- Keybinds for slot items
 for i = 1, 5 do
     lib.addKeybind({
         name = 'slot' .. i,

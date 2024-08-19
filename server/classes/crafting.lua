@@ -1,13 +1,7 @@
--------------------------------------------------
---- Crafting Setup (Runs when server starts)
--------------------------------------------------
-
--- Creates the crafting class
 Core.Classes.New("Crafting", { Queue = {} })
 
--------------------------------------------------
---- Builds item list from crafting item list
--------------------------------------------------
+-- Builds item list from crafting item list
+---@param recipes table
 function Core.Classes.Crafting.BuildItemList(recipes)
     local itemList = {}
 
@@ -29,9 +23,9 @@ function Core.Classes.Crafting.BuildItemList(recipes)
     return itemList
 end
 
--------------------------------------------------
---- Open Crafting via Placeable Item
--------------------------------------------------
+-- Open Crafting via Placeable Item
+---@param src number
+---@param item table
 function Core.Classes.Crafting.OpenByPlaceable (src, item)
     local Player = Framework.Server.GetPlayer(src)
     local crafting = Config.Crafting.Placeables[item]
@@ -55,9 +49,9 @@ function Core.Classes.Crafting.OpenByPlaceable (src, item)
     })
 end
 
--------------------------------------------------
---- open Crafting Bench
--------------------------------------------------
+-- open Crafting Bench
+---@param src number
+---@param craftId string
 function Core.Classes.Crafting.Open (src, craftId)
     local Player = Framework.Server.GetPlayer(src)
     local crafting = Config.Crafting.Locations[craftId]
@@ -81,9 +75,7 @@ function Core.Classes.Crafting.Open (src, craftId)
     })
 end
 
--------------------------------------------------
---- Processes queue items
--------------------------------------------------
+-- Processes queue items
 function Core.Classes.Crafting.ProcessQueue ()
     local queue = Core.Classes.Crafting:GetState('Queue')
 
@@ -106,16 +98,14 @@ function Core.Classes.Crafting.ProcessQueue ()
     Core.Classes.Crafting.UpdateQueue(queue)
 end
 
--------------------------------------------------
---- Updates queue state
--------------------------------------------------
+-- Updates queue state
+---@param queue table
 function Core.Classes.Crafting.UpdateQueue (queue)
     Core.Classes.Crafting:UpdateState('Queue', queue)
 end
 
--------------------------------------------------
---- Gets full queue for player
--------------------------------------------------
+-- Gets full queue for player
+---@param source number
 function Core.Classes.Crafting.GetQueueForPlayer (source)
     local queue = Core.Classes.Crafting:GetState('Queue')
     local playerQueue = queue[source]
@@ -130,9 +120,9 @@ function Core.Classes.Crafting.GetQueueForPlayer (source)
     return queue[source]
 end
 
--------------------------------------------------
---- Queues crafting item
--------------------------------------------------
+-- Queues crafting item
+---@param source number
+---@param data table
 function Core.Classes.Crafting.QueueItem (source, data)
     local queue = Core.Classes.Crafting:GetState('Queue')
     if not queue[source] then queue[source] = {} end
@@ -154,9 +144,9 @@ function Core.Classes.Crafting.QueueItem (source, data)
     return { success = true }
 end
 
--------------------------------------------------
---- Removes queued item (todo: re-add items to inv)
--------------------------------------------------
+-- Removes queued item (todo: re-add items to inv)
+---@param source number
+---@param queueId string
 function Core.Classes.Crafting.CancelItem (source, queueId)
     local queue = Core.Classes.Crafting:GetState('Queue')
     if not queue[source] then return false end
@@ -166,9 +156,9 @@ function Core.Classes.Crafting.CancelItem (source, queueId)
     TriggerClientEvent(Config.ClientEventPrefix .. "RemoveCraftingQueueItem", source, queueId)
 end
 
--------------------------------------------------
---- Check if player can craft item
--------------------------------------------------
+-- Check if player can craft item
+---@param source number
+---@param data table
 function Core.Classes.Crafting.CanCraftItem (source, data)
 
     -- Validate player

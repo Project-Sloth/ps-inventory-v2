@@ -1,6 +1,4 @@
--------------------------------------------------
---- Inventory command
--------------------------------------------------
+-- Inventory command
 lib.addCommand('inventory', {
     help = 'Open inventory',
     params = {}
@@ -8,9 +6,7 @@ lib.addCommand('inventory', {
     TriggerClientEvent(Config.ClientEventPrefix .. "OpenInventory", source)
 end)
 
--------------------------------------------------
---- Open a player's inventory
--------------------------------------------------
+-- Open a player's inventory
 lib.addCommand('playerinv', {
     help = 'See player inventory',
     params = {{

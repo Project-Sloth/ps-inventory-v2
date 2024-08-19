@@ -4,9 +4,7 @@
 --- for Config.Framework
 -------------------------------------------------
 
--------------------------------------------------
---- GETS CORE OBJECT
--------------------------------------------------
+-- Get core object
 Framework.GetCoreObject = function ()
 	Framework.CoreName = "qb"
 	Framework.Core = exports['qb-core']:GetCoreObject()
@@ -14,9 +12,7 @@ Framework.GetCoreObject = function ()
 	return Framework.Core
 end
 
--------------------------------------------------
---- GET PLAYER NAME
--------------------------------------------------
+-- Get player name
 Framework.Client.GetPlayerName = function ()
     -- Attempt to get Player table
     local Player = Framework.Core.Functions.GetPlayerData()
@@ -28,32 +24,29 @@ Framework.Client.GetPlayerName = function ()
     return Player.charinfo.firstname .. " " .. Player.charinfo.lastname
 end
 
--------------------------------------------------
---- GET PLAYER IDENTIFIER
--------------------------------------------------
+-- Get player identifier
+---@return string
 Framework.Client.GetPlayerIdentifier = function ()
     local Player = Framework.Core.Functions.GetPlayerData()
     return Player.citizenid
 end
 
--------------------------------------------------
---- GET PLAYER CASH
--------------------------------------------------
+-- Get player cash
+---@return number
 Framework.Client.GetPlayerCash = function ()
     local Player = Framework.Core.Functions.GetPlayerData()
     return Player.money.cash
 end
 
--------------------------------------------------
---- CHECK WEAPON
--------------------------------------------------
+-- Check weapon
+---@param src number 
+---@param weaponName string
 Framework.Client.CheckWeapon = function (src, weaponName)
     TriggerEvent('qb-weapons:client:CheckWeapon', weaponName)
 end
 
--------------------------------------------------
---- CHECK WEAPON
--------------------------------------------------
+-- Can open inventory
+---@return boolean
 Framework.Client.CanOpenInventory = function ()
     local PlayerData = Framework.Core.Functions.GetPlayerData()
     if not PlayerData then return false end
@@ -65,16 +58,16 @@ Framework.Client.CanOpenInventory = function ()
     return true
 end
 
--------------------------------------------------
---- USE WEAPON
--------------------------------------------------
+-- Use weapon
+---@param src number
+---@param weaponData table
+---@param shootBool boolean
 Framework.Client.UseWeapon = function (src, weaponData, shootBool)
     TriggerEvent('qb-weapons:client:UseWeapon', weaponData, shootBool)
 end
 
--------------------------------------------------
---- Has Group
--------------------------------------------------
+-- Has Group
+---@param group table
 Framework.Client.HasGroup = function(group)
     local PlayerData = Framework.Core.Functions.GetPlayerData()
     if not PlayerData.job then return false end
@@ -99,9 +92,7 @@ Framework.Client.HasGroup = function(group)
 	end
 end
 
--------------------------------------------------
---- Progress bar
--------------------------------------------------
+-- Progress bar
 Framework.Client.Progressbar = function (
     name, 
     label, 
@@ -130,9 +121,7 @@ Framework.Client.Progressbar = function (
     )
 end
 
--------------------------------------------------
---- When player data is updated
--------------------------------------------------
+-- When player data is updated
 RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
 	if not source or source == '' then return end
 	if PlayerData.metadata["isdead"] or PlayerData.metadata["inlaststand"] or PlayerData.metadata["ishandcuffed"] then
@@ -140,9 +129,7 @@ RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
 	end
 end)
 
--------------------------------------------------
---- When player is logging out
--------------------------------------------------
+-- When player is logging out
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function (src)
     lib.callback.await(Config.ServerEventPrefix .. 'SavePlayerInventory', false)
 end)

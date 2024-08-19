@@ -6,22 +6,24 @@
 Core.Classes.New("InventoryNotify")
 
 -- Adds item in NUI
+---@param item table
+---@param amount number
 function Core.Classes.InventoryNotify.AddItem(item, amount)
     SendNUIMessage({
         action = "notify",
         process = "add",
-        slot = slot,
         item = item,
         amount = amount
     })
 end
 
 -- Removes item in NUI
+---@param item table
+---@param amount number
 function Core.Classes.InventoryNotify.RemoveItem(item, amount)
     SendNUIMessage({
         action = "notify",
         process = "remove",
-        slot = slot,
         item = item,
         amount = amount
     })

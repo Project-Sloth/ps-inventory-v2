@@ -6,6 +6,7 @@
 Core.Classes.New("Interact")
 
 -- Adds item in NUI
+---@param message string
 function Core.Classes.Interact.Show(message)
     SendNUIMessage({
         action = "interact",

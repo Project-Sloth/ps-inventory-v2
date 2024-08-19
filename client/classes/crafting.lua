@@ -5,9 +5,7 @@
 -- Creates the crafting class
 Core.Classes.New("Crafting", { props = {}, blips = {}, nearCraftId = false, zones = {} })
 
--------------------------------------------------
---- Loads client shop locations
--------------------------------------------------
+-- Loads client shop locations
 function Core.Classes.Crafting.Load()
     for craftId, crafting in pairs(Config.Crafting.Locations) do
 
@@ -32,7 +30,7 @@ function Core.Classes.Crafting.Load()
                                     Core.Classes.Crafting.Open(craftId)
                                 end,
                                 icon = "fas fa-eye",
-                                label = "Access crafting"
+                                label = Core.Language.Locale('craftingTarget')
                             }
                         },
                         distance = crafting.radius or 1.5
@@ -70,7 +68,10 @@ function Core.Classes.Crafting.Load()
                         if not Framework.Client.HasGroup(crafting.group) then return end
                     end
     
-                    Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access crafting')
+                    Core.Classes.Interact.Show(Core.Language.Locale('craftingInteractive', {
+                        key = Config.InteractKey.Label
+                    }))
+                    
                     Core.Classes.Crafting:UpdateState('nearCraftId', craftId)
                 end,
                 onExit = function ()
@@ -89,9 +90,9 @@ function Core.Classes.Crafting.Load()
     end
 end
 
--------------------------------------------------
---- Adds new zone
--------------------------------------------------
+-- Adds new zone
+---@param id string
+---@param zone CZone
 function Core.Classes.Crafting.AddZone(id, zone)
     local zones = Core.Classes.Crafting:GetState('zones')
     if zones[id] then
@@ -104,9 +105,8 @@ function Core.Classes.Crafting.AddZone(id, zone)
     Core.Classes.Crafting:GetState('zones', zones)
 end
 
--------------------------------------------------
---- Removes existing zone
--------------------------------------------------
+-- Removes existing zone
+---@param id number
 function Core.Classes.Crafting.RemoveZone(id)
     local zones = Core.Classes.Crafting:GetState('zones')
 
@@ -119,18 +119,16 @@ function Core.Classes.Crafting.RemoveZone(id)
     end
 end
 
--------------------------------------------------
---- Open shop if near one
--------------------------------------------------
+-- Open shop if near one
+---@param data table
 function Core.Classes.Crafting.Craft(data)
     local res = lib.callback.await(Config.ServerEventPrefix .. 'CraftItem', false, data)
     Core.Classes.Inventory.Update()
     return res
 end
 
--------------------------------------------------
---- Open shop if near one
--------------------------------------------------
+-- Open shop if near one
+---@param id string
 function Core.Classes.Crafting.Open(id)
     local craftId = Core.Classes.Crafting:GetState('nearCraftId') or id
 
@@ -139,9 +137,7 @@ function Core.Classes.Crafting.Open(id)
     end
 end
 
--------------------------------------------------
---- Cleanup props and blips on resourceStop
--------------------------------------------------
+-- Cleanup props and blips on resourceStop
 function Core.Classes.Crafting.Cleanup()
     local props = Core.Classes.Crafting:GetState("props")
     for _, prop in pairs(props) do Core.Utilities.DeleteEntity(prop, 'object') end

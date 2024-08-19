@@ -1,15 +1,12 @@
--------------------------------------------------
---- Inventory Setup (Runs when server starts)
--------------------------------------------------
--- Creates the inventory class
 Core.Classes.New("Inventory", { Items = {} })
 
--------------------------------------------------
---- Inventory utility methods
--------------------------------------------------
+
+-- Inventory utility methods
 Core.Classes.Inventory.Utilities = {
 
     -- Retrieve storage overrides for vehicle by hash key
+    ---@param hashKey number
+    ---@param storageType string
     GetVehicleSizeOverrideByHashKey = function (hashKey, storageType)
         local data = nil
 
@@ -25,6 +22,7 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Simple check if item is decayed or not
+    ---@param item table
     IsItemDecayed = function (item)
         if not item.decay then return false end
         if not item.created then return false end
@@ -35,6 +33,7 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Gets percentage of decay left for item
+    ---@param item table
     ItemDecayPercentage = function (item)
         if not item.decay then return 100 end
         if not item.created then return 100 end
@@ -51,6 +50,8 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Get the first empty slot in inventory
+    ---@param items table
+    ---@param numberOfSlots number
     GetFirstEmptySlot = function (items, numberOfSlots)
         local slotsOccupied = {}
         local newSlotKey = nil
@@ -76,6 +77,8 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Get the slot key of an item's slot number
+    ---@param items table
+    ---@param slot number
     GetSlotKeyForItemBySlotNumber = function (items, slot)
         if not slot then return nil end
         slot = tonumber(slot)
@@ -91,6 +94,8 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Get the slot by slot number
+    ---@param items table
+    ---@param slot number
     GetSlotBySlotNumber = function (items, slot)
         if not slot then return nil end
         slot = tonumber(slot)
@@ -106,6 +111,9 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Get a specific item from a list
+    ---@param items table
+    ---@param itemName string
+    ---@param slot number
     GetItemFromListByName = function (items, itemName, slot)
 
         if slot then slot = tonumber(slot) end
@@ -127,6 +135,8 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Removes an item from a list by it's slot 
+    ---@param slot number
+    ---@param items table
     RemoveItemFromListBySlot = function (slot, items)
         for k, item in pairs(items) do
             if item.slot == slot then
@@ -138,6 +148,9 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Adds an item to the list
+    ---@param items table
+    ---@param item table
+    ---@param slot number
     AddItemToList = function (items, item, slot)
         if slot then item.slot = slot end
         table.insert(items, item)
@@ -145,6 +158,8 @@ Core.Classes.Inventory.Utilities = {
     end,
 
     -- Converts item to expected format
+    ---@param item table
+    ---@param additionalInfo? table
     ConvertItem = function (item, additionalInfo)
 
         -- Get original data
@@ -189,9 +204,8 @@ Core.Classes.Inventory.Utilities = {
     end
 }
 
--------------------------------------------------
---- Load Inventory Items
--------------------------------------------------
+-- Load Inventory Items
+---@param init boolean
 function Core.Classes.Inventory.Load(init)
 
     local inventoryItems = {}
@@ -217,10 +231,8 @@ function Core.Classes.Inventory.Load(init)
     end)
 end
 
--------------------------------------------------
---- Creates useables defined in useables.config.lua
--------------------------------------------------
-function Core.Classes.Inventory.CreateUseables (items)
+-- Creates useables defined in useables.config.lua
+function Core.Classes.Inventory.CreateUseables ()
     for item, itemData in pairs(Config.Items) do
         if itemData.useable and itemData.onUse then
             if type(itemData.onUse) == "function" then
@@ -230,9 +242,7 @@ function Core.Classes.Inventory.CreateUseables (items)
     end
 end
 
--------------------------------------------------
---- Sync player inventors to database
--------------------------------------------------
+-- Sync player inventors to database
 function Core.Classes.Inventory.SyncDatabase()
     local players = Framework.Server.GetPlayers()
     local saved = 0
@@ -264,9 +274,8 @@ function Core.Classes.Inventory.SyncDatabase()
     })
 end
 
--------------------------------------------------
---- Validate Items
--------------------------------------------------
+-- Validate Items
+---@param items table
 function Core.Classes.Inventory.ValidateItems(items)
     local inventory = {}
 
@@ -296,27 +305,23 @@ function Core.Classes.Inventory.ValidateItems(items)
     return inventory
 end
 
--------------------------------------------------
---- Retrieve all available inventory items
---- Export: exports['ps-inventory']:Items()
--------------------------------------------------
+-- Retrieve all available inventory items
+-- Export: exports['ps-inventory']:Items()
 function Core.Classes.Inventory.Items()
     return Core.Classes.Inventory:GetState('Items')
 end
 
--------------------------------------------------
---- Check if item exists
---- Export: exports['ps-inventory']:ItemExists(item)
--------------------------------------------------
+-- Check if item exists
+-- Export: exports['ps-inventory']:ItemExists(item)
+---@param item table
 function Core.Classes.Inventory.ItemExists(item)
     if not Core.Classes.Inventory:GetState('Items')[item] then return false end
     return true
 end
 
--------------------------------------------------
---- Get player inventory
---- Export: exports['ps-inventory']:GetPlayerInventory(src)
--------------------------------------------------
+-- Get player inventory
+-- Export: exports['ps-inventory']:GetPlayerInventory(src)
+---@param src number
 function Core.Classes.Inventory.GetPlayerInventory(src)
 
     local inventory = Framework.Server.GetPlayerInventory(src)
@@ -326,10 +331,10 @@ function Core.Classes.Inventory.GetPlayerInventory(src)
     return Core.Classes.Inventory.ValidateItems(inventory)
 end
 
--------------------------------------------------
---- Saves player inventory
---- Export: exports['ps-inventory']:SavePlayerInventory(src, offline)
--------------------------------------------------
+-- Saves player inventory
+-- Export: exports['ps-inventory']:SavePlayerInventory(src, offline)
+---@param src number
+---@param inventory table
 function Core.Classes.Inventory.SavePlayerInventory(src, inventory)
 
     if inventory == nil then
@@ -343,10 +348,9 @@ function Core.Classes.Inventory.SavePlayerInventory(src, inventory)
     return Framework.Server.SavePlayerInventory(src, inventory)
 end
 
--------------------------------------------------
---- Calculate weight of inventory
---- Export: exports['ps-inventory']:GetTotalWeight(items)
--------------------------------------------------
+-- Calculate weight of inventory
+-- Export: exports['ps-inventory']:GetTotalWeight(items)
+---@param items table
 function Core.Classes.Inventory.GetTotalWeight(items)
     local weight = 0
     if not items then return 0 end
@@ -360,18 +364,19 @@ function Core.Classes.Inventory.GetTotalWeight(items)
     return tonumber(weight)
 end
 
--------------------------------------------------
---- See if player has item (or amount of)
---- Export: exports['ps-inventory']:HasItem(items)
--------------------------------------------------
+-- See if player has item (or amount of)
+-- Export: exports['ps-inventory']:HasItem(items)
+---@param source number
+---@param items table
+---@param count number
 function Core.Classes.Inventory.HasItem(source, items, count)
     return Framework.Server.HasItem(source, items, count)
 end
 
--------------------------------------------------
---- Get slot of inventory and return the item
---- Export: exports['ps-inventory']:GetSlot(src, slot)
--------------------------------------------------
+-- Get slot of inventory and return the item
+-- Export: exports['ps-inventory']:GetSlot(src, slot)
+---@param src number
+---@param slot number
 function Core.Classes.Inventory.GetSlot(src, slot)
     local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
     slot = tonumber(slot)
@@ -387,10 +392,10 @@ function Core.Classes.Inventory.GetSlot(src, slot)
     return Inventory[slotKey]
 end
 
--------------------------------------------------
---- Get player slot number with item
---- Export: exports['ps-inventory']:GetSlotNumberWithItem(src, item)
--------------------------------------------------
+-- Get player slot number with item
+-- Export: exports['ps-inventory']:GetSlotNumberWithItem(src, item)
+---@param src number
+---@param itemName string
 function Core.Classes.Inventory.GetSlotNumberWithItem(src, itemName)
     local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
 
@@ -403,10 +408,11 @@ function Core.Classes.Inventory.GetSlotNumberWithItem(src, itemName)
     return nil
 end
 
--------------------------------------------------
---- Get player slot with item
---- Export: exports['ps-inventory']:GetSlotWithItem(src, item)
--------------------------------------------------
+-- Get player slot with item
+-- Export: exports['ps-inventory']:GetSlotWithItem(src, item)
+---@param src number
+---@param itemName string
+---@param items table
 function Core.Classes.Inventory.GetSlotWithItem(src, itemName, items)
     local Inventory = items and items or Core.Classes.Inventory.GetPlayerInventory(src)
 
@@ -419,10 +425,10 @@ function Core.Classes.Inventory.GetSlotWithItem(src, itemName, items)
     return nil
 end
 
--------------------------------------------------
---- Get player slots with item
---- Export: exports['ps-inventory']:GetSlotsWithItem(src, item)
--------------------------------------------------
+-- Get player slots with item
+-- Export: exports['ps-inventory']:GetSlotsWithItem(src, item)
+---@param src number
+---@param itemName string
 function Core.Classes.Inventory.GetSlotsWithItem(src, itemName)
     local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
     local slots = {}
@@ -436,18 +442,18 @@ function Core.Classes.Inventory.GetSlotsWithItem(src, itemName)
     return slots
 end
 
--------------------------------------------------
---- Open player inventory
---- Export: exports['ps-inventory']:OpenInventory(src)
--------------------------------------------------
+-- Open player inventory
+-- Export: exports['ps-inventory']:OpenInventory(src)
+---@param src number
+---@param external? table
 function Core.Classes.Inventory.OpenInventory(src, external)
     TriggerClientEvent(Config.ClientEventPrefix .. 'OpenInventory', src, external)
 end
 
--------------------------------------------------
---- Open target player inventory
---- Export: exports['ps-inventory']:OpenInventoryById(src, target)
--------------------------------------------------
+-- Open target player inventory
+-- Export: exports['ps-inventory']:OpenInventoryById(src, target)
+---@param src number
+---@param target number
 function Core.Classes.Inventory.OpenInventoryById(src, target)
     if src == target then return false end
 
@@ -474,26 +480,25 @@ function Core.Classes.Inventory.OpenInventoryById(src, target)
     })
 end
 
--------------------------------------------------
---- Close player inventory
---- Export: exports['ps-inventory']:CloseInventory(src)
--------------------------------------------------
+-- Close player inventory
+-- Export: exports['ps-inventory']:CloseInventory(src)
+---@param src number
 function Core.Classes.Inventory.CloseInventory(src)
     TriggerClientEvent(Config.ClientEventPrefix .. 'CloseInventory', src)
 end
 
--------------------------------------------------
---- Creats a useable item
---- Export: exports['ps-inventory']:CreateUseableItem(itemName, data)
--------------------------------------------------
+-- Creats a useable item
+-- Export: exports['ps-inventory']:CreateUseableItem(itemName, data)
+---@param itemName string
+---@param data table
 function Core.Classes.Inventory.CreateUseableItem(itemName, data)
 	Framework.Server.CreateUseableItem(itemName, data)
 end
 
--------------------------------------------------
---- Validates item then uses it
---- Export: exports['ps-inventory']:ValidateAndUseItem(src, itemData)
--------------------------------------------------
+-- Validates item then uses it
+-- Export: exports['ps-inventory']:ValidateAndUseItem(src, itemData)
+---@param src number
+---@param itemData table
 function Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
     if itemData then
         local itemInfo = Core.Classes.Inventory:GetState("Items")[itemData.name]
@@ -532,10 +537,9 @@ function Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
     end
 end
 
--------------------------------------------------
---- Uses an item if applicable
---- Export: exports['ps-inventory']:UseItem(item)
--------------------------------------------------
+-- Uses an item if applicable
+-- Export: exports['ps-inventory']:UseItem(item)
+---@param item table
 function Core.Classes.Inventory.UseItem(item, ...)
     Core.Utilities.Log({
         title = "UseItem",
@@ -557,10 +561,12 @@ function Core.Classes.Inventory.UseItem(item, ...)
     callback(...)
 end
 
--------------------------------------------------
---- Checks if player can carry weight of new item
---- Export: exports['ps-inventory']:CanCarryItem
--------------------------------------------------
+-- Checks if player can carry weight of new item
+-- Export: exports['ps-inventory']:CanCarryItem
+---@param source number
+---@param item string
+---@param amount number
+---@param maxWeight? number
 function Core.Classes.Inventory.CanCarryItem (source, item, amount, maxWeight)
 
     -- Player information
@@ -586,10 +592,15 @@ function Core.Classes.Inventory.CanCarryItem (source, item, amount, maxWeight)
     return false
 end
 
--------------------------------------------------
---- Adds an item to the inventory
---- Export: exports['ps-inventory']:AddItem
--------------------------------------------------
+-- Adds an item to the inventory
+-- Export: exports['ps-inventory']:AddItem
+---@param source number
+---@param item string
+---@param amount number
+---@param slot? number
+---@param info? table
+---@param reason? string
+---@param created? number
 function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason, created)
 
     -- Player information
@@ -688,10 +699,12 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
     return false
 end
 
--------------------------------------------------
---- Remove an item from inventory
---- Export: exports['ps-inventory']:RemoveItem
--------------------------------------------------
+-- Remove an item from inventory
+-- Export: exports['ps-inventory']:RemoveItem
+---@param source number
+---@param item string
+---@param amount number
+---@param slot? number
 function Core.Classes.Inventory.RemoveItem(source, item, amount, slot)
 
     -- Validate player
@@ -763,10 +776,10 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot)
     return false
 end
 
--------------------------------------------------
---- Clears a player inventory
---- Export: exports['ps-inventory']:ClearInventory
--------------------------------------------------
+-- Clears a player inventory
+-- Export: exports['ps-inventory']:ClearInventory
+---@param source number
+---@param filterItems? table
 function Core.Classes.Inventory.ClearInventory(source, filterItems)
 	local items = {}
 
@@ -786,10 +799,11 @@ function Core.Classes.Inventory.ClearInventory(source, filterItems)
 	Framework.Server.SavePlayerInventory(source, items)
 end
 
--------------------------------------------------
---- Saves an external inventory
---- Export: exports['ps-inventory']:SaveExternalInventory
--------------------------------------------------
+-- Saves an external inventory
+-- Export: exports['ps-inventory']:SaveExternalInventory
+---@param type string
+---@param inventoryId string
+---@param items table
 function Core.Classes.Inventory.SaveExternalInventory (type, inventoryId, items)
 	if not items then return false end
     items = Core.Classes.Inventory.ValidateItems(items)
@@ -807,10 +821,10 @@ function Core.Classes.Inventory.SaveExternalInventory (type, inventoryId, items)
     end
 end
 
--------------------------------------------------
---- Loads an external inventory
---- Export: exports['ps-inventory']:LoadExternalInventory
--------------------------------------------------
+-- Loads an external inventory
+-- Export: exports['ps-inventory']:LoadExternalInventory
+---@param type string
+---@param typeId string
 function Core.Classes.Inventory.LoadExternalInventory (type, typeId)
 
     -- If external type is shop
@@ -847,10 +861,12 @@ function Core.Classes.Inventory.LoadExternalInventory (type, typeId)
     return false
 end
 
--------------------------------------------------
---- Loads an external inventory and opens it
---- Export: exports['ps-inventory']:LoadExternalInventoryAndOpen
--------------------------------------------------
+-- Loads an external inventory and opens it
+-- Export: exports['ps-inventory']:LoadExternalInventoryAndOpen
+---@param src number
+---@param type string
+---@param typeId string
+---@param typeData? table
 function Core.Classes.Inventory.LoadExternalInventoryAndOpen(src, type, typeId, typeData)
 
     local slots = Config.Inventories.Stash.MaxSlots
@@ -938,9 +954,11 @@ function Core.Classes.Inventory.LoadExternalInventoryAndOpen(src, type, typeId, 
     })
 end
 
--------------------------------------------------
---- Performs swapping of items
--------------------------------------------------
+-- Performs swapping of items
+---@param src number
+---@param invType string
+---@param inventory table
+---@param items table
 function Core.Classes.Inventory.SwapSlots (src, invType, inventory, items)
     -- Is items a table
     if type(items) ~= "table" then return false end
@@ -1003,9 +1021,14 @@ function Core.Classes.Inventory.SwapSlots (src, invType, inventory, items)
     }
 end
 
--------------------------------------------------
---- Performs swapping of items
--------------------------------------------------
+-- Performs swapping of items
+---@param src number
+---@param origin string
+---@param destination string
+---@param item table
+---@param destinationSlotId number
+---@param originItems number
+---@param destinationItems number
 function Core.Classes.Inventory.Transfer (src, origin, destination, item, destinationSlotId, originItems, destinationItems)
     -- Get loaded inventory items
     local inventoryItems = Core.Classes.Inventory:GetState("Items")
@@ -1052,9 +1075,9 @@ function Core.Classes.Inventory.Transfer (src, origin, destination, item, destin
     }
 end
 
--------------------------------------------------
---- Move / Transfer Items
--------------------------------------------------
+-- Move / Transfer Items
+---@param src number
+---@param data table
 function Core.Classes.Inventory.Move (src, data)
 	local playerInventory = Core.Classes.Inventory.GetPlayerInventory(src)
     local inventoryItems = Core.Classes.Inventory:GetState("Items")
@@ -1197,9 +1220,9 @@ function Core.Classes.Inventory.Move (src, data)
     return false
 end
 
--------------------------------------------------
---- Give Item
--------------------------------------------------
+-- Give Item
+---@param src number
+---@param data table
 function Core.Classes.Inventory.Give (src, data)
     local playerInventory = Core.Classes.Inventory.GetPlayerInventory(src)
     local inventoryItems = Core.Classes.Inventory:GetState("Items")
@@ -1218,10 +1241,10 @@ function Core.Classes.Inventory.Give (src, data)
     return { success = true }
 end
 
--------------------------------------------------
---- Open Stash
---- Export: exports['ps-inventory']:OpenStash(src, stashId)
--------------------------------------------------
+-- Open Stash
+-- Export: exports['ps-inventory']:OpenStash(src, stashId)
+---@param src number
+---@param stashId string
 function Core.Classes.Inventory.OpenStash (src, stashId)
     local Player = Framework.Server.GetPlayer(src)
     local stash = Config.Stashes[stashId]
@@ -1252,9 +1275,8 @@ function Core.Classes.Inventory.OpenStash (src, stashId)
     })
 end
 
--------------------------------------------------
---- Define available exports for Inventory
--------------------------------------------------
+
+-- Define available exports for Inventory
 exports("Items", Core.Classes.Inventory.Items)
 exports("ItemExists", Core.Classes.Inventory.ItemExists)
 exports("GetPlayerInventory", Core.Classes.Inventory.GetPlayerInventory)

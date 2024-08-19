@@ -1,6 +1,7 @@
 -------------------------------------------
 --- Resource Events
 -------------------------------------------
+
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
 

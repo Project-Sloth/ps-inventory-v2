@@ -1,12 +1,11 @@
 -------------------------------------------------
---- FRAMEWORK FUNCTION OVERRIDES
---- These files are loaded based on the value set
---- for Config.Framework
+-- FRAMEWORK FUNCTION OVERRIDES
+-- These files are loaded based on the value set
+-- for Config.Framework
 -------------------------------------------------
 
--------------------------------------------------
---- GETS CORE OBJECT
--------------------------------------------------
+-- Gets core object
+---@return table
 Framework.GetCoreObject = function ()
 	Framework.CoreName = "qb"
 	Framework.Core = exports['qb-core']:GetCoreObject()
@@ -15,39 +14,42 @@ Framework.GetCoreObject = function ()
 	return Framework.Core
 end
 
--------------------------------------------------
---- GET INVENTORY ITEMS
--------------------------------------------------
+-- Gets inventory items
+---@param src number
+---@return table
 Framework.Server.GetInventoryItems = function (src)
     return Framework.Core.Shared.Items
 end
 
--------------------------------------------------
---- GET PLAYERS 
--------------------------------------------------
+-- Gets player list
+---@param src number
+---@return table
 Framework.Server.GetPlayers = function (src)
     return Framework.Core.Functions.GetPlayers()
 end
 
--------------------------------------------------
---- GET PLAYER 
--------------------------------------------------
+-- Gets player 
+---@param src number
+---@return table
 Framework.Server.GetPlayer = function (src)
     return Framework.Core.Functions.GetPlayer(src)
 end
 
--------------------------------------------------
---- GET PLAYER CASH 
--------------------------------------------------
+-- Gets player cash
+---@param src number
+---@return number
 Framework.Server.GetPlayerCash = function (src)
     local Player = Framework.Server.GetPlayer(src)
 	if not Player then return nil end
 	return Player.PlayerData.money.cash
 end
 
--------------------------------------------------
---- CHARGE PLAYER
--------------------------------------------------
+-- Charges player
+---@param src number
+---@param fundSource string
+---@param amount number
+---@param reason? string
+---@return boolean
 Framework.Server.ChargePlayer = function (src, fundSource, amount, reason)
 	local Player = Framework.Server.GetPlayer(src)
 	if not Player then return nil end
@@ -55,9 +57,9 @@ Framework.Server.ChargePlayer = function (src, fundSource, amount, reason)
 	return true
 end
 
--------------------------------------------------
---- GET PLAYER IDENTITY
--------------------------------------------------
+-- Gets player identity
+---@param src number
+---@return table
 Framework.Server.GetPlayerIdentity = function (src)
     local Player = Framework.Server.GetPlayer(src)
 	if not Player then return nil end
@@ -73,18 +75,20 @@ Framework.Server.GetPlayerIdentity = function (src)
 	}
 end
 
--------------------------------------------------
---- GET PLAYER 
--------------------------------------------------
+-- Gets player inventory 
+---@param src number
+---@return table
 Framework.Server.GetPlayerInventory = function (src)
     local Player = Framework.Server.GetPlayer(src)
 	if not Player then return end
 	return Player.PlayerData.items
 end
 
--------------------------------------------------
---- SAVES PLAYER INVENTORY 
--------------------------------------------------
+-- Saves player inventory
+---@param src number
+---@param inventory table
+---@param database boolean
+---@return boolean
 Framework.Server.SavePlayerInventory = function (src, inventory, database)
 	local Player = Framework.Server.GetPlayer(src)
 	if not Player then return false end
@@ -116,18 +120,20 @@ Framework.Server.SavePlayerInventory = function (src, inventory, database)
 	return true
 end
 
--------------------------------------------------
---- UPDATE PLAYER PLAYER 
--------------------------------------------------
+-- Updates player 
+---@param src number
+---@param key any
+---@param val any
+---@return boolean
 Framework.Server.UpdatePlayer = function (src, key, val)
 	local Player = Framework.Server.GetPlayer(src)
 	if not Player then return end
     return Player.Functions.SetPlayerData(key, val)
 end
 
--------------------------------------------------
---- GET PLAYER NAME
--------------------------------------------------
+-- Gets player name
+---@param src number
+---@return string
 Framework.Server.GetPlayerName = function (src)
     -- Attempt to get Player table
     local Player = Framework.Core.Functions.GetPlayer(src)
@@ -139,31 +145,34 @@ Framework.Server.GetPlayerName = function (src)
     return Player.PlayerData.charinfo.firstname .. " " .. Player.PlayerData.charinfo.lastname
 end
 
--------------------------------------------------
---- GET PLAYER IDENTIFIER
--------------------------------------------------
+-- Gets player identifier
+---@param src number
+---@return string|number
 Framework.Server.GetPlayerIdentifier = function (src)
     local Player = Framework.Core.Functions.GetPlayer(src)
     return Player.PlayerData.citizenid
 end
 
--------------------------------------------------
---- CREATE USEABLE ITEM 
--------------------------------------------------
+-- Creates useable item
+---@param itemName string
+---@param data table
+---@return function
 Framework.Server.CreateUseableItem = function (itemName, data)
     return Framework.Core.Functions.CreateUseableItem(itemName, data)
 end
 
--------------------------------------------------
---- GET USEABLE ITEM 
--------------------------------------------------
+-- Gets useable item
+---@param itemName string
+---@return boolean
 Framework.Server.GetUseableItem = function (itemName)
     return Framework.Core.Functions.CanUseItem(itemName)
 end
 
--------------------------------------------------
---- PLAYER HAS ITEM
--------------------------------------------------
+-- Checks if player has item
+---@param source number
+---@param items table
+---@param amount number
+---@return boolean
 Framework.Server.HasItem = function (source, items, amount)
     amount = amount or 1
 	local count = 0
@@ -200,9 +209,9 @@ Framework.Server.HasItem = function (source, items, amount)
 	end
 end
 
--------------------------------------------------
---- Has Group
--------------------------------------------------
+-- Checks if player has group
+---@param src number
+---@return boolean
 Framework.Server.HasGroup = function(src, group)
 	local Player = Framework.Core.Functions.GetPlayer(src)
 
@@ -226,9 +235,7 @@ Framework.Server.HasGroup = function(src, group)
 	end
 end
 
--------------------------------------------------
---- Override QB Functions
--------------------------------------------------
+-- Override QB Functions
 Framework.Server.SetupPlayer = function (Player, initial)
 
 	Player.PlayerData.inventory = Player.PlayerData.items
@@ -264,9 +271,8 @@ Framework.Server.SetupPlayer = function (Player, initial)
 	end)
 end
 
--------------------------------------------------
---- Sets player inventory and function overrides
--------------------------------------------------
+-- Sets player inventory and function overrides
+---@param Player number
 function PlayerLoadedEvent (Player)
 	local citizenid = Player.PlayerData.citizenid
 	local inventory = {}
@@ -276,32 +282,24 @@ function PlayerLoadedEvent (Player)
 	Framework.Server.SetupPlayer(Player, true)
 end
 
--------------------------------------------------
---- Reset overrides on restart
--------------------------------------------------
+-- Reset overrides on restart
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
 		for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(Player) end
     end
 end)
 
--------------------------------------------------
---- Load inventory items on playerload then setup
--------------------------------------------------
+-- Load inventory items on playerload then setup
 AddEventHandler('QBCore:Server:PlayerLoaded', function (Player)
 	PlayerLoadedEvent(Player)
 end)
 
--------------------------------------------------
---- Money update event
--------------------------------------------------
+-- Money update event
 AddEventHandler('QBCore:Server:OnMoneyChange', function (src, type, amount)
     TriggerClientEvent(Config.ClientEventPrefix .. 'MoneyChange', src, type, amount)
 end)
 
--------------------------------------------------
---- Make sure functions are correct for players
--------------------------------------------------
+-- Make sure functions are correct for players
 SetTimeout(500, function()
 
 	-- Stop the following resources if they are started
@@ -316,10 +314,7 @@ SetTimeout(500, function()
 	for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(Player) end
 end)
 
--------------------------------------------------
---- Event overrides
--------------------------------------------------
-
+-- Event overrides
 Core.Utilities.ExportHandler('qb-inventory', 'HasItem', Framework.Server.HasItem)
 Core.Utilities.ExportHandler('qb-inventory', 'RemoveItem', Core.Classes.Inventory.RemoveItem)
 Core.Utilities.ExportHandler('qb-inventory', 'AddItem', Core.Classes.Inventory.AddItem)

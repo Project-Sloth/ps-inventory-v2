@@ -106,11 +106,43 @@ Config = {
         }
     },
 
+    -------------------------------------------------
+    --- Placeables Configuration
+    -------------------------------------------------
     Placeables = {
         Enabled = true,
         Radius = 1.5, -- Radius for Interaction or Target
         ItemPlacementModeRadius = 10.0,
         MinZOffset = -2.0,
         MaxZOffset = 2.0
+    },
+
+    -------------------------------------------------
+    --- Themes Configuration
+    -------------------------------------------------
+    Themes = {
+        ['ps'] = {
+            color = "#beda17",
+            shadowColor = "rgba(190, 218, 23, 0.6)",
+            borderRadius = 5
+        },
+
+        ['sun-flower'] = {
+            color = "#f1c40f",
+            shadowColor = "rgba(241, 196, 15, 0.6)",
+            borderRadius = 5
+        },
+
+        ['red'] = {
+            color = "#e74c3c",
+            shadowColor = "rgba(231, 76, 60, 0.6)",
+            borderRadius = 5
+        },
+
+        ['emrald'] = {
+            color = "#2ecc71",
+            shadowColor = "rgba(46, 204, 116, 0.6)",
+            borderRadius = 5
+        },
     }
 }

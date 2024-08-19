@@ -745,23 +745,3 @@ input[type="number"] {
 .color-box:hover {
   opacity: 1;
 }
-
-.color-box.ps {
-  background-color: #beda17;
-}
-
-.color-box.orange {
-  background-color: #f39c12;
-}
-
-.color-box.sun-flower {
-  background-color: #f1c40f;
-}
-
-.color-box.red {
-  background-color: #e74c3c;
-}
-
-.color-box.emerald {
-  background-color: #2ecc71;
-}

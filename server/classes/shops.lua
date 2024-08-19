@@ -1,13 +1,7 @@
--------------------------------------------------
---- Shops Setup (Runs when server starts)
--------------------------------------------------
-
--- Creates the shops class
 Core.Classes.New("Shops")
 
--------------------------------------------------
---- Builds item list from shop item list
--------------------------------------------------
+-- Builds item list from shop item list
+---@param items table
 function Core.Classes.Shops.BuildItemList(items)
     local itemList = {}
 
@@ -25,9 +19,9 @@ function Core.Classes.Shops.BuildItemList(items)
     return itemList
 end
 
--------------------------------------------------
---- Buy Item
--------------------------------------------------
+-- Buy Item
+---@param source number
+---@param data table
 function Core.Classes.Shops.BuyItem (source, data)
 
     -- Validate player
@@ -83,9 +77,9 @@ function Core.Classes.Shops.BuyItem (source, data)
     return { success = true }
 end
 
--------------------------------------------------
---- Open Shop
--------------------------------------------------
+-- Open Shop
+---@param src number
+---@param shopId string
 function Core.Classes.Shops.Open (src, shopId)
     local Player = Framework.Server.GetPlayer(src)
     local shop = Config.Shops[shopId]

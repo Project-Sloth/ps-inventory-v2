@@ -1,13 +1,8 @@
--------------------------------------------------
---- Drops Setup (Runs when server starts)
--------------------------------------------------
-
--- Creates the drop class
 Core.Classes.New("Drops", { Drops = {} })
 
--------------------------------------------------
---- Creates a new drop
--------------------------------------------------
+-- Creates a new drop
+---@param source number
+---@param data table
 function Core.Classes.Drops.Create (source, data)
 
     -- Log initiation
@@ -91,9 +86,8 @@ function Core.Classes.Drops.Create (source, data)
      }
 end
 
--------------------------------------------------
---- Sends drops to everyone
--------------------------------------------------
+-- Sends drops to everyone
+---@param removed table
 function Core.Classes.Drops.Beacon (removed)
 
     -- Payload to send
@@ -110,9 +104,8 @@ function Core.Classes.Drops.Beacon (removed)
     TriggerClientEvent(Config.ClientEventPrefix .. 'UpdateDrops', -1, payload)
 end
 
--------------------------------------------------
---- Creates a new drop
--------------------------------------------------
+-- Creates a new drop
+---@param dropId string
 function Core.Classes.Drops.Get (dropId)
 	local drop = false
 
@@ -125,9 +118,9 @@ function Core.Classes.Drops.Get (dropId)
     return drop
 end
 
--------------------------------------------------
---- Updates a drop
--------------------------------------------------
+-- Updates a drop
+---@param dropId string
+---@param data table
 function Core.Classes.Drops.Update (dropId, data)
 	local drops = Core.Classes.Drops:GetState('Drops')
     local updateKey = false
@@ -150,9 +143,8 @@ function Core.Classes.Drops.Update (dropId, data)
     return updateKey
 end
 
--------------------------------------------------
---- Removes a drop
--------------------------------------------------
+-- Removes a drop
+---@param dropId string
 function Core.Classes.Drops.Remove (dropId)
 	local drops = Core.Classes.Drops:GetState('Drops')
     local updateKey = false
@@ -167,9 +159,9 @@ function Core.Classes.Drops.Remove (dropId)
     Core.Classes.Drops.Beacon({ dropId })
 end
 
--------------------------------------------------
---- Save drop items
--------------------------------------------------
+-- Save drop items
+---@param dropId string
+---@param item table
 function Core.Classes.Drops.AddItem (dropId, item)
     print('Adding item to drop')
     local drop = Core.Classes.Drops.Get(dropId)
@@ -182,9 +174,9 @@ function Core.Classes.Drops.AddItem (dropId, item)
     Core.Classes.Drops.SaveItems(dropId, items)
 end
 
--------------------------------------------------
---- Save drop items
--------------------------------------------------
+-- Save drop items
+---@param dropId string
+---@param items table
 function Core.Classes.Drops.SaveItems (dropId, items)
 
 	local updatedKey = Core.Classes.Drops.Update(dropId, {
@@ -195,9 +187,7 @@ function Core.Classes.Drops.SaveItems (dropId, items)
     return Core.Classes.Drops:GetState('Drops')[updatedKey]
 end
 
--------------------------------------------------
---- Clears expired drops
--------------------------------------------------
+-- Clears expired drops
 function Core.Classes.Drops.ClearExpired ()
 
     local players = Framework.Server.GetPlayers()

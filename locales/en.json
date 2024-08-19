@@ -1,0 +1,27 @@
+{
+    "inventoryReady": "Inventory is ready for use",
+
+    "craftingTarget": "Access crafting",
+    "craftingInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access crafting",
+
+    "shopTarget": "Open {{shopName}}",
+    "shopInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access shop",
+
+    "stashTarget": "Open {{stashName}}",
+    "stashInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access stash",
+
+    "vendingTarget": "Open vending machine",
+    "vendingInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access vending",
+
+    "placeablesPickingUp": "Picking up item",
+    "placeablesPickup": "Press [<span class=\"active-color\">SHIFT + E</span>] to pickup",
+    "placeablesPickupTarget": "Pick up",
+    "placeablesInteractType": "Press [<span class=\"active-color\">{{key}}</span>] to access {{interactType}}<br />",
+
+    "split": "Split",
+    "drop": "Drop",
+    "use": "Use",
+    "give": "Give",
+
+    "settings": "Settings"
+}

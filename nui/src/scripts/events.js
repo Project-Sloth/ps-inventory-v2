@@ -12,15 +12,24 @@ const InventoryEvents = {
      * @param {object} data 
      */
     init: (data) => {
+
+        // Set debugging
         if (typeof data.debugging !== "undefined") {
             Debugger.enabled = data.debugging
         }
 
+        // Build themes
+        if (typeof data.themes !== 'undefined') {
+            Inventory.Settings.BuildThemes(data.themes)
+        }
+
+        // Set player information
         if (typeof data.player !== "undefined") {
             Debugger.log(JSON.stringify(data.player));
             Inventory.UpdatePlayerInformation(data.player);
         }
 
+        // Set inventory configuration
         if (typeof data.inventory !== "undefined") {
             Inventory.State.Configuration = {
                 ...Inventory.State.Configuration,
@@ -28,11 +37,18 @@ const InventoryEvents = {
             };
         }
 
+        // Set language
+        if (typeof data.locales !== 'undefined') {
+            Language.SetLocales(data.locales);
+            Inventory.Events.OnLanguageSet();
+        }
+
+        // Show inventory is ready for use
         InventoryNotify.Events.Process({
             process: "notification",
             icon: "fas fa-check-circle",
             color: "#beda17",
-            message: "Inventory is ready for use"
+            message: Language.Locale('inventoryReady') || "Inventory is ready for use"
         })
     },
 

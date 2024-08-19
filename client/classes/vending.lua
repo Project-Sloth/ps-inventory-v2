@@ -5,9 +5,7 @@
 -- Creates the vending class
 Core.Classes.New("Vending", { nearVending = false, zones = {} })
 
--------------------------------------------------
---- Loads client shop locations
--------------------------------------------------
+-- Loads client shop locations
 function Core.Classes.Vending.Load()
 
     if Config.UseTarget then
@@ -18,7 +16,7 @@ function Core.Classes.Vending.Load()
                         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenVending')
                     end,
                     icon = "fas fa-eye",
-                    label = "Access vending"
+                    label = Core.Language.Locale('vendingTarget')
                 }
             },
             distance = Config.Vending.Radius or 1.5
@@ -28,9 +26,8 @@ function Core.Classes.Vending.Load()
     end
 end
 
--------------------------------------------------
---- Check if object is a vending machine
--------------------------------------------------
+-- Check if object is a vending machine
+---@param model number
 function Core.Classes.Vending.IsModelVendingProp (model)
     for _, prop in pairs(Config.Vending.Props) do
         if GetHashkey(prop) == model then
@@ -41,9 +38,7 @@ function Core.Classes.Vending.IsModelVendingProp (model)
     return false
 end
 
--------------------------------------------------
---- Dinstance checker for vehicles
--------------------------------------------------
+-- Dinstance checker for vehicles
 function Core.Classes.Vending.DistanceCheck()
     CreateThread(function ()
         while true do
@@ -54,7 +49,7 @@ function Core.Classes.Vending.DistanceCheck()
             if closestObject then
                 local model = GetEntityModel(closestObject)
                 if Core.Classes.Vending.IsModelVendingProp(model) then
-                    Core.Classes.Interact.Show('Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access vending')
+                    Core.Classes.Interact.Show(Core.Language.Locale('vendingInteractive'))
                     Core.Classes.Shops:UpdateState('nearVending', true)
                 end
             else
@@ -71,16 +66,12 @@ function Core.Classes.Vending.DistanceCheck()
     end)
 end
 
--------------------------------------------------
---- Open Vending
--------------------------------------------------
+-- Open Vending
 function Core.Classes.Vending.Open()
     TriggerServerEvent(Config.ServerEventPrefix .. 'OpenVending')
 end
 
--------------------------------------------------
---- Cleanup
--------------------------------------------------
+-- Cleanup
 function Core.Classes.Vending.Cleanup()
     if Config.UseTarget then
         Framework.Client.RemoveTargetModel(Config.Vending.Props)

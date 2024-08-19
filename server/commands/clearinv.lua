@@ -1,6 +1,4 @@
--------------------------------------------------
---- Clear Inventory Command
--------------------------------------------------
+-- Clear Inventory Command
 lib.addCommand('clearinv', {
     help = 'Clears inventory of player',
     params = {{

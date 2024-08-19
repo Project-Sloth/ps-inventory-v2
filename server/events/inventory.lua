@@ -1,6 +1,4 @@
--------------------------------------------------
---- Opens player inventory
--------------------------------------------------
+-- Opens player inventory
 RegisterServerEvent(Config.ServerEventPrefix .. 'OpenInventory', function (external)
     local src = source
 
@@ -11,16 +9,12 @@ RegisterServerEvent(Config.ServerEventPrefix .. 'OpenInventory', function (exter
     Core.Classes.Inventory.OpenInventory(src)
 end)
 
--------------------------------------------------
---- Closes player inventory
--------------------------------------------------
+-- Closes player inventory
 RegisterServerEvent(Config.ServerEventPrefix .. 'CloseInventory', function ()
     Core.Classes.Inventory.CloseInventory(source)
 end)
 
--------------------------------------------------
---- Uses Item Slot
--------------------------------------------------
+-- Uses Item Slot
 RegisterNetEvent(Config.ServerEventPrefix .. 'UseItemSlot', function(slot)
     local src = source
     local itemData = Core.Classes.Inventory.GetSlot(src, slot)
@@ -28,11 +22,10 @@ RegisterNetEvent(Config.ServerEventPrefix .. 'UseItemSlot', function(slot)
     Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
 end)
 
--------------------------------------------------
---- Uses Item
--------------------------------------------------
+-- Uses Item
 RegisterNetEvent(Config.ServerEventPrefix .. 'UseItem', function(inventory, item)
     local src = source
     local itemData = Core.Classes.Inventory.GetSlot(src, item.slot)
+    if not itemData then return false end
     Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
 end)

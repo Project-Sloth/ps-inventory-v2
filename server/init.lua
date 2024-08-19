@@ -1,6 +1,5 @@
--------------------------------------------------
---- Version and status
--------------------------------------------------
+-- Load the language locales
+Core.Language.SetLanguage(Config.Language).LoadLocales()
 
 local version = GetResourceMetadata(GetCurrentResourceName(), 'version')
 
@@ -12,19 +11,16 @@ print('|                  VERSION ' .. version .. '                 |')
 print('|                                                |')
 print('--------------------------------------------------')
 
--------------------------------------------------
---- Setup Functions
--------------------------------------------------
-
 -- Determine framework
 Framework.Determine()
 
+-- Return locales from language state
+lib.callback.register(Config.ServerEventPrefix .. 'RetrieveLocales', function ()
+    return Core.Language.State.Locales
+end)
+
 -- Load the inventory items
 Core.Classes.Inventory:Load(true)
-
--------------------------------------------------
---- Cron jobs
--------------------------------------------------
 
 -- Process crafting queue
 Core.Crons.Register('Crafting.Queue', 1, function ()

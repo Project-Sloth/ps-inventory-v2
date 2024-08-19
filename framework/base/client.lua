@@ -1,15 +1,13 @@
 Framework.Client.CurrentWeapon = false
 
--------------------------------------------------
---- GETS CORE OBJECT
--------------------------------------------------
+-- Get core object
 Framework.GetCoreObject = function ()
 	return {}
 end
 
--------------------------------------------------
---- Sends NUI a message
--------------------------------------------------
+-- Sends NUI a message
+---@param data table
+---@param updateInventory? boolean
 Framework.Client.SendNUIMessage = function (data, updateInventory)
     SendNUIMessage(data)
 
@@ -19,58 +17,48 @@ Framework.Client.SendNUIMessage = function (data, updateInventory)
     end
 end
 
--------------------------------------------------
---- GET PLAYER NAME
--------------------------------------------------
+-- Get player name
 Framework.Client.GetPlayerName = function ()
     return GetPlayerName(source)
 end
 
--------------------------------------------------
---- GET PLAYER IDENTIFIER
--------------------------------------------------
+-- Get player identifier
 Framework.Client.GetPlayerIdentifier = function ()
     return source
 end
 
--------------------------------------------------
---- GET PLAYER CASH
--------------------------------------------------
+-- Get player cash
 Framework.Client.GetPlayerCash = function ()
     return 0
 end
 
--------------------------------------------------
---- CHECK WEAPON
--------------------------------------------------
+-- Check weapon
+---@param src number 
+---@param weaponName string
 Framework.Client.CheckWeapon = function (src, weaponName)
     
 end
 
--------------------------------------------------
---- CHECK WEAPON
--------------------------------------------------
+-- Can open inventory
 Framework.Client.CanOpenInventory = function ()
     return false
 end
 
--------------------------------------------------
---- USE WEAPON
--------------------------------------------------
+-- Use weapon
+---@param src number
+---@param weaponData table
+---@param shootBool boolean
 Framework.Client.UseWeapon = function (src, weaponData, shootBool)
     
 end
 
--------------------------------------------------
---- Has Group
--------------------------------------------------
+-- Has Group
+---@param group table
 Framework.Client.HasGroup = function(group)
     return false
 end
 
--------------------------------------------------
---- Progress bar
--------------------------------------------------
+-- Progress bar
 Framework.Client.Progressbar = function (
     name, 
     label, 
@@ -87,9 +75,9 @@ Framework.Client.Progressbar = function (
     -- @todo
 end
 
--------------------------------------------------
---- Targetting: Add target model
--------------------------------------------------
+-- Targetting: Add target model
+---@param modelName string|number|table
+---@param targetOptions table
 Framework.Client.AddTargetModel = function (modelName, targetOptions)
     if Config.Target == 'qb' then
         exports['qb-target']:AddTargetModel(modelName, targetOptions)
@@ -110,9 +98,8 @@ Framework.Client.AddTargetModel = function (modelName, targetOptions)
     end
 end
 
--------------------------------------------------
---- Targetting: Remove target model
--------------------------------------------------
+-- Targetting: Remove target model
+---@param modelName string|number|table
 Framework.Client.RemoveTargetModel = function (modelName)
     if Config.Target == "qb" then
         exports['qb-target']:RemoveTargetModel(modelName)
@@ -127,9 +114,9 @@ Framework.Client.RemoveTargetModel = function (modelName)
     end
 end
 
--------------------------------------------------
---- Targetting: Add target entity
--------------------------------------------------
+-- Targetting: Add target entity
+---@param entityName string|number|table
+---@param targetOptions table
 Framework.Client.AddTargetEntity = function (entityName, targetOptions)
     if Config.Target == "qb" then
         exports['qb-target']:AddTargetEntity(entityName, targetOptions)
@@ -150,9 +137,8 @@ Framework.Client.AddTargetEntity = function (entityName, targetOptions)
     end
 end
 
--------------------------------------------------
---- Targetting: Remove target entity
--------------------------------------------------
+-- Targetting: Remove target entity
+---@param entityName string|number|table
 Framework.Client.RemoveTargetEntity = function (entityName)
     if Config.Target == "qb" then
         exports['qb-target']:RemoveTargetEntity(entityName)
@@ -167,16 +153,8 @@ Framework.Client.RemoveTargetEntity = function (entityName)
     end
 end
 
--------------------------------------------------
---- Targetting: Add box zone
--------------------------------------------------
--- {
---     id = "id",
---     location = vector3(0, 0, 0),
---     size = { length = 1, width = 1, height = 2 },
---     options = { }
--- }
--------------------------------------------------
+-- Targetting: Add box zone
+---@param data table
 Framework.Client.AddBoxZone = function (data)
     if Config.Target == "qb" then
         exports['qb-target']:AddBoxZone(

@@ -7,6 +7,7 @@ Core.Crons = {
     Jobs = {},
 
     -- Adds a cron job
+    ---@param data table
     AddJob = function (data)
         local jobs = Core.Crons.Jobs
         table.insert(jobs, data)
@@ -15,7 +16,8 @@ Core.Crons = {
     end,
 
     -- Updates a cron job by it's id
-    -- @param data = table
+    ---@param id string
+    ---@param data table
     UpdateJob = function (id, data)
         if type(data) ~= "table" then return false end
 
@@ -32,6 +34,7 @@ Core.Crons = {
     end,
 
     -- Removes a cron job by it's id
+    ---@param id string
     RemoveJob = function (id)
         local exists = Core.Crons.GetJobById(id)
         if exists then
@@ -45,6 +48,7 @@ Core.Crons = {
     end,
 
     -- Gets a cron job by it's id
+    ---@param id string
     GetJobById = function (id)
         local data = nil
 
@@ -61,7 +65,21 @@ Core.Crons = {
     end,
 
     -- Example: Register('test', '30s', function() end)
+    ---@param id string
+    ---@param recurring number|string
+    ---@param func function
+    ---@param logging? boolean
     Register = function (id, recurring, func, logging)
+
+        -- Server check
+        if not IsDuplicityVersion() then
+            return Core.Utilities.Log({
+                type = "error",
+                title = "Crons.Register",
+                message = "This function is server-only."
+            })
+        end
+
         if not id then return false end
         if not recurring then return false end
         if not func then return false end
@@ -96,7 +114,18 @@ Core.Crons = {
     end,
 
     -- Process a job by it's id
+    ---@param id string
     Process = function (id)
+
+        -- Server check
+        if not IsDuplicityVersion() then
+            return Core.Utilities.Log({
+                type = "error",
+                title = "Crons.Register",
+                message = "This function is server-only."
+            })
+        end
+
         local job = Core.Crons.GetJobById(id)
         if not job then return false end
 
@@ -118,6 +147,16 @@ Core.Crons = {
 
     -- Ends the processor loop
     EndProcessor = function ()
+
+        -- Server check
+        if not IsDuplicityVersion() then
+            return Core.Utilities.Log({
+                type = "error",
+                title = "Crons.Register",
+                message = "This function is server-only."
+            })
+        end
+
         Core.Utilities.Log({
             title = "Core.Crons",
             message = "Cron processor has been disabled"
@@ -128,6 +167,15 @@ Core.Crons = {
 
     -- Starts the processor loop
     StartProcessor = function ()
+
+        -- Server check
+        if not IsDuplicityVersion() then
+            return Core.Utilities.Log({
+                type = "error",
+                title = "Crons.Register",
+                message = "This function is server-only."
+            })
+        end
 
         Core.Utilities.Log({
             title = "Core.Crons",
@@ -150,6 +198,7 @@ Core.Crons = {
 
     -- Converts recurring string to Seconds
     -- Example: 2m = 120seconds
+    ---@param recurring string
     ConvertRecurring = function (recurring)
         if not recurring:find('s') and not recurring:find('m') and not recurring:find('h') and not recurring:find('d') then
             return nil

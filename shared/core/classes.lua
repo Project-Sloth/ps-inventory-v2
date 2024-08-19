@@ -2,6 +2,8 @@
 Core.Classes = {
     
     -- Registers a new class
+    ---@param ClassName string
+    ---@param InitialState? table
     New = function (ClassName, InitialState)
 
         -- Checks for class existence
@@ -35,6 +37,7 @@ Core.Classes = {
     end,
 
     -- Checks if a class exists
+    ---@param ClassName string
     Exists = function (ClassName)
         if Core.Classes[ClassName] then return true end
         return false
@@ -44,12 +47,16 @@ Core.Classes = {
     DefaultClassMethods = {
 
         -- Sets initial state
+        ---@param self table
+        ---@param state table
         Constructor = function(self, state)
             if state then self.state = state end
             return self
         end,
 
         -- Gets the state of the class
+        ---@param self table
+        ---@param key string
         GetState = function (self, key)
             if not key then return self.state end
             if not self.state[key] then return nil end
@@ -57,6 +64,10 @@ Core.Classes = {
         end,
         
         -- Updates the state of the class
+        ---@param self table
+        ---@param key string
+        ---@param value any
+        ---@param cb? function
         UpdateState = function (self, key, value, cb)
             if self.state[key] == nil then return self end
             self.state[key] = value

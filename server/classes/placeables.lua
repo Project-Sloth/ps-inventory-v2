@@ -1,13 +1,6 @@
--------------------------------------------------
---- Placeables Setup (Runs when server starts)
--------------------------------------------------
-
--- Creates the placeables class
 Core.Classes.New("Placeables", { Items = {} })
 
--------------------------------------------------
---- Retrieve placeable items
--------------------------------------------------
+-- Retrieve placeable items
 function Core.Classes.Placeables.All()
     local items = {}
     local query = 'SELECT * FROM inventory_placeables'
@@ -21,9 +14,8 @@ function Core.Classes.Placeables.All()
     return items
 end
 
--------------------------------------------------
---- Save new item
--------------------------------------------------
+-- Save new item
+---@param item table
 function Core.Classes.Placeables.Save(item)
     if not item then return false end
     local query = 'INSERT INTO inventory_placeables(item) VALUES(?)'
@@ -32,9 +24,8 @@ function Core.Classes.Placeables.Save(item)
     return Core.Classes.Placeables.Beacon()
 end
 
--------------------------------------------------
---- Delete existing item
--------------------------------------------------
+-- Delete existing item
+---@param id number
 function Core.Classes.Placeables.Delete(id)
     local query = 'DELETE FROM inventory_placeables WHERE id = ?'
 	local res = MySQL.query.await(query, { id })
@@ -42,9 +33,7 @@ function Core.Classes.Placeables.Delete(id)
     return Core.Classes.Placeables.Beacon()
 end
 
--------------------------------------------------
---- Sends placeables to everyone
--------------------------------------------------
+-- Sends placeables to everyone
 function Core.Classes.Placeables.Beacon ()
     local items = Core.Classes.Placeables.All()
     TriggerClientEvent(Config.ClientEventPrefix .. 'UpdatePlaceables', -1, items)

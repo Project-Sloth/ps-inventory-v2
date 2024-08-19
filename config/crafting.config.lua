@@ -23,10 +23,10 @@ Config.Crafting = {
                 amount = 1,
                 materials = {
                     { item = "iron", amount = 50 },
-                    -- { item = "steel", amount = 50 },
-                    -- { item = "copper", amount = 50 },
-                    -- { item = "plastic", amount = 20 },
-                    -- { item = "rubber", amount = 15 },
+                    { item = "steel", amount = 50 },
+                    { item = "copper", amount = 50 },
+                    { item = "plastic", amount = 20 },
+                    { item = "rubber", amount = 15 },
                 }
             },
 

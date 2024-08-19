@@ -5,9 +5,7 @@
 -- Creates the placeables class
 Core.Classes.New("Placeables", { props = {}, placementMode = false, nearPropId = false, zones = {} })
 
--------------------------------------------------
---- Loads placeables
--------------------------------------------------
+-- Loads placeables
 function Core.Classes.Placeables.Load()
     local items = lib.callback.await(Config.ServerEventPrefix .. 'GetPlaceables', false)
     local props = Core.Classes.Placeables:GetState('props')
@@ -25,9 +23,10 @@ function Core.Classes.Placeables.Load()
     Core.Classes.Placeables:UpdateState('props', props)
 end
 
--------------------------------------------------
---- Adds target options if using target
--------------------------------------------------
+-- Adds target options if using target
+---@param propId number
+---@param id number
+---@param additionalOptions? table
 function Core.Classes.Placeables.AttachTarget (propId, id, additionalOptions)
 
     local defaultOption = {
@@ -35,7 +34,7 @@ function Core.Classes.Placeables.AttachTarget (propId, id, additionalOptions)
             Core.Classes.Placeables.Pickup(id)
         end,
         icon = "fas fa-hand-holding",
-        label = "Pick up"
+        label = Core.Language.Locale('placeablesPickupTarget')
     }
 
     local targetOptions = {}
@@ -54,9 +53,8 @@ function Core.Classes.Placeables.AttachTarget (propId, id, additionalOptions)
     })
 end
 
--------------------------------------------------
---- Update placeables on next beacon received
--------------------------------------------------
+-- Update placeables on next beacon received
+---@param items table
 function Core.Classes.Placeables.Update(items)
     local props = Core.Classes.Placeables:GetState('props')
 
@@ -79,9 +77,8 @@ function Core.Classes.Placeables.Update(items)
     Core.Classes.Placeables:UpdateState('props', props)
 end
 
--------------------------------------------------
---- Dinstance checker for placeables
--------------------------------------------------
+-- Dinstance checker for placeables
+---@param rotation vector3
 function Core.Classes.Placeables.RotationToDirection(rotation)
     local adjustedRotation = {
         x = (math.pi / 180) * rotation.x,
@@ -96,9 +93,10 @@ function Core.Classes.Placeables.RotationToDirection(rotation)
     return direction
 end
 
--------------------------------------------------
---- Dinstance checker for placeables
--------------------------------------------------
+-- Dinstance checker for placeables
+---@param distance number
+---@param object table
+---@param raycastDetectWorldOnly boolean
 function Core.Classes.Placeables.RayCastGamePlayCamera(distance, object, raycastDetectWorldOnly)
     local cameraRotation = GetGameplayCamRot()
     local cameraCoord = GetGameplayCamCoord()
@@ -130,9 +128,12 @@ function Core.Classes.Placeables.RayCastGamePlayCamera(distance, object, raycast
     return hit, coords, entity
 end
 
--------------------------------------------------
---- Dinstance checker for placeables
--------------------------------------------------
+-- Dinstance checker for placeables
+---@param item table
+---@param coords table
+---@param heading number
+---@param shouldSnapToGround boolean
+---@param id number
 function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround, id)
 
     coords = vector3(coords.x, coords.y, coords.z)
@@ -192,10 +193,13 @@ function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround
             onEnter = function ()
                 local interactType = ""
                 if item.interactType then
-                    interactType = 'Press [<span class="active-color">' .. Config.InteractKey.Label .. '</span>] to access ' .. item.interactType .. '<br />'
+                    interactType = Core.Language.Locale('placeablesInteractType', {
+                        key = Config.InteractKey.Label,
+                        interactType = item.interactType
+                    })
                 end
 
-                Core.Classes.Interact.Show(interactType .. 'Press [<span class="active-color">SHIFT + E</span>] to pickup')
+                Core.Classes.Interact.Show(interactType .. Core.Language.Locale('placeablesPickup'))
                 Core.Classes.Placeables:UpdateState('nearPropId', id)
             end,
             onExit = function ()
@@ -208,6 +212,11 @@ function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround
     return obj
 end
 
+-- Sends item to server to save
+---@param item table
+---@param coords table
+---@param heading number
+---@param shouldSnapToGround boolean
 function Core.Classes.Placeables.Save(item, coords, heading, shouldSnapToGround)
     local payload = {
         item = item,
@@ -220,9 +229,8 @@ function Core.Classes.Placeables.Save(item, coords, heading, shouldSnapToGround)
     lib.callback.await(Config.ServerEventPrefix .. 'RemoveItem', false, item)
 end
 
--------------------------------------------------
---- Places item
--------------------------------------------------
+-- Places item
+---@param item table
 function Core.Classes.Placeables.PlacementMode(item)
     if not item.prop then return false end
     if Core.Classes.Placeables:GetState('placementMode') then return false end
@@ -323,9 +331,8 @@ function Core.Classes.Placeables.PlacementMode(item)
     end
 end
 
--------------------------------------------------
---- Open shop if near one
--------------------------------------------------
+-- Open shop if near one
+---@param propId number
 function Core.Classes.Placeables.Open(propId)
     if not Core.Classes.Placeables:GetState('nearPropId') and not propId then return false end
     local item = Core.Classes.Placeables:GetState('props')[Core.Classes.Placeables:GetState('nearPropId') or propId]
@@ -340,9 +347,8 @@ function Core.Classes.Placeables.Open(propId)
     end
 end
 
--------------------------------------------------
---- Picks up item
--------------------------------------------------
+-- Picks up item
+---@param propId number
 function Core.Classes.Placeables.Pickup(propId)
     local ped = PlayerPedId()
     if not Core.Classes.Placeables:GetState('nearPropId') and not propId then return false end
@@ -356,7 +362,7 @@ function Core.Classes.Placeables.Pickup(propId)
         ClearPedTasks(ped)
 
         -- Show pickup as a progress
-        Framework.Client.Progressbar("pickup_item", "Picking up item", 200, false, true, {
+        Framework.Client.Progressbar("pickup_item", Core.Language.Locale('placeablesPickingUp'), 200, false, true, {
             disableMovement = false,
             disableCarMovement = false,
             disableMouse = false,
@@ -389,9 +395,8 @@ function Core.Classes.Placeables.Pickup(propId)
     end
 end
 
--------------------------------------------------
---- Removes object
--------------------------------------------------
+-- Removes object
+---@param itemEntity number
 function Core.Classes.Placeables.RemoveObject (itemEntity)
     local netId = NetworkGetNetworkIdFromEntity(itemEntity)
     Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity)
@@ -399,9 +404,9 @@ function Core.Classes.Placeables.RemoveObject (itemEntity)
     DeleteEntity(itemEntity)
 end
 
--------------------------------------------------
---- Get control of network object
--------------------------------------------------
+-- Get control of network object
+---@param netId number
+---@param itemEntity number
 function Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity)
     if NetworkDoesNetworkIdExist(netId) then
         NetworkRequestControlOfNetworkId(netId)
@@ -420,9 +425,9 @@ function Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity
     end
 end
 
--------------------------------------------------
---- Adds new zone
--------------------------------------------------
+-- Adds new zone
+---@param id string
+---@param zone CZone
 function Core.Classes.Placeables.AddZone(id, zone)
     local zones = Core.Classes.Placeables:GetState('zones')
     if zones[id] then
@@ -435,9 +440,8 @@ function Core.Classes.Placeables.AddZone(id, zone)
     Core.Classes.Placeables:GetState('zones', zones)
 end
 
--------------------------------------------------
---- Removes existing zone
--------------------------------------------------
+-- Removes existing zone
+---@param id string
 function Core.Classes.Placeables.RemoveZone(id)
     local zones = Core.Classes.Placeables:GetState('zones')
 

@@ -1,6 +1,4 @@
--------------------------------------------------
---- Give Item Command
--------------------------------------------------
+-- Give Item Command
 lib.addCommand('giveitem', {
     help = 'Gives player an item',
     params = {{

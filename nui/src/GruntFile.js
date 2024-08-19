@@ -5,6 +5,7 @@ module.exports = function (grunt) {
         src: [
           "./scripts/plugins/bootstrap-context-menu.js",
           "./scripts/debugger.js",
+          "./scripts/language.js",
           "./scripts/nui.js",
           "./scripts/inventory-notify.js",
           "./scripts/inventory.js",

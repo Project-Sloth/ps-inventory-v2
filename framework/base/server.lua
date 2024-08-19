@@ -1,48 +1,51 @@
--------------------------------------------------
---- GETS CORE OBJECT
--------------------------------------------------
+
+-- Gets core object
+---@return table
 Framework.GetCoreObject = function ()
 	return {}
 end
 
--------------------------------------------------
---- GET INVENTORY ITEMS
--------------------------------------------------
+-- Gets inventory items
+---@param src number
+---@return table
 Framework.Server.GetInventoryItems = function (src)
     return {}
 end
 
--------------------------------------------------
---- GET PLAYERS 
--------------------------------------------------
+-- Gets player list
+---@param src number
+---@return table
 Framework.Server.GetPlayers = function (src)
     return {}
 end
 
--------------------------------------------------
---- GET PLAYER 
--------------------------------------------------
+-- Gets player 
+---@param src number
+---@return table
 Framework.Server.GetPlayer = function (src)
     return {}
 end
 
--------------------------------------------------
---- GET PLAYER CASH 
--------------------------------------------------
+-- Gets player cash
+---@param src number
+---@return number
 Framework.Server.GetPlayerCash = function (src)
     return 0
 end
 
--------------------------------------------------
---- CHARGE PLAYER
--------------------------------------------------
+-- Charges player
+---@param src number
+---@param fundSource string
+---@param amount number
+---@param reason? string
+---@return boolean
 Framework.Server.ChargePlayer = function (src, fundSource, amount, reason)
 	return true
 end
 
--------------------------------------------------
---- GET PLAYER IDENTITY
--------------------------------------------------
+-- Gets player identity
+---@param src number
+---@return table
 Framework.Server.GetPlayerIdentity = function (src)
 
 	-- Example return
@@ -56,69 +59,76 @@ Framework.Server.GetPlayerIdentity = function (src)
 	}
 end
 
--------------------------------------------------
---- GET PLAYER 
--------------------------------------------------
+-- Gets player inventory 
+---@param src number
+---@return table
 Framework.Server.GetPlayerInventory = function (src)
     return {}
 end
 
--------------------------------------------------
---- SAVES PLAYER INVENTORY 
--------------------------------------------------
+-- Saves player inventory
+---@param src number
+---@param inventory table
+---@param database boolean
+---@return boolean
 Framework.Server.SavePlayerInventory = function (src, inventory, database)
 	return true
 end
 
--------------------------------------------------
---- UPDATE PLAYER PLAYER 
--------------------------------------------------
+-- Updates player 
+---@param src number
+---@param key any
+---@param val any
+---@return boolean
 Framework.Server.UpdatePlayer = function (src, key, val)
-	-- @todo
+	return true
 end
 
--------------------------------------------------
---- GET PLAYER NAME
--------------------------------------------------
+-- Gets player name
+---@param src number
+---@return string
 Framework.Server.GetPlayerName = function (src)
     return GetPlayerName(src)
 end
 
--------------------------------------------------
---- GET PLAYER IDENTIFIER
--------------------------------------------------
+-- Gets player identifier
+---@param src number
+---@return string|number
 Framework.Server.GetPlayerIdentifier = function (src)
     return source
 end
 
--------------------------------------------------
---- CREATE USEABLE ITEM 
--------------------------------------------------
+-- Creates useable item
+---@param itemName string
+---@param data table
+---@return function
 Framework.Server.CreateUseableItem = function (itemName, data)
     return function (itemName, data)
 
     end
 end
 
--------------------------------------------------
---- GET USEABLE ITEM 
--------------------------------------------------
+-- Gets useable item
+---@param itemName string
+---@return boolean
 Framework.Server.GetUseableItem = function (itemName)
     return false
 end
 
--------------------------------------------------
---- LOADS EXTERNAL INVENTORY
--------------------------------------------------
+-- Loads external inventory
+---@param inventoryId string
+---@return table
 Framework.Server.LoadExternalInventory = function (inventoryId)
 	local query = 'SELECT * FROM inventories WHERE identifier = ?'
 	local res = MySQL.single.await(query, { inventoryId })
 	return res
 end
 
--------------------------------------------------
---- SAVES EXTERNAL INVENTORY
--------------------------------------------------
+-- Saves external inventory
+---@param type string
+---@param inventoryId string
+---@param items table
+---@return table
 Framework.Server.SaveExternalInventory = function (type, inventoryId, items)
 	return MySQL.insert.await('INSERT INTO inventories (identifier, items) VALUES (:identifier, :items) ON DUPLICATE KEY UPDATE items = :items', {
 		['identifier'] = type .. '--' .. inventoryId,
@@ -126,23 +136,25 @@ Framework.Server.SaveExternalInventory = function (type, inventoryId, items)
 	})
 end
 
--------------------------------------------------
---- PLAYER HAS ITEM
--------------------------------------------------
+-- Checks if player has item
+---@param source number
+---@param items table
+---@param amount number
+---@return boolean
 Framework.Server.HasItem = function (source, items, amount)
     return false
 end
 
--------------------------------------------------
---- Has Group
--------------------------------------------------
+-- Checks if player has group
+---@param src number
+---@return boolean
 Framework.Server.HasGroup = function(src, group)
-	return {}
+	return false
 end
 
--------------------------------------------------
---- Override QB Functions
--------------------------------------------------
+-- Setup player
+---@param Player number
+---@param initial boolean
 Framework.Server.SetupPlayer = function (Player, initial)
 	-- Do player setup here
 end

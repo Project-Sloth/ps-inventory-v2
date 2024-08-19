@@ -5,16 +5,18 @@
 -- Creates the inventory class
 Core.Classes.New("Player", { CurrentHealth = 100 })
 
+-- Resets the state for the class
 function Core.Classes.Player.Reset ()
     Core.Classes.Player:UpdateState('CurrentHealth', GetEntityHealth(PlayerPedId()))
 end
 
--- Get current damages
+-- Gets current health for player
 function Core.Classes.Player.GetHealth ()
     return Core.Classes.Player:GetState('CurrentHealth')
 end
 
--- Update player damages by group
+-- Updates the health for player
+---@param updateInventory? boolean
 function Core.Classes.Player.UpdateHealth (updateInventory)
     Core.Classes.Player:UpdateState('CurrentHealth', GetEntityHealth(PlayerPedId()))
 

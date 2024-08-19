@@ -3,6 +3,8 @@
  */
 const Inventory = {
 
+    Themes: {},
+
     /**
      * State keeper for inventory
      */
@@ -91,6 +93,15 @@ const Inventory = {
      * Inventory events that are fired externally.
      */
     Events: {
+
+        /**
+         * When language is set, update dom
+         */
+        OnLanguageSet: () => {
+            $('#drop').html(Language.Locale('drop'));
+            $('#use').html(Language.Locale('use'));
+            $('#settings-modal-title').html(Language.Locale('settings'))
+        },
 
         /**
          * When item is dragged to use, or double clicked
@@ -615,8 +626,6 @@ const Inventory = {
         ExternalInventory: (data) => {
             let slots = Inventory.State.Configuration.MaxExternalInventorySlots;
 
-            console.log(JSON.stringify(data))
-
             /**
              * If an external inventory is provided
              */
@@ -747,6 +756,12 @@ const Inventory = {
 
         if (typeof data.cash !== "undefined") {
             $(Inventory.Selectors.Money).html(new Intl.NumberFormat().format(data.cash))
+        }
+
+        if (typeof data.preferences !== "undefined") {
+            if (data.preferences.theme) {
+                Inventory.Settings.SetTheme(data.preferences.theme);
+            }
         }
     },
 
@@ -974,7 +989,6 @@ const Inventory = {
          * @returns {string}
          */
         CraftItem: (inv, slotNumber, data = false) => { 
-            console.log(JSON.stringify(data.crafting.materials))
 
             let recipe = "";
             for (let i = 0; i < data.crafting.materials.length; i++) {
@@ -1009,7 +1023,6 @@ const Inventory = {
         },
 
         CraftQueueItem: (data) => {
-            console.log(data.queueId)
             return `
                 <div class="craft-slot-container" data-id="${data.queueId}">
                     <div class="craft-slot">
@@ -1276,7 +1289,7 @@ const Inventory = {
                 },
                 actions: [
                     {
-                        name: 'Use',
+                        name: Language.Locale('use'),
                         iconClass: 'fa-check',
                         onClick: function($el) {
                             const item = $el;
@@ -1301,7 +1314,7 @@ const Inventory = {
                         }
                     },
                     {
-                        name: 'Give',
+                        name: Language.Locale('give'),
                         iconClass: 'fa-hand-holding',
                         onClick: function($el) {
                             const item = $el;
@@ -1323,7 +1336,7 @@ const Inventory = {
                         }
                     },
                     {
-                        name: 'Drop',
+                        name: Language.Locale('drop'),
                         iconClass: 'fa-chevron-down',
                         onClick: function($el) {
                             const item = $el;
@@ -1438,7 +1451,6 @@ const Inventory = {
          * Removes items from crafting queue
          */
         RemoveCraftingQueueItem: (id) => {
-            console.log('.craft-slot-container[data-id="' + id + '"]')
             $('.craft-slot-container[data-id="' + id + '"]').remove();
         }
     },
@@ -1449,13 +1461,50 @@ const Inventory = {
     Settings: {
 
         /**
+         * Builds themes as options in settings modal
+         */
+        BuildThemes: (themes) => {
+            Inventory.Themes = themes;
+            $('#settings-themes').html('');
+
+            for (let theme in themes) {
+                $('#settings-themes').append(
+                    `
+                    <div class="col-lg-3">
+                        <div class="color-box" data-theme="${theme}" style="background: ${themes[theme].color} !important;"></div>
+                    </div>
+                    `
+                )
+            }
+        },
+
+        /**
+         * Sets the inventory theme
+         */
+        SetTheme: (theme) => {
+            if (typeof Inventory.Themes[theme] == "undefined") { return false }
+            $("body").get(0).style.setProperty("--ui-highlight-color", Inventory.Themes[theme].color);
+
+            if (Inventory.Themes[theme].shadowColor) {
+                $("body").get(0).style.setProperty("--ui-highlight-box-shadow-color", Inventory.Themes[theme].shadowColor);
+            }
+            
+            if (Inventory.Themes[theme].borderRadius) {
+                $("body").get(0).style.setProperty("--ui-border-radius", `${Inventory.Themes[theme].borderRadius}px`);
+            }
+        },
+
+        /**
          * Registers the handler for changing color scheme.
          */
         RegisterColorPickerHandler: () => {
             $(document).on('click', '.color-box', function (e) {
                 e.preventDefault();
-                let color = $(this).data('color');
-                $("body").get(0).style.setProperty("--ui-highlight-color", color);
+                Inventory.Settings.SetTheme($(this).data('theme'));
+
+                Nui.request('saveInventoryPreferences', {
+                    theme: $(this).data('theme')
+                });
             })
         }
     },
