@@ -248,6 +248,31 @@ Framework.Server.HasGroup = function(src, group)
 	end
 end
 
+-- Increases player experience
+---@param source number
+---@param amount number
+---@param type string
+---@return boolean
+Framework.Server.IncreaseExp = function (source, amount, type)
+    local Player = Framework.Core.Functions.GetPlayer(source)
+	if not Player then return false end
+    local current = Player.Functions.GetRep(type)
+	local new = current + amount
+	Player.Functions.AddRep(type, new)
+	return true
+end
+
+-- Get player experience by type
+---@param source number
+---@param type string
+---@return number
+Framework.Server.GetExp = function (source, type)
+    local Player = Framework.Core.Functions.GetPlayer(source)
+	if not Player then return false end
+    if not Player.PlayerData.metadata[type] then return 0 end
+	return Player.PlayerData.metadata[type]
+end
+
 -- Override QB Functions
 Framework.Server.SetupPlayer = function (Player, initial)
 

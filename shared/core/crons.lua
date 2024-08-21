@@ -1,3 +1,5 @@
+if not Core then Core = {} end
+
 Core.Crons = {
 
     -- Whether the processor can run or not

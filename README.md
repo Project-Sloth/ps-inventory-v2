@@ -5,6 +5,11 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 ### Frameworks Supported
 - QB Core
 
+### TODO:
+- Crafting experience requirements [DONE]
+- Vehicle storage overrides for classes [DONE]
+- Ensure full compatibility with QB
+
 ### Features
 - Slot based inventory
 - Stash system
@@ -13,14 +18,15 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Crafting System (Both locations and placeable items)
 - Give items to closest player
 - Drop system
-- Trunk system
-- Glovebox system
+- Trunk system (Configurable by class and model)
+- Glovebox system (Configurable by class and model)
 - Targetting support for qb-target and ox_target
 - Interactive UI when targetting is not available
 - Decay system
 - Hotbar (With toggling capability)
 - Configurable themes
 - Multi-language support
+- Vending Machines
 
 ### Dependencies
 

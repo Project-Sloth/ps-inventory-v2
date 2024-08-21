@@ -7,10 +7,20 @@ Core.Classes.Inventory.Utilities = {
     -- Retrieve storage overrides for vehicle by hash key
     ---@param hashKey number
     ---@param storageType string
-    GetVehicleSizeOverrideByHashKey = function (hashKey, storageType)
+    GetVehicleSizeOverrideByHashKey = function (vehicleClass, hashKey, storageType)
         local data = nil
 
-        for model, overrides in pairs(Config.Vehicles.SizeOverrides) do
+        -- Check class first
+        for class, overrides in pairs(Config.Vehicles.ClassOverrides) do
+            if class == tonumber(vehicleClass) then
+                if overrides[storageType] then
+                    data = overrides[storageType]
+                end
+            end
+        end
+
+        -- Then check model
+        for model, overrides in pairs(Config.Vehicles.ModelOverrides) do
             if GetHashKey(model) == hashKey then
                 if overrides[storageType] then
                     data = overrides[storageType]
@@ -912,25 +922,29 @@ function Core.Classes.Inventory.LoadExternalInventoryAndOpen(src, type, typeId, 
                 weight = Config.Inventories.Trunk.MaxWeight
 
                 -- Overrides check
-                local overrides = Core.Classes.Inventory.Utilities.GetVehicleSizeOverrideByHashKey(typeData.model, 'Trunk')
+                local overrides = Core.Classes.Inventory.Utilities.GetVehicleSizeOverrideByHashKey(typeData.class, typeData.model, 'Trunk')
                 if overrides then
                     if overrides.MaxSlots then slots = overrides.MaxSlots end
                     if overrides.MaxWeight then weight = overrides.MaxWeight end
                 end
 
                 name = "Trunk"
+
+                if slots == 0 then return false end
             elseif typeId:find('glovebox') then
                 slots = Config.Inventories.Glovebox.MaxSlots
                 weight = Config.Inventories.Glovebox.MaxWeight
 
                 -- Overrides check
-                local overrides = Core.Classes.Inventory.Utilities.GetVehicleSizeOverrideByHashKey(typeData.model, 'Glovebox')
+                local overrides = Core.Classes.Inventory.Utilities.GetVehicleSizeOverrideByHashKey(typeData.class, typeData.model, 'Glovebox')
                 if overrides then
                     if overrides.MaxSlots then slots = overrides.MaxSlots end
                     if overrides.MaxWeight then weight = overrides.MaxWeight end
                 end
 
                 name = "Glovebox"
+
+                if slots == 0 then return false end
             else
                 type = 'stash'
                 name = "Stash"

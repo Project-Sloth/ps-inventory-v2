@@ -1,3 +1,5 @@
+if not Core then Core = {} end
+
 Core.Utilities = {
 
     -- General logging method
@@ -191,27 +193,6 @@ Core.Utilities = {
         return isBackEngine
     end,
 
-    -- Creates an object
-    ---@param prop string
-    ---@param location vector3|table
-    CreateObject = function (prop, location)
-        Core.Utilities.LoadModelHash(prop)
-        local CreatedObject = CreateObjectNoOffset(prop, location.x, location.y, location.z, 1, 0, 1)
-
-        if location.w then
-            SetEntityHeading(CreatedObject, location.w)
-        end
-
-        PlaceObjectOnGroundProperly(CreatedObject)
-        FreezeEntityPosition(CreatedObject, true)
-        SetModelAsNoLongerNeeded(CreatedObject)
-        while not DoesEntityExist(CreatedObject) do Citizen.Wait(10) end
-
-        return {
-            EntityId = CreatedObject
-        }
-    end,
-
     -- Creates a blip
     ---@param settings table
     ---@param coords vector3|table
@@ -229,17 +210,47 @@ Core.Utilities = {
         return blip
     end,
 
+    -- Creates an object
+    ---@param prop string
+    ---@param location vector3|table
+    CreateObject = function (isNetwork, prop, location)
+        Core.Utilities.LoadModelHash(prop)
+        local CreatedObject = CreateObjectNoOffset(prop, location.x, location.y, location.z, isNetwork, 0, 1)
+        while not DoesEntityExist(CreatedObject) do Wait(10) end
+
+        if location.w then
+            SetEntityHeading(CreatedObject, location.w)
+        end
+
+        PlaceObjectOnGroundProperly(CreatedObject)
+        FreezeEntityPosition(CreatedObject, true)
+        SetModelAsNoLongerNeeded(CreatedObject)
+
+        local networkId = nil
+        if isNetwork then
+            networkId = ObjToNet(CreatedObject)
+        end
+
+        return {
+            EntityId = CreatedObject,
+            EntityNetworkId = networkId
+        }
+    end,
+
     -- Creates a ped and returns information
+    ---@param isNetwork boolean
     ---@param modelHash string
     ---@param x number
     ---@param y number
     ---@param z number
     ---@param heading number
     ---@param scenario string
-    CreateNetworkPed = function (modelHash, x, y, z, heading, scenario)
+    CreatePed = function (isNetwork, modelHash, x, y, z, heading, scenario)
         Core.Utilities.LoadModelHash(modelHash)
 
-        local CreatedPed = CreatePed(4, modelHash , x, y, z, heading, false, true)
+        local CreatedPed = CreatePed(4, modelHash , x, y, z, heading, isNetwork, isNetwork)
+        while not DoesEntityExist(CreatedPed) do Wait(10) end
+
         FreezeEntityPosition(CreatedPed, true)
 	    SetEntityInvincible(CreatedPed, true)
         SetBlockingOfNonTemporaryEvents(CreatedPed, true)
@@ -249,36 +260,71 @@ Core.Utilities = {
         else
             TaskStartScenarioInPlace(CreatedPed, "", 0, true)
         end
-	    
-        while not DoesEntityExist(CreatedPed) do Citizen.Wait(10) end
+
+        local networkId = nil
+        if isNetwork then
+            networkId = PedToNet(CreatedPed)
+        end
 
         return {
-            EntityId = CreatedPed
+            EntityId = CreatedPed,
+            EntityNetworkId = networkId
         }
     end,
 
     -- Delets a network ped by entity id
     ---@param Entity number
     ---@param type string
-    DeleteEntity = function (Entity, type)
+    DeleteEntity = function (entity, entType)
+        if type(entity) ~= "table" then
+            return Core.Utilities.Log({
+                title = "Core.Utilities.DeleteEntity",
+                message = "Parameter 1 must be of type table"
+            })
+        end
+
+        -- Request control of entity if network id is available
+        if entity.EntityNetworkId then
+            Core.Utilities.RequestNetworkControlOfObject(entity.EntityNetworkId, entity.EntityId, true)
+        end
 
         -- Check if it exists first
-        if DoesEntityExist(Entity) then 
-            if type == "object" then
-                Core.Utilities.Log({
-                    title = "Core.Utilities.DeleteEntity",
-                    message = "Processing removal of " .. Entity
-                })
-
-                DeleteEntity(Entity)
+        if DoesEntityExist(entity.EntityId) then 
+            if entType == "object" then
+                DeleteEntity(entity.EntityId)
             else
-                DeletePed(Entity)
+                DeletePed(entity.EntityId)
             end
         else
             Core.Utilities.Log({
                 title = "Core.Utilities.DeleteEntity",
-                message = "Unable to find entity: " .. Entity
+                message = "Unable to find entity: " .. entity.EntityId
             })
         end
     end,
+
+    -- Requests network control of network entity
+    ---@param netId number
+    ---@param entityId number
+    RequestNetworkControlOfObject = function (netId, entityId, setMissionEntity)
+        if NetworkDoesNetworkIdExist(netId) then
+            NetworkRequestControlOfNetworkId(netId)
+            while not NetworkHasControlOfNetworkId(netId) do
+                Wait(100)
+                NetworkRequestControlOfNetworkId(netId)
+            end
+        end
+
+        if DoesEntityExist(entityId) then
+            NetworkRequestControlOfEntity(entityId)
+            while not NetworkHasControlOfEntity(entityId) do
+                Wait(100)
+                NetworkRequestControlOfEntity(entityId)
+            end
+        end
+
+        if setMissionEntity then
+            SetEntityAsMissionEntity(entityId, true, true)
+        end
+    end
 }

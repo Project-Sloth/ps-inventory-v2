@@ -18,7 +18,8 @@ function Core.Classes.Shops.Load()
             if shop.npc then
                 if type(shop.npc) == "table" then
 
-                    local ped = Core.Utilities.CreateNetworkPed(
+                    local ped = Core.Utilities.CreatePed(
+                        true,
                         shop.npc.model, 
                         location.x, 
                         location.y, 
@@ -30,7 +31,7 @@ function Core.Classes.Shops.Load()
                     if ped then
                         if ped.EntityId then
                             local peds = Core.Classes.Shops:GetState("peds")
-                            table.insert(peds, ped.EntityId)
+                            table.insert(peds, ped)
                             Core.Classes.Shops:UpdateState("peds", peds)
 
                             if Config.UseTarget then
@@ -154,7 +155,7 @@ function Core.Classes.Shops.Cleanup()
         Core.Utilities.DeleteEntity(ped)
 
         if Config.UseTarget then
-            Framework.Client.RemoveTargetEntity(ped)
+            Framework.Client.RemoveTargetEntity(ped.EntityId)
         end
     end
 

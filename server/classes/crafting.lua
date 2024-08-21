@@ -28,6 +28,7 @@ end
 ---@param item table
 function Core.Classes.Crafting.OpenByPlaceable (src, item)
     local Player = Framework.Server.GetPlayer(src)
+    local Experience = Framework.Server.GetExp(src, 'crafting')
     local itemData = Core.Classes.Inventory:GetState('Items')[item]
 
     if not itemData then
@@ -48,6 +49,13 @@ function Core.Classes.Crafting.OpenByPlaceable (src, item)
 
     local items = Core.Classes.Crafting.BuildItemList(itemData.crafting.recipes)
 
+    -- Validate requirements for items
+    for k, item in pairs(items) do
+        if item.crafting.exp.required > Experience then
+            table.remove(items, k)
+        end
+    end
+
     Core.Classes.Inventory.OpenInventory(src, {
         type = "crafting",
         id = 'placeable-' .. item,
@@ -62,6 +70,7 @@ end
 ---@param craftId string
 function Core.Classes.Crafting.Open (src, craftId)
     local Player = Framework.Server.GetPlayer(src)
+    local Experience = Framework.Server.GetExp(src, 'crafting')
     local crafting = Config.Crafting.Locations[craftId]
 
     if not crafting then
@@ -73,6 +82,13 @@ function Core.Classes.Crafting.Open (src, craftId)
     end
 
     local items = Core.Classes.Crafting.BuildItemList(crafting.recipes)
+
+    -- Validate requirements for items
+    for k, item in pairs(items) do
+        if item.crafting.exp.required > Experience then
+            table.remove(items, k)
+        end
+    end
 
     Core.Classes.Inventory.OpenInventory(src, {
         type = "crafting",
@@ -105,6 +121,7 @@ function Core.Classes.Crafting.ProcessQueue ()
 
                             if itemData.completion then
                                 if itemData.completion < os.time() then
+                                    Framework.Server.IncreaseExp(source, itemData.item.crafting.exp.awarded, 'crafting')
                                     Core.Classes.Inventory.AddItem(source, itemData.item.name, itemData.amount)
                                     TriggerClientEvent(Config.ClientEventPrefix .. "RemoveCraftingQueueItem", source, queueId)
                                     queue[source][queueId] = nil
@@ -188,6 +205,7 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
     -- Validate player
     local src = source
     local Player = Framework.Server.GetPlayer(src)
+    local Experience = Framework.Server.GetExp(src, 'crafting')
     if not data.crafting then return false end
 
     -- Return all categories
@@ -207,8 +225,13 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
         end
     end
 
-    -- Get player inventory
     if not itemToCraft then return false end
+
+    if itemToCraft.crafting.exp.required > Experience then
+        return { success = false, message = "Not enough experience" }
+    end
+
+    -- Get player inventory
     local inventory = Core.Classes.Inventory.GetPlayerInventory(src)
 
     -- Iterate materials and check against player inventory

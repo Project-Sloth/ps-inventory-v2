@@ -44,31 +44,11 @@ Config = {
     --- Default weight and slots
     -------------------------------------------------
     Inventories = {
-
-        Player = {
-            MaxWeight = 120000,
-            MaxSlots = 45
-        },
-
-        Drop = {
-            MaxWeight = 120000,
-            MaxSlots = 41
-        },
-
-        Stash = {
-            MaxWeight = 120000,
-            MaxSlots = 41
-        },
-        
-        Glovebox = {
-            MaxWeight = 20000,
-            MaxSlots = 5
-        },
-
-        Trunk = {
-            MaxWeight = 70000,
-            MaxSlots = 10
-        }
+        Player   = { MaxWeight = 120000,  MaxSlots = 45 },
+        Drop     = { MaxWeight = 120000,  MaxSlots = 41 },
+        Stash    = { MaxWeight = 120000,  MaxSlots = 41 },
+        Glovebox = { MaxWeight = 20000,   MaxSlots = 5 },
+        Trunk    = { MaxWeight = 70000,   MaxSlots = 10 }
     },
 
     -------------------------------------------------

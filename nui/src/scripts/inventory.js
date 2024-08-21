@@ -6,19 +6,10 @@ const Inventory = {
     Themes: {},
 
     /**
-     * How often the inventory updates metadata
-     * information for items.
-     */
-    RoutineUpdaterInterval: 5000,
-
-    /**
      * State keeper for inventory
      */
     State: {
         Hotbar: false,
-
-        CanRoutineUpdate: true,
-        RoutineUpdater: null,
 
         Open: false,
 
@@ -135,10 +126,6 @@ const Inventory = {
                 inventory: inventoryType,
                 item: item
             });
-
-            if (!res.success) {
-                // @TODO Do something here
-            }
         },
 
         /**
@@ -216,9 +203,6 @@ const Inventory = {
             if (typeof data.external !== "undefined") {
                 Inventory.Setup.ExternalInventory(data);
             }
-
-            // Start the routine updater
-            Inventory.StartRoutineUpdater();
         },
 
         /**
@@ -258,7 +242,6 @@ const Inventory = {
             try {
                 // Disables draggables while request is being made
                 Inventory.DisableDraggables();
-                Inventory.DisableRoutineUpdater();
 
                 // Make request
                 const res = await Nui.request('give', payload);
@@ -282,13 +265,11 @@ const Inventory = {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
-                Inventory.EnableRoutineUpdater();
 
             } catch (error) {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
-                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -315,7 +296,6 @@ const Inventory = {
             try {
                 // Disables draggables while request is being made
                 Inventory.DisableDraggables();
-                Inventory.DisableRoutineUpdater();
 
                 // Make request
                 const res = await Nui.request('drop', payload);
@@ -331,13 +311,11 @@ const Inventory = {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
-                Inventory.EnableRoutineUpdater();
 
             } catch (error) {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
-                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -451,13 +429,11 @@ const Inventory = {
             try {
                 // Disables draggables while request is being made
                 Inventory.DisableDraggables();
-                Inventory.DisableRoutineUpdater();
 
                 const res = await Nui.request('move', payload);
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
-                Inventory.EnableRoutineUpdater();
 
                 if (res.external) {
                     Inventory.Events.UpdateInventory({
@@ -471,7 +447,6 @@ const Inventory = {
 
                 // Re-enables draggables
                 Inventory.EnableDraggables();
-                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -524,7 +499,6 @@ const Inventory = {
              * Process the moving
              */
             try {
-                Inventory.DisableRoutineUpdater();
 
                 const res = await Nui.request('buy', payload);
 
@@ -542,11 +516,7 @@ const Inventory = {
                         })
                     }
                 }
-
-                Inventory.EnableRoutineUpdater();
             } catch (error) {
-
-                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -581,7 +551,6 @@ const Inventory = {
              * Process the moving
              */
             try {
-                Inventory.DisableRoutineUpdater();
 
                 const res = await Nui.request('craft', payload);
 
@@ -599,11 +568,7 @@ const Inventory = {
                         })
                     }
                 }
-
-                Inventory.EnableRoutineUpdater();
             } catch (error) {
-
-                Inventory.EnableRoutineUpdater();
                 
                 /**
                  * If the request fails
@@ -1143,8 +1108,6 @@ const Inventory = {
             helper: 'clone',
             start: (event, ui) => {
 
-                Inventory.DisableRoutineUpdater();
-
                 if (Inventory.State.BootstrapMenu) {
                     Inventory.State.BootstrapMenu.close();
                 }
@@ -1156,8 +1119,6 @@ const Inventory = {
                 $('.actionable').show()
             },
             stop: () => {
-                Inventory.EnableRoutineUpdater();
-
                 $('.actionable').fadeOut();
             }
         });
@@ -1596,32 +1557,4 @@ const Inventory = {
             })
         }
     },
-
-    /**
-     * Starts the inventory routine updater
-     */
-    StartRoutineUpdater: () => {
-        if (!Inventory.RoutineUpdater) {
-            Inventory.RoutineUpdater = setInterval(() => {
-                if (Inventory.CanRoutineUpdate) {
-                    Nui.request('update')
-                }
-            }, Inventory.RoutineUpdaterInterval)
-        }
-    },
-
-    /**
-     * Stops the routine updater from completing
-     * due to other blocking requests being fulfilled
-     */
-    DisableRoutineUpdater: () => {
-        Inventory.CanRoutineUpdate = false;
-    },
-
-    /**
-     * Re-enables the routine updater
-     */
-    EnableRoutineUpdater: () => {
-        Inventory.CanRoutineUpdate = true;
-    }
 };

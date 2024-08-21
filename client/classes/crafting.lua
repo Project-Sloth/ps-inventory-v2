@@ -16,10 +16,10 @@ function Core.Classes.Crafting.Load()
         
         -- If it provides a prop
         if crafting.prop then
-            local prop = Core.Utilities.CreateObject(crafting.prop, crafting.location)
+            local prop = Core.Utilities.CreateObject(true, crafting.prop, crafting.location)
             if prop then
                 local props = Core.Classes.Crafting:GetState("props")
-                table.insert(props, prop.EntityId)
+                table.insert(props, prop)
                 Core.Classes.Crafting:UpdateState("props", props)
 
                 if Config.UseTarget then

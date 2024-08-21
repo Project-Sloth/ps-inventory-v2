@@ -1,3 +1,5 @@
+if not Core then Core = {} end
+
 Core.Language = {
 
     State = {

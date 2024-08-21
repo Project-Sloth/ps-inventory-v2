@@ -19,7 +19,8 @@ function Core.Classes.Vehicles.VehicleAccessible()
             id = "glovebox-" .. vehicleProperties.plate,
             name = "Glovebox",
             vehicle = vehicle,
-            model = vehicleProperties.model
+            model = vehicleProperties.model,
+            class = GetVehicleClass(vehicle)
         }
     else
         local pos = GetEntityCoords(ped)
@@ -43,7 +44,8 @@ function Core.Classes.Vehicles.VehicleAccessible()
             id = "trunk-" .. vehicleProperties.plate,
             name = "Trunk",
             vehicle = closestVehicle,
-            model = vehicleProperties.model
+            model = vehicleProperties.model,
+            class = GetVehicleClass(vehicle)
         }
     end
 

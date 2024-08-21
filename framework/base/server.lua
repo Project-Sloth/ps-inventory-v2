@@ -161,6 +161,22 @@ Framework.Server.HasGroup = function(src, group)
 	return false
 end
 
+-- Increases player experience
+---@param source number
+---@param amount number
+---@param type string
+---@return boolean
+Framework.Server.IncreaseExp = function (source, amount, type)
+    return false
+end
+
+-- Get player experience by type
+---@param source number
+---@param type string
+Framework.Server.GetExp = function (source, type)
+    return 0
+end
+
 -- Setup player
 ---@param Player number
 ---@param initial boolean

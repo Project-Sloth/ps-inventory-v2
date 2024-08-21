@@ -1,3 +1,5 @@
+if not Core then Core = {} end
+
 -- Creates empty table to hold classes
 Core.Classes = {
     

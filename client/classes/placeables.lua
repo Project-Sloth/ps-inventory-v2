@@ -392,30 +392,7 @@ end
 ---@param itemEntity number
 function Core.Classes.Placeables.RemoveObject (itemEntity)
     local netId = NetworkGetNetworkIdFromEntity(itemEntity)
-    Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity)
-    SetEntityAsMissionEntity(itemEntity, true, true)
-    Core.Utilities.DeleteEntity(itemEntity, 'object')
-end
-
--- Get control of network object
----@param netId number
----@param itemEntity number
-function Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity)
-    if NetworkDoesNetworkIdExist(netId) then
-        NetworkRequestControlOfNetworkId(netId)
-        while not NetworkHasControlOfNetworkId(netId) do
-            Wait(100)
-            NetworkRequestControlOfNetworkId(netId)
-        end
-    end
-
-    if DoesEntityExist(itemEntity) then
-        NetworkRequestControlOfEntity(itemEntity)
-        while not NetworkHasControlOfEntity(itemEntity) do
-            Wait(100)
-            NetworkRequestControlOfEntity(itemEntity)
-        end
-    end
+    Core.Utilities.DeleteEntity({ EntityId = itemEntity, EntityNetworkId = netId }, 'object')
 end
 
 -- Adds new zone

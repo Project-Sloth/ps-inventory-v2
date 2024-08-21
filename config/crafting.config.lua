@@ -27,6 +27,10 @@ Config.Crafting = {
                     { item = "copper", amount = 50 },
                     { item = "plastic", amount = 20 },
                     { item = "rubber", amount = 15 },
+                },
+                exp = {
+                    required = 0,
+                    awarded  = 10
                 }
             },
 
@@ -40,6 +44,10 @@ Config.Crafting = {
                     { item = "copper", amount = 75 },
                     { item = "plastic", amount = 40 },
                     { item = "rubber", amount = 25 },
+                },
+                exp = {
+                    required = 0,
+                    awarded  = 10
                 }
             },
 
@@ -53,6 +61,10 @@ Config.Crafting = {
                     { item = "copper", amount = 75 },
                     { item = "plastic", amount = 40 },
                     { item = "rubber", amount = 25 },
+                },
+                exp = {
+                    required = 0,
+                    awarded  = 10
                 }
             },
 
@@ -66,6 +78,10 @@ Config.Crafting = {
                     { item = "copper", amount = 75 },
                     { item = "plastic", amount = 60 },
                     { item = "rubber", amount = 50 },
+                },
+                exp = {
+                    required = 10,
+                    awarded  = 10
                 }
             },
         }

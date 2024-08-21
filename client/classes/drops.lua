@@ -68,9 +68,9 @@ end
 function Core.Classes.Drops.AddProp (dropId, location)
 	local props = Core.Classes.Drops:GetState('props')
     if not props[dropId] then
-        local res = Core.Utilities.CreateObject(Config.Drops.Prop, location)
+        local res = Core.Utilities.CreateObject(true, Config.Drops.Prop, location)
         if res then
-            props[dropId] = res.EntityId
+            props[dropId] = res
         end
     end
     Core.Classes.Drops:UpdateState('props', props)
@@ -146,7 +146,7 @@ end
 -- Cleanup props on resourceStop
 function Core.Classes.Drops.Cleanup()
     local props = Core.Classes.Drops:GetState('props')
-    for _, prop in pairs(props) do Core.Utilities.DeleteEntity(prop) end
+    for _, prop in pairs(props) do Core.Utilities.DeleteEntity(prop, 'object') end
 
     local zones = Core.Classes.Crafting:GetState("zones")
     for id, zone in pairs(zones) do Core.Classes.Drops.RemoveZone(id) end

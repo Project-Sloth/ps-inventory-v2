@@ -32,7 +32,6 @@ shared_script {
     "config/stashes.config.lua",
     "config/vehicles.config.lua",
     "config/crafting.config.lua",
-    "shared/core/core.lua",
     "shared/core/utilities.lua",
     "shared/core/language.lua",
     "shared/core/classes.lua",
