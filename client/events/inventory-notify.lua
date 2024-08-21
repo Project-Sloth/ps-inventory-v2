@@ -5,4 +5,9 @@ RegisterNetEvent(Config.ClientEventPrefix .. 'InventoryNotify', function (action
     elseif action == "remove" then
         Core.Classes.InventoryNotify.RemoveItem(item, amount)
     end
+
+    -- Update if not open to keep hotbar up to date
+    if Core.Classes.Inventory:GetState('IsOpen') == false then
+        Core.Classes.Inventory.Update()
+    end
 end)

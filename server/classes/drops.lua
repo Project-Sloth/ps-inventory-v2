@@ -130,7 +130,6 @@ function Core.Classes.Drops.Update (dropId, data)
             updateKey = k
 
             for key, val in pairs(data) do
-                print('Update key: ' .. key .. ' for drop ' .. d.id)
                 drops[k][key] = val
             end
         end
@@ -163,7 +162,6 @@ end
 ---@param dropId string
 ---@param item table
 function Core.Classes.Drops.AddItem (dropId, item)
-    print('Adding item to drop')
     local drop = Core.Classes.Drops.Get(dropId)
     if not drop then return false end
     local items = drop.items

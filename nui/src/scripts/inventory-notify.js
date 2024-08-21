@@ -90,7 +90,7 @@ const InventoryNotify = {
           } else if (data.process == "remove") {
               message = `Removed ${data.amount} ${data.item.label}`
           } else if (data.process == "notification") {
-              message = data.message ? data.message : `Inventory is ready for use`
+              message = data.message ? data.message : Language.Locale('inventoryReady')
           }
   
           let output = `

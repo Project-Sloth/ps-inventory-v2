@@ -121,7 +121,12 @@ Config.Shops = {
             { item = 'weapon_stungun',      price = 0 },
             { item = 'weapon_pumpshotgun',  price = 0 },
             { item = 'weapon_smg',          price = 0 },
-            { item = 'weapon_carbinerifle', price = 0 },
+            { item = 'weapon_carbinerifle', price = 0, info = { 
+                attachments = { 
+                    { component = 'COMPONENT_AT_AR_FLSH', label = 'Flashlight' }, 
+                    { component = 'COMPONENT_AT_SCOPE_MEDIUM', label = '3x Scope' } 
+                } 
+            } },
             { item = 'weapon_nightstick',   price = 0 },
             { item = 'weapon_flashlight',   price = 0 },
             { item = 'pistol_ammo',         price = 0 },

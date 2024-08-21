@@ -39,3 +39,8 @@ function Core.Classes.Placeables.Beacon ()
     TriggerClientEvent(Config.ClientEventPrefix .. 'UpdatePlaceables', -1, items)
     return true
 end
+
+function Core.Classes.Placeables.Place (source, item)
+    if not item then return false end
+    TriggerClientEvent(Config.ClientEventPrefix .. 'PlaceItem', source, item)
+end

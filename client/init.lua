@@ -11,22 +11,30 @@ Framework.Determine()
 if Framework.Client.EventPlayerLoaded then
     RegisterNetEvent(Framework.Client.EventPlayerLoaded)
     AddEventHandler (Framework.Client.EventPlayerLoaded, function()
-        Core.Classes.Inventory.Load(function ()
-            SendNUIMessage(InventoryInitPayload())
-            CreateInventoryThreads()
+        Core.Classes.Inventory.Load(function (items)
+            InventoryLoaded(items)
         end)
     end)
 else
-    Core.Classes.Inventory.Load(function ()
-        SendNUIMessage(InventoryInitPayload())
-        CreateInventoryThreads()
+    Core.Classes.Inventory.Load(function (items)
+        InventoryLoaded(items)
     end)
 end
 
+-- Toggle hotbar keybind
+lib.addKeybind({
+    name = 'hotbar',
+    description = 'Toggle hotbar',
+    defaultKey = "Z",
+    onPressed = function()
+        SendNUIMessage({ action = 'toggleHotbar' })
+    end
+})
+
 -- Open Inventory Keybind
-local keybind = lib.addKeybind({
+lib.addKeybind({
     name = 'inventory',
-    description = 'Press tab to open inventory',
+    description = 'Open inventory',
     defaultKey = 'Tab',
     onReleased = function(self)
 

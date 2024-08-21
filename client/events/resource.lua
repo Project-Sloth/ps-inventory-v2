@@ -7,9 +7,8 @@ AddEventHandler('onResourceStart', function(resource)
 
         Wait(500)
 
-        Core.Classes.Inventory.Load(function ()
-            SendNUIMessage(InventoryInitPayload())
-            CreateInventoryThreads()
+        Core.Classes.Inventory.Load(function (items)
+            InventoryLoaded(items)
         end)
     end
 end)

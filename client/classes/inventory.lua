@@ -32,8 +32,10 @@ function Core.Classes.Inventory.Load(cb)
         message = Core.Utilities.TableLength(inventory) .. " items were loaded"
     })
 
+    -- Set loaded
     Core.Classes.Inventory:UpdateState('Loaded', true)
 
+    -- Send items in callback if applicable
     if type(cb) == "function" then
         return cb(Core.Classes.Inventory:GetState("Items"))
     end

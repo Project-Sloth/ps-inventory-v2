@@ -96,8 +96,7 @@ end
 -- Dinstance checker for placeables
 ---@param distance number
 ---@param object table
----@param raycastDetectWorldOnly boolean
-function Core.Classes.Placeables.RayCastGamePlayCamera(distance, object, raycastDetectWorldOnly)
+function Core.Classes.Placeables.RayCastGamePlayCamera(distance, object)
     local cameraRotation = GetGameplayCamRot()
     local cameraCoord = GetGameplayCamCoord()
     local direction = Core.Classes.Placeables.RotationToDirection(cameraRotation)
@@ -108,11 +107,6 @@ function Core.Classes.Placeables.RayCastGamePlayCamera(distance, object, raycast
         z = cameraCoord.z + direction.z * distance
     }
 
-    local traceFlag = 4294967295
-    if raycastDetectWorldOnly then
-        traceFlag = 1
-    end
-
     local a, hit, coords, d, entity = GetShapeTestResult(StartShapeTestRay(
         cameraCoord.x, 
         cameraCoord.y, 
@@ -120,7 +114,7 @@ function Core.Classes.Placeables.RayCastGamePlayCamera(distance, object, raycast
         destination.x, 
         destination.y, 
         destination.z, 
-        traceFlag, 
+        1, 
         object, 
         0
     ))
@@ -135,12 +129,13 @@ end
 ---@param shouldSnapToGround boolean
 ---@param id number
 function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround, id)
+    if not item.placeable then return false end
 
     coords = vector3(coords.x, coords.y, coords.z)
 
     local ped = PlayerPedId()
     local itemName = item.item
-    local itemModel = item.prop
+    local itemModel = item.placeable.prop
     local shouldFreezeItem = item.isFrozen
 
     -- Cancel any active animation
@@ -174,13 +169,13 @@ function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround
     if Config.UseTarget then
         local options = {}
 
-        if item.interactType then
+        if item.placeable.option then
             table.insert(options, {
                 action = function ()
                     Core.Classes.Placeables.Open(id)
                 end,
-                icon = "fas fa-eye",
-                label = "Access " .. item.interactType
+                icon = item.placeable.option.icon,
+                label = item.placeable.option.label
             })
         end
 
@@ -192,10 +187,10 @@ function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround
             debug = false,
             onEnter = function ()
                 local interactType = ""
-                if item.interactType then
+                if item.placeable.option then
                     interactType = Core.Language.Locale('placeablesInteractType', {
                         key = Config.InteractKey.Label,
-                        interactType = item.interactType
+                        interactType = item.placeable.option.label
                     })
                 end
 
@@ -232,11 +227,13 @@ end
 -- Places item
 ---@param item table
 function Core.Classes.Placeables.PlacementMode(item)
-    if not item.prop then return false end
+    print(json.encode(item))
+    if not item.placeable then return false end
+    if not item.placeable.prop then return false end
     if Core.Classes.Placeables:GetState('placementMode') then return false end
 
     -- Load the model
-    Core.Utilities.LoadModelHash(item.prop)
+    Core.Utilities.LoadModelHash(item.placeable.prop)
 
     -- Setting placement mode to true
     Core.Classes.Placeables:UpdateState('placementMode', true)
@@ -245,36 +242,45 @@ function Core.Classes.Placeables.PlacementMode(item)
     local ped = PlayerPedId()
 
     -- Create the object
-    local CreatedObject = CreateObject(item.prop, GetEntityCoords(ped), false, false)
+    local CreatedObject = CreateObject(item.placeable.prop, GetEntityCoords(ped), false, false)
     SetEntityAlpha(CreatedObject, 150, false)
     SetEntityCollision(CreatedObject, false, false)
 
     local zOffset = 0
-    local raycastDetectWorldOnly = true
 
     -- Do the placement logic in this loop
     while Core.Classes.Placeables:GetState('placementMode') do
-        local hit, coords, entity = Core.Classes.Placeables.RayCastGamePlayCamera(Config.Placeables.ItemPlacementModeRadius, CreatedObject, raycastDetectWorldOnly)
+
+        -- Get keys to show for interaction
+        local keys = {
+            Core.Language.Locale('placeablesPlace', {
+                key = 'E'
+            }),
+            Core.Language.Locale('placeablesRotate', {
+                key = 'Mouse Wheel'
+            }),
+            Core.Language.Locale('placeablesCancel', {
+                key = 'Backspace'
+            })
+        }
+
+        -- Append interaction keys
+        local interactionText = ""
+        for _, text in pairs(keys) do
+            interactionText = interactionText .. text
+        end
+
+        -- Show interaction
+        Core.Classes.Interact.Show(keys)
+
+        -- Get raycast data
+        local hit, coords, entity = Core.Classes.Placeables.RayCastGamePlayCamera(Config.Placeables.ItemPlacementModeRadius, CreatedObject)
 
         -- Move the object to the coords from the raycast
         SetEntityCoords(CreatedObject, coords.x, coords.y, coords.z + zOffset)
 
-        -- Handle various key presses and actions
-
-        -- Controls for placing item
-
-        -- Pressed Shift + E - Place object on ground
-        if IsControlJustReleased(0, 38) and IsControlPressed(0, 21)then
-            Core.Classes.Placeables:UpdateState('placementMode', false)
-
-            local objHeading = GetEntityHeading(CreatedObject)
-            local snapToGround = true
-
-            Core.Classes.Placeables.Save(item, vector3(coords.x, coords.y, coords.z + zOffset), objHeading, snapToGround)
-            DeleteEntity(CreatedObject)
-
-        -- Pressed E - Place object at current position
-        elseif IsControlJustReleased(0, 38) then
+        -- E = Place object
+        if IsControlJustReleased(0, 38) then
             Core.Classes.Placeables:UpdateState('placementMode', false)
 
             local objHeading = GetEntityHeading(CreatedObject)
@@ -282,9 +288,9 @@ function Core.Classes.Placeables.PlacementMode(item)
 
             Core.Classes.Placeables.Save(item, vector3(coords.x, coords.y, coords.z + zOffset), objHeading, snapToGround)
             DeleteEntity(CreatedObject)
-        end
 
-        -- Controls for rotating item
+            Core.Classes.Interact.Hide()
+        end
 
         -- Mouse Wheel Up (and Shift not pressed), rotate by +10 degrees
         if IsControlJustReleased(0, 241) and not IsControlPressed(0, 21) then
@@ -298,33 +304,11 @@ function Core.Classes.Placeables.PlacementMode(item)
             SetEntityRotation(CreatedObject, 0.0, 0.0, objHeading - 10, false, false)
         end
 
-        -- Controls for raising/lowering item
-
-        -- Shift + Mouse Wheel Up, move item up
-        if IsControlPressed(0, 21) and IsControlJustReleased(0, 241) then
-            zOffset = zOffset + 0.1
-            if zOffset > Config.Placeables.MaxZOffset then
-                zOffset = Config.Placeables.MaxZOffset
-            end
-        end
-
-        -- Shift + Mouse Wheel Down, move item down
-        if IsControlPressed(0, 21) and IsControlJustReleased(0, 242) then
-            zOffset = zOffset - 0.1
-            if zOffset < Config.Placeables.MinZOffset then
-                zOffset = Config.Placeables.MinZOffset
-            end
-        end
-
-        -- Mouse Wheel Click, change placement mode
-        if IsControlJustReleased(0, 348) then
-            raycastDetectWorldOnly = not raycastDetectWorldOnly
-        end
-
         -- Right click or Backspace to exit out of placement mode and delete the local object
         if IsControlJustReleased(0, 177) then
             Core.Classes.Placeables:UpdateState('placementMode', false)
             DeleteEntity(CreatedObject)
+            Core.Classes.Interact.Hide()
         end
 
         Wait(1)
@@ -338,11 +322,21 @@ function Core.Classes.Placeables.Open(propId)
     local item = Core.Classes.Placeables:GetState('props')[Core.Classes.Placeables:GetState('nearPropId') or propId]
     if not item then return false end
 
-    if item.item.eventType then
-        if item.item.eventType == 'client' then
-            TriggerEvent(item.item.eventName, item.item.eventParams or nil)
-        elseif item.item.eventType == 'server'then
-            TriggerServerEvent(item.item.eventName, item.item.eventParams or nil)
+    if item.item.placeable.option then
+        if item.item.placeable.option.event then
+            if item.item.placeable.option.event.type then
+                if item.item.placeable.option.event.type == "client" then
+                    TriggerEvent(
+                        Config.ClientEventPrefix .. item.item.placeable.option.event.name, 
+                        item.item.placeable.option.event.params or nil
+                    )
+                elseif item.item.placeable.option.event.type == "server" then
+                    TriggerServerEvent(
+                        Config.ServerEventPrefix .. item.item.placeable.option.event.name, 
+                        item.item.placeable.option.event.params or nil
+                    )
+                end
+            end
         end
     end
 end
@@ -354,8 +348,8 @@ function Core.Classes.Placeables.Pickup(propId)
     if not Core.Classes.Placeables:GetState('nearPropId') and not propId then return false end
     local itemData = Core.Classes.Placeables:GetState('props')[Core.Classes.Placeables:GetState('nearPropId') or propId]
     local itemEntity = itemData.entity
-    local itemModel = itemData.item.prop
-    local itemName = Entity(itemEntity).state.prop or itemData.item.prop
+    local itemModel = itemData.item.placeable.prop
+    local itemName = Entity(itemEntity).state.prop or itemData.item.placeable.prop
 
     if itemName then
         -- Cancel any active animation
@@ -390,7 +384,6 @@ function Core.Classes.Placeables.Pickup(propId)
             Core.Classes.Interact.Hide()
         end, function() -- Cancel
             StopAnimTask(ped, animationDict, animation, 1.0)
-            Notify("Canceled..", "error")
         end)
     end
 end
@@ -401,7 +394,7 @@ function Core.Classes.Placeables.RemoveObject (itemEntity)
     local netId = NetworkGetNetworkIdFromEntity(itemEntity)
     Core.Classes.Placeables.RequestNetworkControlOfObject(netId, itemEntity)
     SetEntityAsMissionEntity(itemEntity, true, true)
-    DeleteEntity(itemEntity)
+    Core.Utilities.DeleteEntity(itemEntity, 'object')
 end
 
 -- Get control of network object

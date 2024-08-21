@@ -209,6 +209,19 @@ Framework.Server.HasItem = function (source, items, amount)
 	end
 end
 
+-- Checks if player has a specific license
+---@param src number
+---@param licenseType string
+---@return boolean
+Framework.Server.HasLicense = function (src, licenseType)
+	if not licenseType then return false end
+	local Player = Framework.Core.Functions.GetPlayer(src)
+	if not Player then return false end
+	local licenses = Player.PlayerData.metadata["licences"]
+	if type(licenses[licenseType]) == nil then return false end
+	if licenses[licenseType] == true then return true end
+end
+
 -- Checks if player has group
 ---@param src number
 ---@return boolean

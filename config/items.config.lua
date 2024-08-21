@@ -9,7 +9,7 @@ Config.Items = {
     crafting_bench = { 
         name = 'crafting_bench', 
         label = 'Crafting Bench', 
-        weight = 5000, 
+        weight = 25000, 
         type = 'item', 
         image = 'crafting_bench.png', 
         unique = true, 
@@ -17,17 +17,25 @@ Config.Items = {
         shouldClose = true, 
         description = 'Craft items using this bench',
 
-        -- Example of usage on item
-        onUse = function (source, item)
-            item.placeableType = 'crafting'
-            item.recipes = { 'weapons' }
-            item.prop = 'gr_prop_gr_bench_01b'
-            item.eventType = "server"
-            item.eventName = Config.ServerEventPrefix .. 'OpenCraftingByPlaceable'
-            item.interactType = "crafting"
-            item.eventParams = { id = item }
-            TriggerClientEvent(Config.ClientEventPrefix .. 'PlaceItem', source, item)
-        end
+        -- Needed for props that open crafting menu
+        crafting = {
+            recipes = { 'weapons' },
+        },
+
+        -- Needed for placeable
+        placeable = {
+            type = "crafting",
+            prop = 'gr_prop_gr_bench_01b',
+            option = {
+                icon = "fas fa-eye",
+                label = "Open Crafting",
+                event = {
+                    type = "server",
+                    name = 'OpenCraftingByPlaceable',
+                    params = { id = 'crafting_bench' }
+                }
+            }
+        }
     },
 
     id_card = { 

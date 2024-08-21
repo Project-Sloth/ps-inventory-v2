@@ -1,3 +1,10 @@
+-- Inventory loaded function
+function InventoryLoaded (items)
+    SendNUIMessage(InventoryInitPayload())
+    CreateInventoryThreads()
+    SendNUIMessage({ action = "update", items = items })
+end
+
 -- Payload for nui init
 function InventoryInitPayload ()
     return {

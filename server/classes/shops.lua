@@ -12,6 +12,17 @@ function Core.Classes.Shops.BuildItemList(items)
             itemData.price = item.price
             itemData.slot = slotId
             itemData.amount = 1
+
+            if item.job then itemData.job = item.job end
+            if item.license then itemData.license = item.license end
+            if item.info then
+                if not itemData.info then itemData.info = {} end
+
+                for k, v in pairs(item.info) do
+                    itemData.info[k] = v
+                end
+            end
+
             table.insert(itemList, itemData)
         end
     end
@@ -52,6 +63,12 @@ function Core.Classes.Shops.BuyItem (source, data)
     -- If item was verified
     if not itemVerified then return { success = false } end
 
+    -- If it requires a license
+    if itemVerified.license then
+        local hasLicense = Framework.Server.HasLicense(source, itemVerified.license)
+        if not hasLicense then return { success = false, message = ("You do not have a %s license"):format(itemVerified.license)} end
+    end
+
     -- Calculate price
     if tonumber(data.amount) < 1 then return { success = false } end
     local price = tonumber(itemVerified.price) * tonumber(data.amount)
@@ -70,8 +87,12 @@ function Core.Classes.Shops.BuyItem (source, data)
     local charged = Framework.Server.ChargePlayer(src, "cash", price, "Store purchase")
     if not charged then return { success = false, message = "Unable to charge, please try again."} end
 
+    -- Info check
+    local info = {}
+    if itemVerified.info then info = itemVerified.info end
+
     -- Add item and send response
-    Core.Classes.Inventory.AddItem(src, itemVerified.name, data.amount)
+    Core.Classes.Inventory.AddItem(src, itemVerified.name, data.amount, nil, info)
     TriggerClientEvent(Config.ClientEventPrefix .. "Update", src, { items = Core.Classes.Inventory.GetPlayerInventory(src) })
     
     return { success = true }

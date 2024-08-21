@@ -24,6 +24,14 @@ RegisterNetEvent(Config.ClientEventPrefix .. 'AddCraftingQueueItem', function (d
     Framework.Client.SendNUIMessage(data, true)
 end)
 
+-- Starts crafting queue timer for item in queue
+RegisterNetEvent(Config.ClientEventPrefix .. 'StartCraftingQueueTimer', function (id)
+    Framework.Client.SendNUIMessage({
+        action = "startCraftingQueueTimer",
+        id = id
+    }, true)
+end)
+
 -- Remove crafting queue item
 RegisterNetEvent(Config.ClientEventPrefix .. 'RemoveCraftingQueueItem', function (id)
     Framework.Client.SendNUIMessage({

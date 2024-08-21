@@ -28,17 +28,25 @@ end
 ---@param item table
 function Core.Classes.Crafting.OpenByPlaceable (src, item)
     local Player = Framework.Server.GetPlayer(src)
-    local crafting = Config.Crafting.Placeables[item]
+    local itemData = Core.Classes.Inventory:GetState('Items')[item]
 
-    if not crafting then
+    if not itemData then
         return Core.Utilities.Log({
             type = "error",
             title = "OpenByPlaceable",
-            message = "Crafting.Placeables[" .. item .. "] does not exist"
+            message = "[" .. item .. "] does not exist"
         })
     end
 
-    local items = Core.Classes.Crafting.BuildItemList(crafting.recipes)
+    if not itemData.crafting then
+        return Core.Utilities.Log({
+            type = "error",
+            title = "OpenByPlaceable",
+            message = "[" .. item .. "] is not setup properly for crafting"
+        })
+    end
+
+    local items = Core.Classes.Crafting.BuildItemList(itemData.crafting.recipes)
 
     Core.Classes.Inventory.OpenInventory(src, {
         type = "crafting",
@@ -82,12 +90,27 @@ function Core.Classes.Crafting.ProcessQueue ()
     for source, items in pairs(queue) do
         if type(items) == "table" then
             if table.type(items) ~= "empty" then
+                local processingItem = false
+
                 for queueId, itemData in pairs(items) do
                     if itemData ~= nil then
-                        if itemData.completion < os.time() then
-                            Core.Classes.Inventory.AddItem(source, itemData.item.name, itemData.amount)
-                            TriggerClientEvent(Config.ClientEventPrefix .. "RemoveCraftingQueueItem", source, queueId)
-                            queue[source][queueId] = nil
+                        if itemData.started == false and not processingItem then
+                            itemData.started = true
+                            itemData.completion = itemData.item.crafting.time + os.time()
+                            TriggerClientEvent(Config.ClientEventPrefix .. "StartCraftingQueueTimer", source, queueId)
+                        end
+
+                        if itemData.started then
+                            processingItem = true
+
+                            if itemData.completion then
+                                if itemData.completion < os.time() then
+                                    Core.Classes.Inventory.AddItem(source, itemData.item.name, itemData.amount)
+                                    TriggerClientEvent(Config.ClientEventPrefix .. "RemoveCraftingQueueItem", source, queueId)
+                                    queue[source][queueId] = nil
+                                    processingItem = false
+                                end
+                            end
                         end
                     end
                 end
@@ -127,7 +150,8 @@ function Core.Classes.Crafting.QueueItem (source, data)
     local queue = Core.Classes.Crafting:GetState('Queue')
     if not queue[source] then queue[source] = {} end
     local queueId = Core.Utilities.GenerateQueueId()
-    data.completion = data.item.crafting.time + os.time()
+    data.completion = nil
+    data.started = false
     queue[source][queueId] = data
     Core.Classes.Crafting.UpdateQueue(queue)
 

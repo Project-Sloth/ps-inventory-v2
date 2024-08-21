@@ -73,6 +73,13 @@ const InventoryEvents = {
     },
 
     /**
+     * Toggles hotbar
+     */
+    toggleHotbar: () => {
+        Inventory.Settings.ToggleHotbar()
+    },
+
+    /**
      * Updates player inventory data
      * @param {object} data 
      */
@@ -94,6 +101,14 @@ const InventoryEvents = {
      */
     removeCraftingQueueItem: (data) => {
         Inventory.Utilities.RemoveCraftingQueueItem(data.id)
+    },
+
+    /**
+     * Starts a crafting queue timer
+     * @param {object} data 
+     */
+    startCraftingQueueTimer: (data) => {
+        Inventory.Utilities.StartCraftingQueueTimer(data.id)
     },
 
     /**

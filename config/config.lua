@@ -1,7 +1,7 @@
 Config = {
 
     -- Debugging
-    Debugging = true,
+    Debugging = false,
 
     -- Debug logging
     Logging = {
@@ -85,7 +85,7 @@ Config = {
     Drops = {
         ExpirationTime = 10, -- Time before drop expires (Seconds)
         Radius = 4, -- Radius of access to drop
-        Prop = 'prop_cs_heist_bag_01' -- Prop that is placed on ground for drops
+        Prop = 'bkr_prop_duffel_bag_01a' -- Prop that is placed on ground for drops
     },
 
     -------------------------------------------------
@@ -110,8 +110,14 @@ Config = {
     --- Placeables Configuration
     -------------------------------------------------
     Placeables = {
+
+        -- If disabled, placeables can not be placed
         Enabled = true,
-        Radius = 1.5, -- Radius for Interaction or Target
+
+        -- Radius for Interaction or Target
+        Radius = 1.5, 
+
+        -- Placeables placement mode configuration
         ItemPlacementModeRadius = 10.0,
         MinZOffset = -2.0,
         MaxZOffset = 2.0
@@ -119,6 +125,8 @@ Config = {
 
     -------------------------------------------------
     --- Themes Configuration
+    --- Available variables:
+    --- color, shadowColor, borderRadius
     -------------------------------------------------
     Themes = {
         ['ps'] = {

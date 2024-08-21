@@ -17,11 +17,17 @@
     "placeablesPickup": "Press [<span class=\"active-color\">SHIFT + E</span>] to pickup",
     "placeablesPickupTarget": "Pick up",
     "placeablesInteractType": "Press [<span class=\"active-color\">{{key}}</span>] to access {{interactType}}<br />",
+    "placeablesPlace": "Press [<span class=\"active-color\">{{key}}</span>] to place<br />",
+    "placeablesRotate": "Scroll [<span class=\"active-color\">{{key}}</span>] to rotate<br />",
+    "placeablesCancel": "Press [<span class=\"active-color\">{{key}}</span>] to cancel",
 
     "split": "Split",
     "drop": "Drop",
     "use": "Use",
     "give": "Give",
+
+    "itemDecayed": "Item is decayed",
+    "unableToComplete": "Unable to complete action",
 
     "settings": "Settings"
 }

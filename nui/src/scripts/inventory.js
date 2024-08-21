@@ -6,9 +6,17 @@ const Inventory = {
     Themes: {},
 
     /**
+     * How often the inventory updates metadata
+     * information for items.
+     */
+    RoutineUpdaterInterval: 5000,
+
+    /**
      * State keeper for inventory
      */
     State: {
+        Hotbar: false,
+
         CanRoutineUpdate: true,
         RoutineUpdater: null,
 
@@ -43,7 +51,9 @@ const Inventory = {
 
         Keys: {
             Ctrl: false
-        }
+        },
+
+        CraftingQueueTimer: {}
     },
 
     Health: {
@@ -67,12 +77,12 @@ const Inventory = {
      */
     Selectors: {
         Hot: '#hot-slots',
+        BottomHot: "#bottom-hotbar-slots",
         Inventory: '#inventory-slots',
         External: '#external-slots',
         CraftingQueue: '#crafting-queue',
-
+        BottomHotContainer: "#bottom-hotbar",
         ExternalInventory: '#external-inventory',
-        
         Money: "#cash",
 
         Titles: {
@@ -116,7 +126,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Item is decayed"
+                    message: Language.Locale('itemDecayed')
                 })
             }
 
@@ -135,6 +145,8 @@ const Inventory = {
          * This event is fired when the inventory is opened
          */
         OnOpen: () => {
+            Inventory.Settings.DisableHotbar();
+
             $(Inventory.Selectors.Titles.PlayerName).html(Inventory.State.Player.name);
             $(Inventory.Selectors.Titles.MyInventory).html(Inventory.State.Player.name);
             Inventory.State.Open = true;
@@ -142,20 +154,14 @@ const Inventory = {
             if (window.Interact.State.Show) {
                 window.Interact.Events.Hide(false);
             }
-
-            if (!Inventory.RoutineUpdater) {
-                Inventory.RoutineUpdater = setInterval(() => {
-                    if (Inventory.CanRoutineUpdate) {
-                        Nui.request('update')
-                    }
-                }, 5000)
-            }
         },
 
         /**
          * This event is fired when the inventory is closed
          */
         OnClose: () => {
+            Inventory.Settings.EnableHotbar();
+
             $(Inventory.Selectors.Titles.ExternalInventory).html(Inventory.State.Titles.ExternalInventory);
 
             Inventory.State.ExternalItems = [];
@@ -164,11 +170,6 @@ const Inventory = {
 
             if (window.Interact.State.Show) {
                 window.Interact.Events.Show();
-            }
-
-            if (Inventory.RoutineUpdater) {
-                clearInterval(Inventory.RoutineUpdater);
-                Inventory.RoutineUpdater = null;
             }
         },
 
@@ -215,6 +216,9 @@ const Inventory = {
             if (typeof data.external !== "undefined") {
                 Inventory.Setup.ExternalInventory(data);
             }
+
+            // Start the routine updater
+            Inventory.StartRoutineUpdater();
         },
 
         /**
@@ -293,7 +297,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
         },
@@ -342,7 +346,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
         },
@@ -476,7 +480,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
         },
@@ -503,7 +507,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
 
@@ -512,7 +516,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
 
@@ -551,7 +555,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
         },
@@ -608,7 +612,7 @@ const Inventory = {
                     process: "notification",
                     icon: "fas fa-times-circle",
                     color: "#ff0000",
-                    message: "Unable to complete action"
+                    message: Language.Locale('unableToComplete')
                 })
             }
         }
@@ -874,6 +878,10 @@ const Inventory = {
         Inventory.ClearEventHandlers();
         $(Inventory.Selectors[inv]).html('');
 
+        if (inv == "Hot") {
+            $(Inventory.Selectors["BottomHot"]).html('');
+        }
+
         // Index of slots to start at
         let startingIndex = 0;
 
@@ -892,6 +900,10 @@ const Inventory = {
                 $(Inventory.Selectors[inv]).append(Inventory.Templates.CraftItem(inv, (i + 1), (item ? item : false)));
             } else {
                 $(Inventory.Selectors[inv]).append(Inventory.Templates.Slot(inv, (i + 1), (item ? item : false), (inv != 'Hot' ? '5ths' : false)));
+
+                if (i < 5) {
+                    $(Inventory.Selectors['BottomHot']).append(Inventory.Templates.Slot("BottomHot", (i + 1), (item ? item : false), '5ths'));
+                }
             }
         }
 
@@ -935,17 +947,25 @@ const Inventory = {
          */
         Slot: (inv, slotNumber, data = false, columnSize = false) => { 
 
-            // Todo, this will change for external inventory (shops, etc)
             let inventoryType = "player";
 
             let wrapper = (columnSize ? `<div class="col-${columnSize}">{slot}</div>` : `{slot}`)
-            let slot = `<div class="slot-container ${slotNumber > 0 & slotNumber < 6 & inv == 'Hot' ? 'limited' : ''}" data-slotid="${inv}-${slotNumber}">{slotMeta}</div>`;
+            let slot = `<div class="slot-container ${slotNumber > 0 & slotNumber < 6 & inv == "Hot" ? 'limited' : ''}" data-slotid="${inv}-${slotNumber}">{slotMeta}</div>`;
             let slotMeta = '';
+
+            // Convert decay percent from quality if weapon
+            if (data.type == "weapon") {
+                if (data.info) {
+                    if (typeof data.info.quality !== 'undefined') {
+                        data.decayPercent = data.info.quality;
+                    }
+                }
+            }
 
             // If there is an item for this slot
             if (data) {
                 slotMeta = `
-                    <div data-inventory="${inventoryType}" class="slot ${slotNumber > 0 & slotNumber < 6 & inv == 'Hot' ? 'limited' : ''} ripple" data-slotid="${inv}-${slotNumber}">
+                    <div data-inventory="${inventoryType}" class="slot ${slotNumber > 0 & slotNumber < 6 & inv == "Hot" ? 'limited' : ''} ripple" data-slotid="${inv}-${slotNumber}">
                         <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.image}');" class="image"></div>
                         ${typeof data.amount !== 'undefined' ? `<div class="amount">${data.amount}x</div>` : ''}
                         <div class="name">${data.label}</div>
@@ -1029,7 +1049,7 @@ const Inventory = {
                         <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.item.image}');" class="image"></div>
                         <div class="amount">${data.amount}x</div>
                         <div class="name">${data.item.label}</div>
-                        <div class="durability"></div>
+                        <div class="durability" data-current="${data.item.crafting.time}" data-max="${data.item.crafting.time}"></div>
                     </div>
                 </div>
             `
@@ -1447,11 +1467,50 @@ const Inventory = {
             )
         },
 
+        StartCraftingQueueTimer: (id) => {
+
+            if (Inventory.State.CraftingQueueTimer[id]) {
+                return false;
+            }
+
+            /**
+             * Interval to visually track time to completion
+             */
+            Inventory.State.CraftingQueueTimer[id] = setInterval(() => {
+                const el = `.craft-slot-container[data-id="${id}"]`;
+
+                if ($(el).length) {
+                    let current = parseInt($(`${el} .durability`).data('current'));
+                    const max = parseInt($(`${el} .durability`).data('max'));
+
+                    if (current > 0) {
+                        current = (current - 1);
+                        const percent = (current / max) * 100;
+
+                        $(`${el} .durability`).data('current', current);
+                        $(`${el} .durability`).css('width', `${percent}%`);
+                    }
+
+                    if (current == 0) {
+                        Inventory.Utilities.RemoveCraftingQueueItem(id);
+
+                        if (Inventory.State.CraftingQueueTimer[id]) {
+                            delete Inventory.State.CraftingQueueTimer[id];
+                        }
+                    }
+                }
+            }, 1000);
+        },
+
         /**
          * Removes items from crafting queue
          */
         RemoveCraftingQueueItem: (id) => {
             $('.craft-slot-container[data-id="' + id + '"]').remove();
+            
+            if (Inventory.State.CraftingQueueTimer[id]) {
+                delete Inventory.State.CraftingQueueTimer[id];
+            }
         }
     },
 
@@ -1459,6 +1518,35 @@ const Inventory = {
      * Methods for setting handlers
      */
     Settings: {
+
+        /**
+         * Hide the hotbar
+         */
+        DisableHotbar: () => {
+            $(Inventory.Selectors.BottomHotContainer).fadeOut();
+        },
+
+        /**
+         * Enable hotbar only if state is enabled
+         */
+        EnableHotbar: () => {
+            if (Inventory.State.Hotbar) {
+                $(Inventory.Selectors.BottomHotContainer).fadeIn();
+            }
+        },
+
+        /**
+         * Toggles hotbar based on current state
+         */
+        ToggleHotbar: () => {
+            Inventory.State.Hotbar = !Inventory.State.Hotbar;
+
+            if (Inventory.State.Hotbar) {
+                $(Inventory.Selectors.BottomHotContainer).fadeIn();
+            } else {
+                $(Inventory.Selectors.BottomHotContainer).fadeOut();
+            }
+        },
 
         /**
          * Builds themes as options in settings modal
@@ -1506,6 +1594,19 @@ const Inventory = {
                     theme: $(this).data('theme')
                 });
             })
+        }
+    },
+
+    /**
+     * Starts the inventory routine updater
+     */
+    StartRoutineUpdater: () => {
+        if (!Inventory.RoutineUpdater) {
+            Inventory.RoutineUpdater = setInterval(() => {
+                if (Inventory.CanRoutineUpdate) {
+                    Nui.request('update')
+                }
+            }, Inventory.RoutineUpdaterInterval)
         }
     },
 

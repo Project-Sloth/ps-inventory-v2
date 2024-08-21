@@ -164,9 +164,7 @@ Core.Classes.Inventory.Utilities = {
 
         -- Get original data
         local itemInfo = Core.Classes.Inventory:GetState("Items")[item.name]
-        if not itemInfo then
-            return nil
-        end
+        if not itemInfo then return nil end
 
         -- The conversation table.
         local itemConverted = {
@@ -190,6 +188,16 @@ Core.Classes.Inventory.Utilities = {
         -- Get decay results
         itemConverted.decayed = Core.Classes.Inventory.Utilities.IsItemDecayed(itemConverted)
         itemConverted.decayPercent = Core.Classes.Inventory.Utilities.ItemDecayPercentage(itemConverted)
+
+        -- Include crafting data
+        if itemInfo.crafting then
+            itemConverted.crafting = itemInfo.crafting
+        end
+
+        -- Include placeable data
+        if itemInfo.placeable then
+            itemConverted.placeable = itemInfo.placeable
+        end
 
         -- If additional data provided, merge it
         if additionalInfo then
@@ -238,6 +246,13 @@ function Core.Classes.Inventory.CreateUseables ()
             if type(itemData.onUse) == "function" then
                 Core.Classes.Inventory.CreateUseableItem(item, itemData.onUse)
             end
+        end
+
+        -- If item is placeable, but onUse is not provided, create it
+        if itemData.placeable and not itemData.onUse then
+            Core.Classes.Inventory.CreateUseableItem(item, function (source, item)
+                Core.Classes.Placeables.Place(source, item)
+            end)
         end
     end
 end
