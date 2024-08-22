@@ -19,7 +19,7 @@ function Core.Classes.Shops.Load()
                 if type(shop.npc) == "table" then
 
                     local ped = Core.Utilities.CreatePed(
-                        true,
+                        false,
                         shop.npc.model, 
                         location.x, 
                         location.y, 

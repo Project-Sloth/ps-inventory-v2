@@ -38,6 +38,17 @@ Config.Items = {
         }
     },
 
+    money = { 
+        name = 'money', 
+        label = 'Money', 
+        weight = 0, 
+        type = 'item', 
+        image = 'money.png', 
+        unique = false, 
+        useable = false, 
+        shouldClose = false
+    },
+
     id_card = { 
         name = 'id_card', 
         label = 'ID Card', 

@@ -5,11 +5,6 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 ### Frameworks Supported
 - QB Core
 
-### TODO:
-- Crafting experience requirements [DONE]
-- Vehicle storage overrides for classes [DONE]
-- Ensure full compatibility with QB
-
 ### Features
 - Slot based inventory
 - Stash system
@@ -27,6 +22,7 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Configurable themes
 - Multi-language support
 - Vending Machines
+- Cash as an item
 
 ### Dependencies
 

@@ -25,11 +25,20 @@ function Core.Classes.Drops.Create (source, data)
 
     local dropId = nil
 
-    -- If a drop id is supplied, add to it
+    -- If a drop id is supplied, first verify it exists,
+    -- then add to the item.
     if data.dropId then
-        dropId = data.dropId
-        Core.Classes.Drops.AddItem(data.dropId, itemData)
-    else
+        
+        -- Verify it exists
+        local dropData = Core.Classes.Drops.Get(data.dropId)
+        if dropData then
+            dropId = data.dropId
+            local res = Core.Classes.Drops.AddItem(data.dropId, itemData)
+            if not res then return { success = false } end
+        end
+    end
+    
+    if not dropId then
         -- Set item to be sent to drop
         local dropItem = itemData
         dropItem.slot = 1
@@ -170,6 +179,7 @@ function Core.Classes.Drops.AddItem (dropId, item)
     item.slot = newSlot.slot
     items[newSlot.key] = item
     Core.Classes.Drops.SaveItems(dropId, items)
+    return true
 end
 
 -- Save drop items

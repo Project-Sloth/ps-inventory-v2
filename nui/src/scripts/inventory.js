@@ -435,6 +435,21 @@ const Inventory = {
                 // Re-enables draggables
                 Inventory.EnableDraggables();
 
+                // Make certain drops with last item taken are closed
+                if (data.from == "External" && data.to == "Inventory") {
+                    if (payload.external) {
+                        if (payload.external.type == "drop") {
+                            if (res.external) {
+                                if (Array.isArray(res.external)) {
+                                    if (!res.external.length) {
+                                        Nui.request('close');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (res.external) {
                     Inventory.Events.UpdateInventory({
                         external: {
@@ -684,11 +699,19 @@ const Inventory = {
      */
     UpdateInventoryWeights: (inventory, type) => {
 
+        // Check type passed
         if (typeof type !== 'undefined') {
             if (type == "shop" || type == "crafting") {
                 $('#external-weights').hide();
                 return false;
             }
+        }
+
+        // Check type set in dom already
+        const externalType = $(Inventory.Selectors.ExternalInventory).data('type');
+        if (externalType == "crafting" || externalType == "shop") {
+            $('#external-weights').hide();
+            return false;
         }
 
         let totalWeight = Inventory.GetTotalWeight(inventory);
@@ -843,16 +866,18 @@ const Inventory = {
         Inventory.ClearEventHandlers();
         $(Inventory.Selectors[inv]).html('');
 
-        if (inv == "Hot") {
-            $(Inventory.Selectors["BottomHot"]).html('');
-        }
-
         // Index of slots to start at
         let startingIndex = 0;
 
         // Set Inventory to 5 because of the hot bar
         if (inv == "Inventory") {
             startingIndex = 5;
+        }
+
+        console.log(inv)
+
+        if (inv == "Hot") {
+            $(Inventory.Selectors["BottomHot"]).html('');
         }
 
         // Iterate through each slot and check if an item exists for it
@@ -866,7 +891,7 @@ const Inventory = {
             } else {
                 $(Inventory.Selectors[inv]).append(Inventory.Templates.Slot(inv, (i + 1), (item ? item : false), (inv != 'Hot' ? '5ths' : false)));
 
-                if (i < 5) {
+                if (inv == "Hot") {
                     $(Inventory.Selectors['BottomHot']).append(Inventory.Templates.Slot("BottomHot", (i + 1), (item ? item : false), '5ths'));
                 }
             }
@@ -1270,8 +1295,31 @@ const Inventory = {
                 },
                 actions: [
                     {
+                        render: ($el) => {
+                            const item = $el;
+                            const slotData = item.data('slotid').split('-');
+                            const inventoryType = item.data('inventory');
+
+                            if (slotData.length == 2) {
+                                const slotId = slotData[1];
+                                const itemData = Inventory.GetItemBySlot(slotId);
+                                
+                                if (itemData) {
+                                    return `
+                                        <div>
+                                            <div class="item-menu-title">${itemData.label}</div>
+                                            ${itemData.description ? `<div class="item-menu-subtitle">${itemData.description}</div>` : ''}
+                                            <div class="w-100 text-center">
+                                                <img width="60%" height="auto" src="nui://${GetParentResourceName()}/nui/assets/images/${itemData.image}" />
+                                            </div>
+                                        </div>
+                                    `
+                                }
+                            }
+                        }
+                    },
+                    {
                         name: Language.Locale('use'),
-                        iconClass: 'fa-check',
                         onClick: function($el) {
                             const item = $el;
                             const slotData = item.data('slotid').split('-');
@@ -1296,7 +1344,6 @@ const Inventory = {
                     },
                     {
                         name: Language.Locale('give'),
-                        iconClass: 'fa-hand-holding',
                         onClick: function($el) {
                             const item = $el;
                             const slotData = item.data('slotid').split('-');
@@ -1318,7 +1365,6 @@ const Inventory = {
                     },
                     {
                         name: Language.Locale('drop'),
-                        iconClass: 'fa-chevron-down',
                         onClick: function($el) {
                             const item = $el;
                             const slotData = item.data('slotid').split('-');

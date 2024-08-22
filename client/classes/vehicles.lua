@@ -45,7 +45,7 @@ function Core.Classes.Vehicles.VehicleAccessible()
             name = "Trunk",
             vehicle = closestVehicle,
             model = vehicleProperties.model,
-            class = GetVehicleClass(vehicle)
+            class = GetVehicleClass(closestVehicle)
         }
     end
 

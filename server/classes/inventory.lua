@@ -617,6 +617,34 @@ function Core.Classes.Inventory.CanCarryItem (source, item, amount, maxWeight)
     return false
 end
 
+-- Sets new amount for an item
+---@param source number
+---@param itemName string
+---@param count number
+function Core.Classes.Inventory.SetItem(source, itemName, count)
+    local Player = Framework.Server.GetPlayer(source)
+    if not Player then return false end
+
+    if itemName and count >= 0 then
+        local item = Core.Classes.Inventory.GetSlotWithItem(source, itemName)
+
+        if item then
+            Core.Classes.Inventory.RemoveItem(source, item.name, item.amount, nil, true)
+        end
+
+        return Core.Classes.Inventory.AddItem(
+            source, 
+            itemName, 
+            count, 
+            nil, 
+            nil, 
+            nil,
+            nil,
+            true
+        )
+    end
+end
+
 -- Adds an item to the inventory
 -- Export: exports['ps-inventory']:AddItem
 ---@param source number
@@ -626,7 +654,7 @@ end
 ---@param info? table
 ---@param reason? string
 ---@param created? number
-function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason, created)
+function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason, created, ignoreNotification)
 
     -- Player information
     local Player = Framework.Server.GetPlayer(source)
@@ -675,17 +703,26 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
                     amount = amount
                 })
 
-                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+                if not ignoreNotification then
+                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+                end
+
                 Framework.Server.SavePlayerInventory(source, items)
                 if Player.Offline then return true end
+
                 return true
 
             -- Go ahead with stacking if decay check passed
             else
                 items[slot].amount = items[slot].amount + amount
-                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+
+                if not ignoreNotification then
+                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+                end
+
                 Framework.Server.SavePlayerInventory(source, items)
                 if Player.Offline then return true end
+
                 return true
             end
 
@@ -697,9 +734,13 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
                 amount = amount
             })
 
-            TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+            if not ignoreNotification then
+                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+            end
+
             Framework.Server.SavePlayerInventory(source, items)
             if Player.Offline then return true end
+
             return true
 
         -- If not stackable
@@ -714,8 +755,12 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
                 amount = amount
             })
 
-            TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+            if not ignoreNotification then
+                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+            end
+
             Framework.Server.SavePlayerInventory(source, items)
+
             if Player.Offline then return true end
             return true
         end
@@ -730,7 +775,7 @@ end
 ---@param item string
 ---@param amount number
 ---@param slot? number
-function Core.Classes.Inventory.RemoveItem(source, item, amount, slot)
+function Core.Classes.Inventory.RemoveItem(source, item, amount, slot, ignoreNotification)
 
     -- Validate player
     local Player = Framework.Server.GetPlayer(source)
@@ -762,14 +807,22 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot)
             if items[slotKey].amount > amount then
                 items[slotKey].amount = items[slotKey].amount - amount
                 Framework.Server.SavePlayerInventory(source, items)
-                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amount)
+
+                if not ignoreNotification then
+                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amount)
+                end
+
                 return true
 
                 -- If the amount matches
             elseif items[slotKey].amount == amount then
                 items[slotKey] = nil
                 Framework.Server.SavePlayerInventory(source, items)
-                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amount)
+
+                if not ignoreNotification then
+                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amount)
+                end
+
                 return true
             end
         end
@@ -786,14 +839,22 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot)
             if items[_slot].amount > amountToRemove then
                 items[_slot].amount = items[_slot].amount - amountToRemove
                 Framework.Server.SavePlayerInventory(source, items)
-                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amountToRemove)
+
+                if not ignoreNotification then
+                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amountToRemove)
+                end
+
                 return true
 
                 -- If the amount matches
             elseif items[_slot].amount == amountToRemove then
                 items[_slot] = nil
                 Framework.Server.SavePlayerInventory(source, items)
-                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amountToRemove)
+
+                if not ignoreNotification then
+                    TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'remove', itemData, amountToRemove)
+                end
+
                 return true
             end
         end
@@ -1173,6 +1234,10 @@ function Core.Classes.Inventory.Move (src, data)
                 playerInventory
             )
 
+            if data.item.name == "money" then
+                Framework.Server.AddMoney(src, 'cash', data.item.amount)
+            end
+
             -- If drop becomes empty, remove it
             if data.external.type == "drop" then
                 if Core.Utilities.TableLength(res.originItems) == 0 then
@@ -1217,6 +1282,10 @@ function Core.Classes.Inventory.Move (src, data)
                 playerInventory,
                 externalItems
             )
+
+            if data.item.name == "money" then
+                Framework.Server.RemoveMoney(src, 'cash', data.item.amount)
+            end
 
             if res then 
                 if res.success then
@@ -1324,6 +1393,7 @@ exports("CreateUseableItem", Core.Classes.Inventory.CreateUseableItem)
 exports("ValidateAndUseItem", Core.Classes.Inventory.ValidateAndUseItem)
 exports("UseItem", Core.Classes.Inventory.UseItem)
 exports("CanCarryItem", Core.Classes.Inventory.CanCarryItem)
+exports("SetItem", Core.Classes.Inventory.SetItem)
 exports("AddItem", Core.Classes.Inventory.AddItem)
 exports("RemoveItem", Core.Classes.Inventory.RemoveItem)
 exports("ClearInventory", Core.Classes.Inventory.ClearInventory)

@@ -29,10 +29,14 @@ function Core.Classes.Drops.UpdateDrops(drops)
                         Core.Classes.Inventory.Close()
                     end
                 end
+
+                if Core.Classes.Drops:GetState('nearDropId') == dropId then
+                    Core.Classes.Inventory.Close()
+                end
             end
 
             if Core.Classes.Drops:GetState('nearDropId') == dropId then
-                Core.Classes.Drops:UpdateState('nearDropId', dropId)
+                Core.Classes.Drops:UpdateState('nearDropId', false)
             end
         end
     end

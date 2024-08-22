@@ -63,7 +63,11 @@ Core.Utilities = {
     ---@param exportName string
     ---@param func function
     ExportHandler = function (resourceName, exportName, func)
-        print("Registering export handler: " .. ('__cfx_export_%s_%s'):format(resourceName, exportName))
+        Core.Utilities.Log({
+            title = "Core.Utilities.ExportHandler",
+            message = ('Registering export handler: __cfx_export_%s_%s'):format(resourceName, exportName)
+        })
+
         AddEventHandler(('__cfx_export_%s_%s'):format(resourceName, exportName), function(setCallback)
             setCallback(func)
         end)
@@ -197,6 +201,11 @@ Core.Utilities = {
     ---@param settings table
     ---@param coords vector3|table
     CreateBlip = function (settings, coords)
+        Core.Utilities.Log({
+            title = "Core.Utilities.CreateBlip",
+            message = ("Creating blip with name %s"):format(settings.name)
+        })
+
         AddTextEntry('TEST', settings.name)
         local blip = AddBlipForCoord(coords)
         SetBlipSprite(blip, settings.sprite)
@@ -214,6 +223,11 @@ Core.Utilities = {
     ---@param prop string
     ---@param location vector3|table
     CreateObject = function (isNetwork, prop, location)
+        Core.Utilities.Log({
+            title = "Core.Utilities.CreateObject",
+            message = ("Creating object with model %s"):format(prop)
+        })
+
         Core.Utilities.LoadModelHash(prop)
         local CreatedObject = CreateObjectNoOffset(prop, location.x, location.y, location.z, isNetwork, 0, 1)
         while not DoesEntityExist(CreatedObject) do Wait(10) end
@@ -246,6 +260,11 @@ Core.Utilities = {
     ---@param heading number
     ---@param scenario string
     CreatePed = function (isNetwork, modelHash, x, y, z, heading, scenario)
+        Core.Utilities.Log({
+            title = "Core.Utilities.CreatePed",
+            message = ("Creating ped with model %s"):format(modelHash)
+        })
+
         Core.Utilities.LoadModelHash(modelHash)
 
         local CreatedPed = CreatePed(4, modelHash , x, y, z, heading, isNetwork, isNetwork)

@@ -168,26 +168,32 @@
 	        _.each(actionsIds, function(actionId) {
 	            var action = _this.options.actions[actionId];
 
-	            /* At least an action has an icon. Add the icon of the current action,
-	             * or room to align it with the actions which do have one. */
-	            if (actionsHaveIcon === true) {
-	                $ul.append(
-	                    '<li role="presentation" data-action="'+actionId+'">' +
-	                    '<a href="#" role="menuitem">' +
-	                    '<i class="fas ' + (action.iconClass || '') + ' me-1"></i> ' +
-	                    '<span class="actionName"></span>' +
-	                    '</a>' +
-	                    '</li>'
-	                );
-	            }
-	            // neither of the actions have an icon.
-	            else {
-	                $ul.append(
-	                    '<li role="presentation" data-action="'+actionId+'">' +
-	                    '<a href="#" role="menuitem"><span class="actionName"></span></a>' +
-	                    '</li>'
-	                );
-	            }
+				if (typeof action.render === 'function') {
+					$ul.append(
+						'<li class="menu-header" role="presentation" data-action="'+actionId+'"></li>'
+					);
+				} else {
+					/* At least an action has an icon. Add the icon of the current action,
+	             	 * or room to align it with the actions which do have one. */
+					if (actionsHaveIcon === true) {
+						$ul.append(
+							'<li role="presentation" data-action="'+actionId+'">' +
+							'<a href="#" role="menuitem">' +
+							'<i class="fas ' + (action.iconClass || '') + ' me-1"></i> ' +
+							'<span class="actionName"></span>' +
+							'</a>' +
+							'</li>'
+						);
+					}
+					// neither of the actions have an icon.
+					else {
+						$ul.append(
+							'<li role="presentation" data-action="'+actionId+'">' +
+							'<a href="#" role="menuitem"><span class="actionName"></span></a>' +
+							'</li>'
+						);
+					}
+				}
 	        });
 
 	        // $ul.append(
@@ -424,28 +430,36 @@
 	        var actionId = $action.data('action');
 	        var action = _this.options.actions[actionId];
 
-	        var classes = action.classNames || null;
+			if (typeof action.render === "function") {
+				var targetData = _this.options.fetchElementData(_this.$openTarget);
+
+				$action.html(
+					action.render(targetData)
+				)
+			} else {
+				var classes = action.classNames || null;
 
 	        if (classes && _.isFunction(classes))
 	            classes = classes(targetData);
 
-	        $action.attr('class', classNames(classes || ''));
+				$action.attr('class', classNames(classes || ''));
 
-	        if (action.isShown && action.isShown(targetData) === false) {
-	            $action.hide();
-	            return;
-	        } else {
-	            numShown++;
-	        }
+				if (action.isShown && action.isShown(targetData) === false) {
+					$action.hide();
+					return;
+				} else {
+					numShown++;
+				}
 
-	        // the name provided for an action may be dynamic, provided as a function
-	        $action.find('.actionName').html(
-	            _.isFunction(action.name) && action.name(targetData) || action.name
-	        );
+				// the name provided for an action may be dynamic, provided as a function
+				$action.find('.actionName').html(
+					_.isFunction(action.name) && action.name(targetData) || action.name
+				);
 
-	        if (action.isEnabled && action.isEnabled(targetData) === false) {
-	            $action.addClass('disabled');
-	        }
+				if (action.isEnabled && action.isEnabled(targetData) === false) {
+					$action.addClass('disabled');
+				}
+			}
 	    });
 
 	    if (numShown === 0) {

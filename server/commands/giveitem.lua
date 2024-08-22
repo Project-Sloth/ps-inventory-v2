@@ -71,11 +71,17 @@ lib.addCommand('giveitem', {
             end
 
             if Core.Classes.Inventory.AddItem(args.target, itemData.name, args.amount, false, info) then
-                return Core.Utilities.Log({
+                Core.Utilities.Log({
                     type = "success",
                     title = "GiveItem",
                     message = itemData.name .. "[x" .. args.amount .. "] was given to " .. PlayerIdentity.name .. " by admin"
                 })
+
+                if itemData.name == "money" then
+                    Framework.Server.AddMoney(args.target, "cash", args.amount)
+                end
+
+                return true
             else
                 return Core.Utilities.Log({
                     type = "error",

@@ -273,12 +273,25 @@ Framework.Server.GetExp = function (source, type)
 	return Player.PlayerData.metadata[type]
 end
 
+Framework.Server.AddMoney = function (source, type, amount)
+	local Player = Framework.Core.Functions.GetPlayer(source)
+	if not Player then return false end
+	return Player.Functions.AddMoney(type, amount)
+end
+
+Framework.Server.RemoveMoney = function (source, type, amount)
+	local Player = Framework.Core.Functions.GetPlayer(source)
+	if not Player then return false end
+	return Player.Functions.RemoveMoney(type, amount)
+end
+
 -- Override QB Functions
 Framework.Server.SetupPlayer = function (Player, initial)
 
-	Player.PlayerData.inventory = Player.PlayerData.items
 	Player.PlayerData.identifier = Player.PlayerData.citizenid
 	Player.PlayerData.name = ('%s %s'):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname)
+
+	Core.Classes.Inventory.SetItem(Player.PlayerData.source, 'money', Player.PlayerData.money.cash)
 
 	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "AddItem", function(item, amount, slot, info)
 		return Core.Classes.Inventory.AddItem(Player.PlayerData.source, item, amount, slot, info)
@@ -334,6 +347,12 @@ end)
 
 -- Money update event
 AddEventHandler('QBCore:Server:OnMoneyChange', function (src, type, amount)
+
+	-- Update inventory
+	if type == "cash" then
+		Core.Classes.Inventory.SetItem(src, 'money', Framework.Server.GetPlayerCash(src))
+	end
+
     TriggerClientEvent(Config.ClientEventPrefix .. 'MoneyChange', src, type, amount)
 end)
 

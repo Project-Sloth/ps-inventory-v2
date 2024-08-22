@@ -93,10 +93,10 @@ body {
 
 .player-money-item {
   padding: 15px;
-  background: rgb(33, 33, 33);
+  background: rgb(43, 48, 53);
   background: radial-gradient(
     circle,
-    rgba(33, 33, 33, 1) 0%,
+    rgba(43, 48, 53, 1) 0%,
     rgba(9, 9, 9, 1) 100%
   );
   font-weight: bold;
@@ -111,7 +111,7 @@ body {
 }
 
 #inventory {
-  background: rgba(13, 13, 13, 0.77);
+  background: rgba(43, 48, 53, 0.77);
   display: none;
   position: fixed;
   top: 0;
@@ -161,7 +161,7 @@ body {
   margin-top: 15px;
   width: calc(100%);
   text-align: center;
-  height: 90px;
+  height: 100px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -334,7 +334,7 @@ body {
   background: rgba(54, 54, 54, 0.8);
   background: radial-gradient(
     circle,
-    rgba(33, 33, 33, 0.8) 0%,
+    rgba(43, 48, 53, 0.8) 0%,
     rgba(24, 24, 24, 1) 100%
   );
 }
@@ -342,7 +342,7 @@ body {
 .slot,
 .notify-slot,
 .craft-slot {
-  background: rgb(33, 33, 33);
+  background: rgb(43, 48, 53);
   background: radial-gradient(
     circle,
     rgba(55, 55, 55, 0.8) 0%,
@@ -474,10 +474,10 @@ body {
   height: 60px;
   line-height: 60px;
   width: calc(100%);
-  background: rgb(33, 33, 33);
+  background: rgb(43, 48, 53);
   background: radial-gradient(
     circle,
-    rgba(33, 33, 33, 1) 0%,
+    rgba(43, 48, 53, 1) 0%,
     rgba(9, 9, 9, 1) 100%
   );
   color: #fff;
@@ -533,10 +533,10 @@ body {
 
 #interact .message {
   padding: 15px;
-  background: rgb(33, 33, 33);
+  background: rgb(43, 48, 53);
   background: radial-gradient(
     circle,
-    rgba(33, 33, 33, 1) 0%,
+    rgba(43, 48, 53, 1) 0%,
     rgba(9, 9, 9, 1) 100%
   );
   font-weight: bold;
@@ -572,10 +572,10 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgb(33, 33, 33);
+  background: rgb(43, 48, 53);
   background: radial-gradient(
     circle,
-    rgba(33, 33, 33, 1) 0%,
+    rgba(43, 48, 53, 1) 0%,
     rgba(9, 9, 9, 1) 100%
   );
   border-radius: var(--ui-border-radius);
@@ -757,4 +757,43 @@ input[type="number"] {
 
 .color-box:hover {
   opacity: 1;
+}
+
+.bootstrapMenu {
+  max-width: 200px;
+}
+
+.bootstrapMenu > .dropdown-menu {
+  display: flex !important;
+  justify-content: center;
+  flex-wrap: wrap
+}
+
+.bootstrapMenu > .dropdown-menu .menu-header {
+  flex-basis: 100%;
+}
+
+.bootstrapMenu > .dropdown-menu .menu-header:hover {
+  background: none !important;
+}
+
+.bootstrapMenu > .dropdown-menu > li {
+  width: 33.333333333%;
+  text-align: center !important;
+}
+
+
+.bootstrapMenu > .dropdown-menu > li > a {
+  width: 100%;
+  text-align: center !important;
+}
+
+.item-menu-title {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.item-menu-subtitle {
+  font-size: 10px;
+  font-weight: bold;
 }
