@@ -10,9 +10,13 @@ Config = {
 
     -- If you set this to true, it will trump settings for interact
     UseTarget = GetConvar('UseTarget', 'false') == 'true',
-
-    Target = "ox", -- "qb", "ox"
+    
+    -- Target options
+    Target = "qb", -- "qb", "ox"
     TargetDebugging = false, -- Ox shows box zones in red
+
+    -- Notify options
+    Notify = 'ox', -- qb or ox
 
     -- An alert to interact with shops, stashes, etc will show
     Interact = true,
@@ -25,6 +29,10 @@ Config = {
 
     -- Framework
     Framework = "qb", -- "qb"
+
+    -- QB specific
+    OldCore = false,
+    ConvertInventories = false,
 
     -- Will attempt to pull defined items from framework (Example: QBShared.items)
     LoadFrameworkInventoryItems = true,
@@ -63,7 +71,7 @@ Config = {
     --- Drop Configuration
     -------------------------------------------------
     Drops = {
-        ExpirationTime = 10, -- Time before drop expires (Seconds)
+        ExpirationTime = 120, -- Time before drop expires (Seconds)
         Radius = 4, -- Radius of access to drop
         Prop = 'bkr_prop_duffel_bag_01a' -- Prop that is placed on ground for drops
     },

@@ -62,6 +62,10 @@ end
 -- Give item
 ---@param data table
 function Core.Classes.Inventory.Give(data)
+    local ped = PlayerPedId()
+    local pos = GetEntityCoords(ped)
+    local targetPlayerId, targetPlayerPed, targetPlayerCoords = lib.getClosestPlayer(pos, 1.5, false)
+    data.playerId = targetPlayerId and GetPlayerServerId(targetPlayerId) or nil
     local res = lib.callback.await(Config.ServerEventPrefix .. 'Give', false, data)
     Core.Classes.Inventory.Update()
     return res

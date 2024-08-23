@@ -11,8 +11,16 @@ Core.Utilities = {
         if not data.type then data.type = "info" end
 
         -- If console debugging is enabled
-        if Config.Debugging then
-            print((data.type == 'error' and "^1" or "") .. "[" .. data.type .. "] " .. data.title .. ": " .. data.message .. (data.type == 'error' and "^0" or ""))
+        if Config.Debugging or data.force then
+            if data.type == 'error' then
+                print(("^1[%s] %s: %s^0"):format(data.type, data.title, data.message))
+            elseif data.type == 'warning' then
+                print(("^3[%s] %s: %s^0"):format(data.type, data.title, data.message))
+            elseif data.type == 'success' then
+                print(("^2[%s] %s: %s^0"):format(data.type, data.title, data.message))
+            else
+                print(("[%s] %s: %s"):format(data.type, data.title, data.message))
+            end
         end
 
         -- Process fm-logs

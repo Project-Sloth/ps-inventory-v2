@@ -874,8 +874,6 @@ const Inventory = {
             startingIndex = 5;
         }
 
-        console.log(inv)
-
         if (inv == "Hot") {
             $(Inventory.Selectors["BottomHot"]).html('');
         }

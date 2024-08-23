@@ -163,7 +163,7 @@ Framework.Client.AddBoxZone = function (data)
             data.size.length, 
             data.size.width, 
             {
-                name = data.location, 
+                name = data.id, 
                 minZ = data.location.z - data.size.height, 
                 maxZ = data.location.z + data.size.height
             }, 

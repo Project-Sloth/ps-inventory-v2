@@ -29,5 +29,6 @@
     "itemDecayed": "Item is decayed",
     "unableToComplete": "Unable to complete action",
 
-    "settings": "Settings"
+    "settings": "Settings",
+    "overweight": "You Can't Carry Anything Else!"
 }

@@ -10,6 +10,16 @@ Framework.GetCoreObject = function ()
 	Framework.CoreName = "qb"
 	Framework.Core = exports['qb-core']:GetCoreObject()
 	Framework.Client.EventPlayerLoaded = "QBCore:Client:OnPlayerLoaded"
+
+	-- Warn of old QBCore
+	if Config.OldCore then
+		Core.Utilities.Log({
+			force = true,
+			type = "warning",
+			title = "Old QBCore Determined",
+			message = "Please consider upgrading to the latest version of QBCore as this inventory is not heavily tested for backwards compatibility."
+		})
+	end
 	
 	return Framework.Core
 end
@@ -375,6 +385,130 @@ end)
 Core.Utilities.ExportHandler('qb-inventory', 'HasItem', Framework.Server.HasItem)
 Core.Utilities.ExportHandler('qb-inventory', 'RemoveItem', Core.Classes.Inventory.RemoveItem)
 Core.Utilities.ExportHandler('qb-inventory', 'AddItem', Core.Classes.Inventory.AddItem)
+Core.Utilities.ExportHandler('qb-inventory', 'OpenInventoryById', Core.Classes.Inventory.OpenInventoryById)
 Core.Utilities.ExportHandler('qb-inventory', 'OpenInventory', function (src, stashName)
 	Core.Classes.Inventory.LoadExternalInventoryAndOpen(src, false, stashName)
 end)
+
+-------------------------------------------------
+-- Server event: backwards compatibility
+-------------------------------------------------
+RegisterNetEvent("inventory:server:OpenInventory", function(type, id, name, table)
+    local src = source
+    if type == 'stash' then
+        Core.Classes.Inventory.OpenStash(source, id)
+    elseif type == 'shop'then
+        Core.Classes.Shops.Open(source, id, name)
+    end
+end)
+
+-------------------------------------------------
+-- Server event for opening inventory
+-------------------------------------------------
+RegisterNetEvent("qb-inventory:server:OpenInventory", function(type, id, name, table)
+    local src = source
+    if type == 'stash' then
+        Core.Classes.Inventory.OpenStash(source, id)
+    elseif type == 'shop'then
+        Core.Classes.Shops.Open(source, id, name)
+    end
+end)
+
+-------------------------------------------------
+-- Conversion of old qb core inventories
+-------------------------------------------------
+if Config.OldCore and Config.ConvertInventories then
+    CreateThread(function()
+
+		Core.Utilities.Log({
+			force = true,
+			type = "warning",
+			title = "QB.ConvertInventory",
+			message = "Processing conversion of stashes, trunks, and gloveboxes."
+		})
+
+		-- Process old stashes
+		local stashTableCheck = MySQL.single.await('SHOW TABLES LIKE ?', { 'stashitems' })
+		if not stashTableCheck then
+			Core.Utilities.Log({
+				force = true,
+				type = 'error',
+				title = "QB.ConvertInventory.Stashes",
+				message = "Table `stashitems` does not exist. Skipping conversion for stashes."
+			})
+		end
+
+		if stashTableCheck then
+			local stash = MySQL.query.await('SELECT * FROM stashitems')
+			if not stash[1] then return end
+			for i = 1, #stash do 
+				MySQL.insert('INSERT INTO inventories SET identifier = ?, items = ?', {'stash--' .. stash[i].stash, stash[i].items})
+
+				Core.Utilities.Log({
+					force = true,
+					type = "success",
+					title = "QB.ConvertInventory.Stashes",
+					message = ("Processing Stash: %s"):format(stash[i].stash)
+				})
+
+				MySQL.query.await('DELETE FROM stashitems WHERE stash = ? AND items = ?', {stash[i].stash, stash[i].items})
+			end
+		end
+
+		-- Process old trunk storage
+		local trunkTableCheck = MySQL.single.await('SHOW TABLES LIKE ?', { 'trunkitems' })
+		if not trunkTableCheck then
+			Core.Utilities.Log({
+				force = true,
+				type = 'error',
+				title = "QB.ConvertInventory.Trunks",
+				message = "Table `trunkitems` does not exist. Skipping conversion for trunks."
+			})
+		end
+
+		if trunkTableCheck then
+        	local trunk = MySQL.query.await('SELECT * FROM trunkitems')
+        	if not trunk[1] then return end
+			for i = 1, #trunk do 
+				MySQL.insert('INSERT INTO inventories SET identifier = ?, items = ?', {'stash--trunk-' .. trunk[i].plate, trunk[i].items})
+
+				Core.Utilities.Log({
+					force = true,
+					type = "success",
+					title = "QB.ConvertInventory.Trunks",
+					message = ("Processing Trunk: %s"):format(trunk[i].plate)
+				})
+
+				MySQL.query.await('DELETE FROM trunkitems WHERE plate = ? AND items = ?', {trunk[i].plate, stash[i].items})
+			end
+		end
+
+		-- Process old glovebox storage
+		local gloveTableCheck = MySQL.single.await('SHOW TABLES LIKE ?', { 'gloveboxitems' })
+		if not gloveTableCheck then
+			Core.Utilities.Log({
+				force = true,
+				type = 'error',
+				title = "QB.ConvertInventory.Gloveboxes",
+				message = "Table `gloveboxitems` does not exist. Skipping conversion for gloveboxes."
+			})
+		end
+
+		if gloveTableCheck then
+			local glove = MySQL.query.await('SELECT * FROM gloveboxitems')
+			if not glove[1] then return end
+			for i = 1, #glove do 
+				MySQL.insert('INSERT INTO inventories SET identifier = ?, items = ?', {'stash--glovebox-' .. glove[i].plate, glove[i].items})
+
+				Core.Utilities.Log({
+					force = true,
+					type = "success",
+					title = "QB.ConvertInventory.Gloveboxes",
+					message = ("Processing Glovebox: %s"):format(glove[i].plate)
+				})
+
+				MySQL.query.await('DELETE FROM gloveboxitems WHERE plate = ? AND items = ?', {glove[i].plate, glove[i].items})
+			end   
+		end  
+    end)
+end

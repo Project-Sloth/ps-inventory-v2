@@ -1,8 +1,15 @@
 Core.Classes.New("Inventory", { Items = {} })
 
-
 -- Inventory utility methods
 Core.Classes.Inventory.Utilities = {
+
+    Notify = function (Player, text, type)
+        if Config.Notify == 'qb' then
+            TriggerClientEvent("QBCore:Notify", Player.PlayerData.source, text, type)
+        elseif Config.Notify == 'ox' then
+            lib.notify(Player.PlayerData.source, { title = text, type = type})
+        end
+    end,
 
     -- Retrieve storage overrides for vehicle by hash key
     ---@param hashKey number
@@ -482,8 +489,8 @@ end
 function Core.Classes.Inventory.OpenInventoryById(src, target)
     if src == target then return false end
 
-    local Player = Framework.Server.GetPlayer(src)
-    if not Player then return false end
+    local player = Framework.Server.GetPlayer(src)
+    if not player then return false end
 
     local Target = Framework.Server.GetPlayer(target)
     if not Target then return false end
@@ -764,8 +771,9 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
             if Player.Offline then return true end
             return true
         end
+    else
+        Core.Classes.Inventory.Utilities.Notify(Player, Core.Language.Locale('overweight'), 'error')
     end
-
     return false
 end
 
@@ -1250,6 +1258,10 @@ function Core.Classes.Inventory.Move (src, data)
                     Core.Classes.Inventory.SaveExternalInventory(data.external.type, data.external.id, res.originItems)
                     Core.Classes.Inventory.SavePlayerInventory(src, res.destinationItems)
 
+                    if data.external.type == "player" then
+                        TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', data.external.id, 'remove', data.item, data.item.amount)
+                    end
+
                     return {
                         success = true,
                         items = Core.Classes.Inventory.GetPlayerInventory(src),
@@ -1292,6 +1304,10 @@ function Core.Classes.Inventory.Move (src, data)
                     Core.Classes.Inventory.SaveExternalInventory(data.external.type, data.external.id, res.destinationItems)
                     Core.Classes.Inventory.SavePlayerInventory(src, res.originItems)
 
+                    if data.external.type == "player" then
+                        TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', data.external.id, 'add', data.item, data.item.amount)
+                    end
+
                     return {
                         success = true,
                         items = Core.Classes.Inventory.GetPlayerInventory(src),
@@ -1330,12 +1346,12 @@ function Core.Classes.Inventory.Give (src, data)
     local coords = GetEntityCoords(ped)
 
     -- Get the closest player
-    local closestPlayer = lib.getClosestPlayer(coords, 1.5)
+    local closestPlayer = data.playerId
     if not closestPlayer then return { success = false, message = "No nearby players" } end
     if closestPlayer == src then return { success = false, message = "No nearby players" } end
 
     Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot)
-    Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount)
+    Core.Classes.Inventory.AddItem(closestPlayer, data.item.name, data.item.amount)
     return { success = true }
 end
 

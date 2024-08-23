@@ -90,7 +90,6 @@ end
 ---@param stashId string
 function Core.Classes.Stashes.Open(stashId)
     local stashId = Core.Classes.Stashes:GetState('nearStashId') or stashId
-
     if stashId then
         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenStash', stashId)
     end

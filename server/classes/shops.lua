@@ -6,7 +6,6 @@ function Core.Classes.Shops.BuildItemList(items)
     local itemList = {}
 
     for slotId, item in pairs(items) do
-
         local itemData = Core.Classes.Inventory:GetState("Items")[item.item]
         if itemData then
             itemData.price = item.price
@@ -34,21 +33,31 @@ end
 ---@param source number
 ---@param data table
 function Core.Classes.Shops.BuyItem (source, data)
-
     -- Validate player
     local src = source
     local Player = Framework.Server.GetPlayer(src)
     if not data.shop then return { success = false } end
     local items = {}
-
     -- If shop id is vending, skip shop validation
     if data.shop.id == 'vending' then
         items = Core.Classes.Shops.BuildItemList(Config.Vending.Items)
     else
         -- Validate shop
         local shop = Config.Shops[data.shop.id]
-        if not shop then return { success = false } end
-        items = Core.Classes.Shops.BuildItemList(shop.items)
+        if shop then  
+            items = Core.Classes.Shops.BuildItemList(shop.items)
+        else
+            items = Core.Classes.Shops.BuildItemList(data.itemData)
+        end
+    end
+
+    -- @todo return early
+    if Config.Framework == "qb" and Config.OldCore then
+        if Player.Functions.RemoveMoney('cash', data.itemData.item.price * data.amount) then 
+            Player.Functions.AddItem(data.itemData.item.name, data.amount)
+        else
+            Core.Classes.Inventory.Utilities.Notify(Player, 'You don\'t have enough cash.', 'error')
+        end
     end
 
     -- Verify the item by name and slot
@@ -59,7 +68,7 @@ function Core.Classes.Shops.BuyItem (source, data)
             itemVerified = item
         end
     end
-
+    
     -- If item was verified
     if not itemVerified then return { success = false } end
 
@@ -101,7 +110,7 @@ end
 -- Open Shop
 ---@param src number
 ---@param shopId string
-function Core.Classes.Shops.Open (src, shopId)
+function Core.Classes.Shops.Open (src, shopId, name)
     local Player = Framework.Server.GetPlayer(src)
     local shop = Config.Shops[shopId]
 
@@ -119,11 +128,23 @@ function Core.Classes.Shops.Open (src, shopId)
     end
 
     if not shop then
-        return Core.Utilities.Log({
-            type = "error",
-            title = "OpenShop",
-            message = "Shop[" .. shopId .. "] does not exist"
-        })
+        if not name then 
+           
+            return Core.Utilities.Log({
+                type = "error",
+                title = "OpenShop",
+                message = "Shop[" .. shopId .. "] does not exist"
+            })
+        else
+            local items = Core.Classes.Shops.BuildItemList(name.items)
+            return Core.Classes.Inventory.OpenInventory(src, {
+                type = "shop",
+                id = shopId,
+                name = name.label,
+                slots = name.slots,
+                items = items
+            })
+        end
     end
 
     local items = Core.Classes.Shops.BuildItemList(shop.items)

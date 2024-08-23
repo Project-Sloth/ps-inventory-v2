@@ -72,7 +72,6 @@ function Core.Classes.Crafting.Open (src, craftId)
     local Player = Framework.Server.GetPlayer(src)
     local Experience = Framework.Server.GetExp(src, 'crafting')
     local crafting = Config.Crafting.Locations[craftId]
-
     if not crafting then
         return Core.Utilities.Log({
             type = "error",

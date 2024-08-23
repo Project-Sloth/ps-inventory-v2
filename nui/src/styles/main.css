@@ -298,7 +298,7 @@ body {
   background: rgba(34, 34, 34, 0.5);
   width: 100%;
   padding: 10px;
-  max-height: 500px;
+  height: 500px;
   overflow-x: auto;
   position: relative;
 }
