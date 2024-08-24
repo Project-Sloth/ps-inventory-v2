@@ -1,6 +1,6 @@
 # PS Inventory V2
 
-Currently a work-in-progress. Do not expect this to fully work yet. The goal is to make this inventory work out of the box for a fresh install of the new QBCore update.
+Version 2 of Project Sloth's slot based inventory for FiveM. This version is built to work with newer versions of QB Core. While there is an option for backwards compatibility, please note it is not heavily tested and may not work as intended.
 
 ### Frameworks Supported
 - QB Core
@@ -38,6 +38,28 @@ Currently a work-in-progress. Do not expect this to fully work yet. The goal is 
 - Start resource in server.cfg after qb-core or esx core (If using targetting, make sure qb-target or ox_target is started before)
 - Remove `qb-inventory` (If using QB Core)
 - Restart server
+
+### Old QB Core Conversion:
+
+- To use with old QB Core versions, please use the following variables in `config/config.lua`
+
+```
+-- Framework
+Framework = "qb", -- "qb"
+
+-- QB specific
+OldCore = true, -- If you are using an older version of QB Core
+ConvertInventories = true, -- Convert old QB core inventories
+RemoveOldCoreInventories = false, -- Remove old core inventories during conversion
+```
+
+If `RemoveOldCoreInventories` is set to `true`, it is recommended to back up the following tables just in case you want to switch back:
+
+```
+stashitems
+trunkitems
+gloveboxitems
+```
 
 ### Setup targetting
 
