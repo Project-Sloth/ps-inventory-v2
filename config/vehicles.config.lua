@@ -6,67 +6,67 @@ Config.Vehicles = {
         -- Compacts
         [0] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 30, MaxSlots = 38000 }
+            Trunk    = { MaxWeight = 38000, MaxSlots = 30 }
         },
 
         -- Sedans
         [1] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 40, MaxSlots = 50000 }
+            Trunk    = { MaxWeight = 50000, MaxSlots = 40 }
         },
 
         -- SUVs
         [2] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 50, MaxSlots = 75000 }
+            Trunk    = { MaxWeight = 75000, MaxSlots = 50 }
         },
 
         -- Coupes
         [3] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 25, MaxSlots = 42000 }
+            Trunk    = { MaxWeight = 42000, MaxSlots = 25 }
         },
 
         -- Muscle
         [4] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 30, MaxSlots = 30000 }
+            Trunk    = { MaxWeight = 30000, MaxSlots = 30 }
         },
 
         -- Sports Classics
         [5] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 25, MaxSlots = 30000 }
+            Trunk    = { MaxWeight = 30000, MaxSlots = 25 }
         },
 
         -- Sports
         [6] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 25, MaxSlots = 30000 }
+            Trunk    = { MaxWeight = 30000, MaxSlots = 25 }
         },
 
         -- Super
         [7] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 25, MaxSlots = 30000 }
+            Trunk    = { MaxWeight = 30000, MaxSlots = 25 }
         },
 
         -- Motorcycles
         [8] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 15, MaxSlots = 15000 }
+            Trunk    = { MaxWeight = 15000, MaxSlots = 15 }
         },
 
         -- Off-road
         [9] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 35, MaxSlots = 60000 }
+            Trunk    = { MaxWeight = 60000, MaxSlots = 35 }
         },
 
         -- Vans
         [12] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 35, MaxSlots = 10000 }
+            Trunk    = { MaxWeight = 120000, MaxSlots = 35 }
         },
 
         -- Cycles
@@ -78,19 +78,19 @@ Config.Vehicles = {
         -- Boats
         [14] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 50, MaxSlots = 120000 }
+            Trunk    = { MaxWeight = 120000, MaxSlots = 50 }
         },
 
         -- Helicopters
         [15] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 50, MaxSlots = 120000 }
+            Trunk    = { MaxWeight = 120000, MaxSlots = 50 }
         },
 
         -- Planes
         [16] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 5 },
-            Trunk    = { MaxWeight = 50, MaxSlots = 120000 }
+            Trunk    = { MaxWeight = 120000, MaxSlots = 50 }
         },
 
         -- Service
@@ -102,7 +102,7 @@ Config.Vehicles = {
         -- Emergency
         [18] = { 
             Glovebox = { MaxWeight = 10000, MaxSlots = 4 },
-            Trunk    = { MaxWeight = 12, MaxSlots = 150000 }
+            Trunk    = { MaxWeight = 150000, MaxSlots = 12 }
         },
 
         -- Military

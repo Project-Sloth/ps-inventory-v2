@@ -451,7 +451,9 @@ if Config.OldCore and Config.ConvertInventories then
 					message = ("Processing Stash: %s"):format(stash[i].stash)
 				})
 
-				MySQL.query.await('DELETE FROM stashitems WHERE stash = ? AND items = ?', {stash[i].stash, stash[i].items})
+				if Config.RemoveOldCoreInventories then
+					MySQL.query.await('DELETE FROM stashitems WHERE stash = ? AND items = ?', {stash[i].stash, stash[i].items})
+				end
 			end
 		end
 
@@ -479,7 +481,9 @@ if Config.OldCore and Config.ConvertInventories then
 					message = ("Processing Trunk: %s"):format(trunk[i].plate)
 				})
 
-				MySQL.query.await('DELETE FROM trunkitems WHERE plate = ? AND items = ?', {trunk[i].plate, stash[i].items})
+				if Config.RemoveOldCoreInventories then
+					MySQL.query.await('DELETE FROM trunkitems WHERE plate = ? AND items = ?', {trunk[i].plate, stash[i].items})
+				end
 			end
 		end
 
@@ -507,7 +511,9 @@ if Config.OldCore and Config.ConvertInventories then
 					message = ("Processing Glovebox: %s"):format(glove[i].plate)
 				})
 
-				MySQL.query.await('DELETE FROM gloveboxitems WHERE plate = ? AND items = ?', {glove[i].plate, glove[i].items})
+				if Config.RemoveOldCoreInventories then
+					MySQL.query.await('DELETE FROM gloveboxitems WHERE plate = ? AND items = ?', {glove[i].plate, glove[i].items})
+				end
 			end   
 		end  
     end)

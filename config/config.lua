@@ -31,8 +31,9 @@ Config = {
     Framework = "qb", -- "qb"
 
     -- QB specific
-    OldCore = false,
-    ConvertInventories = false,
+    OldCore = false, -- If you are using an older version of QB Core
+    ConvertInventories = false, -- Convert old QB core inventories
+    RemoveOldCoreInventories = false, -- Remove old core inventories during conversion
 
     -- Will attempt to pull defined items from framework (Example: QBShared.items)
     LoadFrameworkInventoryItems = true,
