@@ -33,6 +33,11 @@ lib.callback.register(Config.ServerEventPrefix .. 'Move', function (source, data
     return Core.Classes.Inventory.Move(source, data)
 end)
 
+-- Split item callback
+lib.callback.register(Config.ServerEventPrefix .. 'Split', function (source, data)
+    return Core.Classes.Inventory.Split(source, data)
+end)
+
 -- Give item callback
 lib.callback.register(Config.ServerEventPrefix .. 'Give', function (source, data)
     return Core.Classes.Inventory.Give(source, data)

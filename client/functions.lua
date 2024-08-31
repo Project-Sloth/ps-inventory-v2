@@ -1,8 +1,11 @@
 -- Inventory loaded function
 function InventoryLoaded (items)
+    Core.Classes.Player.Init()
     SendNUIMessage(InventoryInitPayload())
     CreateInventoryThreads()
     SendNUIMessage({ action = "update", items = items })
+    Core.Classes.Weapon.Init()
+    Core.Classes.Weapon.ShotListener()
 end
 
 -- Payload for nui init
@@ -14,7 +17,6 @@ function InventoryInitPayload ()
         player = {
             name = Framework.Client.GetPlayerName(),
             identifier = Framework.Client.GetPlayerIdentifier(),
-            cash = Framework.Client.GetPlayerCash(),
             preferences = lib.callback.await(Config.ServerEventPrefix .. 'GetInventoryPreferences', false)
         },
         inventory = {

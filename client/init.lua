@@ -21,6 +21,16 @@ else
     end)
 end
 
+-- Reload weapon
+lib.addKeybind({
+    name = 'reload_weapon',
+    description = 'Reload weapon',
+    defaultKey = "r",
+    onPressed = function()
+        Core.Classes.Weapon.UpdateAmmo(true)
+    end
+})
+
 -- Toggle hotbar keybind
 lib.addKeybind({
     name = 'hotbar',

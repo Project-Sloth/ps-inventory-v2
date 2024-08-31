@@ -25,8 +25,7 @@ const Inventory = {
 
         Player: {
             name: "Me",
-            identifier: "Not available",
-            cash: 0
+            identifier: "Not available"
         },
 
         Titles: {
@@ -36,7 +35,6 @@ const Inventory = {
         },
 
         DraggablesRegistered: false,
-        DropUseDroppableRegistered: false,
 
         BootstrapMenu: false,
 
@@ -74,7 +72,6 @@ const Inventory = {
         CraftingQueue: '#crafting-queue',
         BottomHotContainer: "#bottom-hotbar",
         ExternalInventory: '#external-inventory',
-        Money: "#cash",
 
         Titles: {
             PlayerName: '.my-sub-title, .main-sub-title',
@@ -112,13 +109,15 @@ const Inventory = {
          */
         OnUse: async (slotId, inventoryType, item) => {
 
-            if (item.decayed) {
-                return InventoryNotify.Events.Process({
-                    process: "notification",
-                    icon: "fas fa-times-circle",
-                    color: "#ff0000",
-                    message: Language.Locale('itemDecayed')
-                })
+            if (typeof item.info !== 'undefined') {
+                if (item.info.decayed) {
+                    return InventoryNotify.Events.Process({
+                        process: "notification",
+                        icon: "fas fa-times-circle",
+                        color: "#ff0000",
+                        message: Language.Locale('itemDecayed')
+                    })
+                }
             }
 
             const res = await Nui.request('useItem', {
@@ -230,6 +229,72 @@ const Inventory = {
         },
 
         /**
+         * Removes attachment from weapon
+         * @param {int} slot
+         * @param {string} attachment
+         */
+        RemoveAttachment: async (slot, attachment, component) => {
+            let payload = {
+                slot: slot,
+                attachment: attachment,
+                component: component
+            }
+
+            /**
+             * Process the request
+             */
+            try {
+                // Disables draggables while request is being made
+                Inventory.DisableDraggables();
+
+                // Make request
+                const res = await Nui.request('removeAttachment', payload);
+
+                // Close the menu
+                if (res.success) {
+                    if (Inventory.State.BootstrapMenu) {
+                        Inventory.State.BootstrapMenu.close();
+                    }
+                }
+
+                // Re-enables draggables
+                Inventory.EnableDraggables();
+
+            } catch (error) {
+
+                // Re-enables draggables
+                Inventory.EnableDraggables();
+            }
+        },
+
+        /**
+         * Handles giving an item to closest player
+         * @param {object} data 
+         */
+        Split: async (data) => {
+            let payload = data;
+
+            /**
+             * Process the split
+             */
+            try {
+                // Disables draggables while request is being made
+                Inventory.DisableDraggables();
+
+                // Make request
+                const res = await Nui.request('split', payload);
+
+                // Re-enables draggables
+                Inventory.EnableDraggables();
+
+            } catch (error) {
+
+                // Re-enables draggables
+                Inventory.EnableDraggables();
+            }
+        },
+
+        /**
          * Handles giving an item to closest player
          * @param {object} data 
          */
@@ -237,7 +302,7 @@ const Inventory = {
             let payload = data;
 
             /**
-             * Process the moving
+             * Process the giving of item
              */
             try {
                 // Disables draggables while request is being made
@@ -259,8 +324,6 @@ const Inventory = {
                             message: res.message
                         })
                     }
-
-                    Inventory.EnableDraggables();
                 }
 
                 // Re-enables draggables
@@ -291,7 +354,7 @@ const Inventory = {
             let payload = data;
 
             /**
-             * Process the moving
+             * Process the dropping of item
              */
             try {
                 // Disables draggables while request is being made
@@ -299,11 +362,6 @@ const Inventory = {
 
                 // Make request
                 const res = await Nui.request('drop', payload);
-
-                /**
-                 * If payload expected is not returned
-                 */
-                if (!res.success) { Inventory.EnableDraggables() }
 
                 if (typeof res.items !== 'undefined' || typeof res.external !== 'undefined') {
                     Inventory.Events.UpdateInventory(res)
@@ -746,10 +804,6 @@ const Inventory = {
             $(Inventory.Selectors.Titles.MyInventory).data('id', Inventory.State.Player.identifier).html(data.name);
         }
 
-        if (typeof data.cash !== "undefined") {
-            $(Inventory.Selectors.Money).html(new Intl.NumberFormat().format(data.cash))
-        }
-
         if (typeof data.preferences !== "undefined") {
             if (data.preferences.theme) {
                 Inventory.Settings.SetTheme(data.preferences.theme);
@@ -940,13 +994,10 @@ const Inventory = {
             let wrapper = (columnSize ? `<div class="col-${columnSize}">{slot}</div>` : `{slot}`)
             let slot = `<div class="slot-container ${slotNumber > 0 & slotNumber < 6 & inv == "Hot" ? 'limited' : ''}" data-slotid="${inv}-${slotNumber}">{slotMeta}</div>`;
             let slotMeta = '';
-
-            // Convert decay percent from quality if weapon
-            if (data.type == "weapon") {
-                if (data.info) {
-                    if (typeof data.info.quality !== 'undefined') {
-                        data.decayPercent = data.info.quality;
-                    }
+            
+            if (typeof data.info == 'undefined') {
+                data.info = {
+                    quality: 100
                 }
             }
 
@@ -957,7 +1008,7 @@ const Inventory = {
                         <div style="background-image: url('nui://${GetParentResourceName()}/nui/assets/images/${data.image}');" class="image"></div>
                         ${typeof data.amount !== 'undefined' ? `<div class="amount">${data.amount}x</div>` : ''}
                         <div class="name">${data.label}</div>
-                        <div class="durability" ${typeof data.decayPercent !== 'undefined' ? `style="width: ${data.decayPercent}%;"` : ''}></div>
+                        <div class="durability" ${typeof data.info.quality !== 'undefined' ? `style="width: ${data.info.quality}%;"` : ''}></div>
                     </div>
                 `;
             }
@@ -1061,41 +1112,8 @@ const Inventory = {
 
     /**
      * Sets drag and drop events after render
-     * 
-     * @TODO: Update slotids when events are done
      */
     SetEventHandlers: () => {
-
-        /**
-         * Ctrl + Click to quick move from inventory
-         * to other inventory.
-         */
-        $(document).on('click', ".slot", function() {
-            if (Inventory.State.Keys.Ctrl) {
-                const item = $(this);
-                const slotData = item.data('slotid').split('-');
-                const inventoryType = item.data('inventory');
-
-                if (slotData.length == 2) {
-                    const slotId = slotData[1];
-                    const itemData = Inventory.GetItemBySlot(slotId);
-                    
-                    if (itemData) {
-
-                        // @TODO Finish implementation of this
-                        
-                        // Inventory.Events.Move({
-                        //     from: inventoryType,
-                        //     to: inventoryType == "Inventory" ? "External" : "Inventory",
-                        //     fromSlotId: slotId,
-                        //     toSlotId: false,
-                        //     oldItem: itemData,
-                        //     newItem: false
-                        // });
-                    }
-                }
-            }
-        });
 
         /**
          * Handle double clicking of slot to use
@@ -1213,72 +1231,6 @@ const Inventory = {
             }
         });
 
-        // Only do the following if not registered
-        if (!Inventory.State.DropUseDroppableRegistered) {
-
-            /**
-             * Handles dropping an item
-             */
-            $("#drop").droppable({
-                accept: ".slot",
-                tolerance: "intersect",
-                hoverClass: "active-border",
-                drop: (event, ui) => {
-                    const item = ui.draggable.clone();
-                    const slotData = item.data('slotid').split('-');
-                    const inventoryType = item.data('inventory');
-
-                    if (slotData.length == 2) {
-                        const slotId = slotData[1];
-                        const itemData = Inventory.GetItemBySlot(slotId);
-                        
-                        if (itemData) {
-                            Inventory.Events.Drop({
-                                slot: slotId,
-                                inventory: inventoryType,
-                                item: itemData
-                            });
-                        }
-                    }
-                }
-            });
-
-            /**
-             * Handles using an item
-             */
-            $("#use").droppable({
-                hoverClass: "active-border",
-                tolerance: "intersect",
-                greedy: true,
-                drop: (event, ui) => {
-                    event.preventDefault();
-
-                    const item = ui.draggable.clone();
-                    const slotData = item.data('slotid').split('-');
-                    const inventoryType = item.data('inventory');
-
-                    if (slotData.length == 2) {
-                        const slotId = slotData[1];
-                        const itemData = Inventory.GetItemBySlot(slotId);
-                        
-                        if (itemData) {
-
-                            if (itemData.useable || itemData.type == "weapon" ) {
-                                if (itemData.shouldClose || itemData.type == "weapon") {
-                                    Nui.request('close')
-                                }
-                                
-                                Inventory.Events.OnUse(slotId, inventoryType, itemData);
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Set these as registered so they're not registered again
-            Inventory.State.DropUseDroppableRegistered = true;
-        }
-
         /**
          * Check if bootstrap menu is registered
          */
@@ -1301,6 +1253,13 @@ const Inventory = {
                             if (slotData.length == 2) {
                                 const slotId = slotData[1];
                                 const itemData = Inventory.GetItemBySlot(slotId);
+
+                                let showAttachmentsList = false;
+                                if (itemData.info) {
+                                    if (itemData.info.attachments) {
+                                        showAttachmentsList = true;
+                                    }
+                                }
                                 
                                 if (itemData) {
                                     return `
@@ -1310,9 +1269,73 @@ const Inventory = {
                                             <div class="w-100 text-center">
                                                 <img width="60%" height="auto" src="nui://${GetParentResourceName()}/nui/assets/images/${itemData.image}" />
                                             </div>
+                                            ${showAttachmentsList ? `
+                                                <div class="w-100 py-2">
+                                                    ${Inventory.Utilities.BuildAttachmentsList(itemData, itemData.info.attachments)}
+                                                </div>
+                                            ` : ''}
+                                            ${itemData.amount > 1 ? `
+                                                <hr />
+                                                <div class="w-100 d-flex justify-content-between align-items-center">
+                                                    <div class="w-100">
+                                                        <input oninput="Inventory.Utilities.UpdateAmountBadge(event, this, '#slot-${slotId}-amount-badge');" style="position: relative;top: 3px;" type="range" class="form-range ranger" value="${itemData.amount}" steps="1" min="1" max="${itemData.amount}" id="slot-${slotId}-amount">
+                                                    </div>
+                                                    <div class="ms-2">
+                                                        <span id="slot-${slotId}-amount-badge" class="badge badge-dark">${itemData.amount}</span>
+                                                    </div>
+                                                </div>
+                                            ` : ''}
                                         </div>
                                     `
                                 }
+                            }
+                        }
+                    },
+                    {
+                        name: Language.Locale('split'),
+                        onClick: function($el) {
+                            const item = $el;
+                            const slotData = item.data('slotid').split('-');
+                            const inventoryType = item.data('inventory');
+
+                            if (slotData.length == 2) {
+                                const slotId = slotData[1];
+                                const itemData = Inventory.GetItemBySlot(slotId);
+                                
+                                if (itemData) {
+
+                                    const amountElement = $(`#slot-${slotId}-amount`);
+                                    if (amountElement.length) {
+                                        itemData.amount = parseInt($(`#slot-${slotId}-amount`).val());
+                                    }
+
+                                    Inventory.Events.Split({
+                                        slot: slotId,
+                                        inventory: inventoryType,
+                                        item: itemData
+                                    });
+                                }
+                            }
+                        },
+                        isEnabled: function($el) {
+                            const item = $el;
+                            const slotData = item.data('slotid').split('-');
+
+                            if (slotData.length == 2) {
+                                const slotId = slotData[1];
+                                const itemData = Inventory.GetItemBySlot(slotId);
+                                
+                                if (itemData) {
+                                    if (parseInt(itemData.amount) > 1) {
+                                        return true
+                                    } else {
+                                        return false
+                                    }
+                                } else {
+                                    return false
+                                }
+                            } else {
+                                return false
                             }
                         }
                     },
@@ -1328,6 +1351,11 @@ const Inventory = {
                                 const itemData = Inventory.GetItemBySlot(slotId);
                                 
                                 if (itemData) {
+
+                                    const amountElement = $(`#slot-${slotId}-amount`);
+                                    if (amountElement.length) {
+                                        itemData.amount = parseInt($(`#slot-${slotId}-amount`).val());
+                                    }
 
                                     if (itemData.useable || itemData.type == "weapon" ) {
                                         if (itemData.shouldClose || itemData.type == "weapon") {
@@ -1352,6 +1380,12 @@ const Inventory = {
                                 const itemData = Inventory.GetItemBySlot(slotId);
                                 
                                 if (itemData) {
+
+                                    const amountElement = $(`#slot-${slotId}-amount`);
+                                    if (amountElement.length) {
+                                        itemData.amount = parseInt($(`#slot-${slotId}-amount`).val());
+                                    }
+
                                     Inventory.Events.Give({
                                         slot: slotId,
                                         inventory: inventoryType,
@@ -1373,6 +1407,12 @@ const Inventory = {
                                 const itemData = Inventory.GetItemBySlot(slotId);
                                 
                                 if (itemData) {
+
+                                    const amountElement = $(`#slot-${slotId}-amount`);
+                                    if (amountElement.length) {
+                                        itemData.amount = parseInt($(`#slot-${slotId}-amount`).val());
+                                    }
+
                                     Inventory.Events.Drop({
                                         slot: slotId,
                                         inventory: inventoryType,
@@ -1436,6 +1476,45 @@ const Inventory = {
      * Utility functions for inventory
      */
     Utilities: {
+
+        /**
+         * Builds attachment list for weapon attachments
+         * @param {array} attachments 
+         */
+        BuildAttachmentsList: (itemData, attachments) => {
+            let res = '';
+
+            if (Array.isArray(attachments)) {
+                if (attachments.length) {
+                    for (let i = 0; i < attachments.length; i++) {
+                        res += `
+                            <div class="mb-1 w-100 d-flex justify-content-between align-items-center text-start p-2 border-rounded" style="background: rgba(255, 255, 255, 0.1);">
+                                <div class="w-100">
+                                    ${attachments[i].label}
+                                </div>
+                                <div>
+                                    <button onclick="Inventory.Events.RemoveAttachment('${itemData.slot}', '${attachments[i].item}', '${attachments[i].component}')" type="button" class="btn btn-xs btn-danger"><i class="fas fa-minus-circle"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            return res;
+        },
+
+        /**
+         * Updates amount badge for item amount slider in context menu
+         * @param {event} e 
+         * @param {element} el 
+         * @param {string} target 
+         */
+        UpdateAmountBadge: (e, el, target) => {
+            e.preventDefault();
+            const amount = $(el).val();
+            $(target).html(amount);
+        },
 
         /**
          * Converts "Inventory-1" to { slot: 1, inventory: "Inventory", item { ... }}

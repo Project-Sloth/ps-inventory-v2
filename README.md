@@ -23,6 +23,7 @@ Version 2 of Project Sloth's slot based inventory for FiveM. This version is bui
 - Multi-language support
 - Vending Machines
 - Cash as an item
+- Weapons system (replaces qb-weapons)
 
 ### Dependencies
 
@@ -60,6 +61,9 @@ stashitems
 trunkitems
 gloveboxitems
 ```
+
+### Note:
+- QB integration will attempt to stop `qb-inventory`, `qb-shop`, and `qb-weapons` as this inventory will replace those.
 
 ### Setup targetting
 
@@ -105,6 +109,7 @@ exports['ps-inventory']:OpenStash(src, stashId) -- Opens a stash
 exports['ps-inventory']:OpenShop(src, shopId) -- Opens a shop
 exports['ps-inventory']:OpenVending() -- Opens vending machine shop
 exports['ps-inventory']:OpenCrafting(src, craftId) -- Opens crafting menu
+exports['ps-inventory']:DisarmWeapon(src) -- Disarms weapon for source
 ```
 
 ### Client Exports
@@ -112,6 +117,9 @@ exports['ps-inventory']:OpenCrafting(src, craftId) -- Opens crafting menu
 ```
 exports['ps-inventory']:OpenInventory() -- Opens player inventory
 exports['ps-inventory']:CloseInventory() -- Closes player inventory
+exports['ps-inventory']:UseWeapon(weaponData, canFire) -- Use weapon
+exports['ps-inventory']:DisarmWeapon() -- Disarms weapon
+exports['ps-inventory']:ReloadWeapon() -- Reloads weapon
 ```
 
 ### Credits

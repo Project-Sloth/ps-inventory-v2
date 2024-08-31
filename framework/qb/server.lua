@@ -370,7 +370,7 @@ end)
 SetTimeout(500, function()
 
 	-- Stop the following resources if they are started
-	local resourcesToStop = { 'qb-shops', 'qb-inventory' }
+	local resourcesToStop = { 'qb-shops', 'qb-inventory', 'qb-weapons' }
 	for _, resource in pairs(resourcesToStop) do
 		local resourceState = GetResourceState(resource)
 		if resourceState ~= 'missing' and (resourceState == 'started' or resourceState == 'starting') then

@@ -265,10 +265,12 @@
 
 	        /* call the user click handler. It receives the optional user-defined data,
 	         * or undefined. */
-	        _this.options.actions[actionId].onClick(targetData);
+			if (typeof _this.options.actions[actionId].onClick == 'function') {
+				_this.options.actions[actionId].onClick(targetData);
 
-	        // close the menu
-	        _this.close();
+				// close the menu
+				_this.close();
+			}
 	    });
 	}
 
@@ -456,8 +458,10 @@
 					_.isFunction(action.name) && action.name(targetData) || action.name
 				);
 
-				if (action.isEnabled && action.isEnabled(targetData) === false) {
-					$action.addClass('disabled');
+				if (action.isEnabled && action.isEnabled(_this.options.fetchElementData(_this.$openTarget)) === false) {
+					$action.hide();
+				} else {
+					$action.show();
 				}
 			}
 	    });

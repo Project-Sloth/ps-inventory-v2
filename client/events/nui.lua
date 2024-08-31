@@ -16,6 +16,19 @@ RegisterNUICallback('move', function(data, cb)
     cb(res)
 end)
 
+-- Split item
+RegisterNUICallback('removeAttachment', function(data, cb)
+    local res = Core.Classes.Weapon.RemoveAttachment(data)
+    print(json.encode(res))
+    cb(res)
+end)
+
+-- Split item
+RegisterNUICallback('split', function(data, cb)
+    local res = Core.Classes.Inventory.Split(data)
+    cb(res)
+end)
+
 -- Give item
 RegisterNUICallback('give', function(data, cb)
     local res = Core.Classes.Inventory.Give(data)

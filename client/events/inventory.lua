@@ -39,14 +39,3 @@ RegisterNetEvent(Config.ClientEventPrefix .. 'RemoveCraftingQueueItem', function
         id = id
     }, true)
 end)
-
--- Close Inventory
-RegisterNetEvent(Config.ClientEventPrefix .. 'MoneyChange', function (type, amount)
-
-    if (type == "cash") then
-        Framework.Client.SendNUIMessage({
-            action = "updatePlayerData",
-            cash = Framework.Client.GetPlayerCash()
-        }, true)
-    end
-end)

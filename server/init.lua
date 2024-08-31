@@ -43,3 +43,17 @@ end
 
 -- Starts the cron processor
 Core.Crons.StartProcessor()
+
+-- Resource stop event
+AddEventHandler('onServerResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+
+        Core.Utilities.Log({
+            type = "warning",
+            title = "Inventory Stopped",
+            message = "Syncing database for all online players"
+        })
+
+        Core.Classes.Inventory.SyncDatabase()
+    end
+end)

@@ -179,6 +179,24 @@ Core.Utilities = {
                         Core.Utilities.RandomNumber(2) .. Core.Utilities.RandomString(4))
     end,
 
+    -- Disables multiple keys
+    -- { { 0, 22}, ... }
+    ---@param keys table
+    DisableControlActions = function (keys)
+        for _, key in pairs(keys) do
+            DisableControlAction(key[1], key[2], true)
+        end
+    end,
+
+    -- Loads an animation dictionary
+    LoadAnimationDictionary = function (dict)
+        if HasAnimDictLoaded(dict) then return end
+        RequestAnimDict(dict)
+        while not HasAnimDictLoaded(dict) do
+            Wait(10)
+        end
+    end,
+
     -- Loads a model hash
     ---@param ModelHash string
     LoadModelHash = function (ModelHash)

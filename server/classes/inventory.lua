@@ -202,9 +202,16 @@ Core.Classes.Inventory.Utilities = {
             decay = itemInfo.decay or false
         }
 
-        -- Get decay results
-        itemConverted.decayed = Core.Classes.Inventory.Utilities.IsItemDecayed(itemConverted)
-        itemConverted.decayPercent = Core.Classes.Inventory.Utilities.ItemDecayPercentage(itemConverted)
+        -- Include ammo type
+        if itemConverted.type == "weapon" then
+            itemConverted.ammotype = itemInfo.ammotype or nil
+        end
+
+        -- Include decay information
+        if itemConverted.decay then
+            itemConverted.info.decayed = Core.Classes.Inventory.Utilities.IsItemDecayed(itemConverted)
+            itemConverted.info.quality = Core.Classes.Inventory.Utilities.ItemDecayPercentage(itemConverted)
+        end
 
         -- Include crafting data
         if itemInfo.crafting then
@@ -252,6 +259,9 @@ function Core.Classes.Inventory.Load(init)
         
         if init then
             Core.Classes.Inventory.CreateUseables()
+
+            -- Create useables for weapon class
+            Core.Classes.Weapon.Init()
         end
     end)
 end
@@ -459,15 +469,18 @@ end
 
 -- Get player slots with item
 -- Export: exports['ps-inventory']:GetSlotsWithItem(src, item)
+-- returnType = "slots" or "keys" | Defaults to "keys"
 ---@param src number
 ---@param itemName string
-function Core.Classes.Inventory.GetSlotsWithItem(src, itemName)
+---@param returnType string
+function Core.Classes.Inventory.GetSlotsWithItem(src, itemName, returnType)
+    returnType = returnType or 'keys'
     local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
     local slots = {}
 
     for slot, item in pairs(Inventory) do
         if item.name:lower() == itemName:lower() then
-            table.insert(slots, slot)
+            table.insert(slots, returnType == 'slots' and item.slot or slot)
         end
     end
 
@@ -685,7 +698,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
     slot = tonumber(slot) or Core.Classes.Inventory.GetSlotNumberWithItem(source, item)
 
     -- Make sure info is a table
-    info = type(info) == "table" and info or {} -- Make sure it's not an empty string and is a table
+    info = type(info) == "table" and info or { quality = 100 } -- Make sure it's not an empty string and is a table
 
     -- If is a weapon, set the serial number and quality
     if itemInfo.type == 'weapon' then
@@ -700,7 +713,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
             (itemInfo.type == 'item' and not itemInfo.unique) then
 
             -- If decay of existing item is not fresh, add to new slot
-            if items[slot].decayPercent ~= 100 then
+            if items[slot].info.quality ~= info.quality then
                 local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
                 if not availableSlot then return false end
 
@@ -822,8 +835,8 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot, ignoreNot
 
                 return true
 
-                -- If the amount matches
-            elseif items[slotKey].amount == amount then
+            -- If the amount is less or equal
+            else
                 items[slotKey] = nil
                 Framework.Server.SavePlayerInventory(source, items)
 
@@ -854,8 +867,8 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot, ignoreNot
 
                 return true
 
-                -- If the amount matches
-            elseif items[_slot].amount == amountToRemove then
+            -- If the amount is less or equal
+            else
                 items[_slot] = nil
                 Framework.Server.SavePlayerInventory(source, items)
 
@@ -867,7 +880,30 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot, ignoreNot
             end
         end
     end
+
     return false
+end
+
+function Core.Classes.Inventory.UpdateItem(source, slot, itemData)
+    -- Validate player
+    local Player = Framework.Server.GetPlayer(source)
+    if not Player then return false end
+
+    -- Get player inventory
+    local items = Core.Classes.Inventory.GetPlayerInventory(source)
+
+    -- Get slot key
+    local slotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(items, slot)
+    if not slotKey then return false end
+
+    -- Override item data
+    items[slotKey] = itemData
+
+    -- Update inventory
+    Framework.Server.SavePlayerInventory(source, items)
+
+    -- Return a response
+    return true
 end
 
 -- Clears a player inventory
@@ -1100,6 +1136,13 @@ function Core.Classes.Inventory.SwapSlots (src, invType, inventory, items)
     if stack then
         if not item2SlotKey then return false end
 
+        -- Match quality
+        if inventory[item2SlotKey].info and inventory[item1SlotKey].info then
+            if inventory[item2SlotKey].info.quality ~= inventory[item1SlotKey].info.quality then
+                return false
+            end
+        end
+
         -- Add amount to second slot
         inventory[item2SlotKey].amount = tonumber(inventory[item2SlotKey].amount) + tonumber(inventory[item1SlotKey].amount)
 
@@ -1150,6 +1193,14 @@ function Core.Classes.Inventory.Transfer (src, origin, destination, item, destin
         if targetSlotHasItem.name == item.name and not item.unique then
             local destinationSlotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(destinationItems, destinationSlotId) or false
             if not destinationSlotKey then return false end
+
+            -- Match quality
+            if destinationItems[destinationSlotKey].info and item.info then
+                if destinationItems[destinationSlotKey].info.quality ~= item.info.quality then
+                    return false
+                end
+            end
+
             destinationItems[destinationSlotKey].amount = tonumber(destinationItems[destinationSlotKey].amount) + tonumber(item.amount)
         else
 
@@ -1334,6 +1385,21 @@ function Core.Classes.Inventory.Move (src, data)
     return false
 end
 
+-- Split Item
+---@param src number
+---@param data table
+function Core.Classes.Inventory.Split (src, data)
+    local playerInventory = Core.Classes.Inventory.GetPlayerInventory(src)
+    local inventoryItems = Core.Classes.Inventory:GetState("Items")
+
+    local newSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(inventoryItems, Config.Inventories.Player.MaxSlots)
+    if not newSlot then newSlot = { slot = data.item.slot } end
+
+    Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot, true)
+    Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount, newSlot.slot, data.item.info, nil, nil, true)
+    return { success = true }
+end
+
 -- Give Item
 ---@param src number
 ---@param data table
@@ -1351,7 +1417,7 @@ function Core.Classes.Inventory.Give (src, data)
     if closestPlayer == src then return { success = false, message = "No nearby players" } end
 
     Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot)
-    Core.Classes.Inventory.AddItem(closestPlayer, data.item.name, data.item.amount)
+    Core.Classes.Inventory.AddItem(closestPlayer, data.item.name, data.item.amount, nil, data.item.info)
     return { success = true }
 end
 

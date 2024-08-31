@@ -15,6 +15,11 @@ function Core.Classes.InventoryNotify.AddItem(item, amount)
         item = item,
         amount = amount
     })
+
+    if item.name:lower():find('ammo') then
+        print('Updating weapon ammo')
+        Core.Classes.Weapon.UpdatePedAmmo()
+    end
 end
 
 -- Removes item in NUI

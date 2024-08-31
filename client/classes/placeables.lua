@@ -227,7 +227,6 @@ end
 -- Places item
 ---@param item table
 function Core.Classes.Placeables.PlacementMode(item)
-    print(json.encode(item))
     if not item.placeable then return false end
     if not item.placeable.prop then return false end
     if Core.Classes.Placeables:GetState('placementMode') then return false end

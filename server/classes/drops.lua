@@ -25,6 +25,9 @@ function Core.Classes.Drops.Create (source, data)
 
     local dropId = nil
 
+    -- Match amount to amount specified
+    itemData.amount = data.item.amount
+
     -- If a drop id is supplied, first verify it exists,
     -- then add to the item.
     if data.dropId then
@@ -77,7 +80,7 @@ function Core.Classes.Drops.Create (source, data)
     end
 
     -- Remove from player
-    Core.Classes.Inventory.RemoveItem(source, data.item.name, itemData.amount, data.item.slot)
+    Core.Classes.Inventory.RemoveItem(source, data.item.name, data.item.amount, data.item.slot)
 
     -- Send drops data to everyone
     Core.Classes.Drops.Beacon()

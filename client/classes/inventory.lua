@@ -2,6 +2,8 @@
 --- Inventory Setup (Runs when server starts)
 -------------------------------------------------
 
+-- TODO: Splitting is causing an issue with wiping items?
+
 -- Creates the inventory class
 Core.Classes.New("Inventory", { Loaded = false, Items = {}, IsOpen = false, External = false })
 
@@ -42,10 +44,23 @@ function Core.Classes.Inventory.Load(cb)
 end
 
 -- Update inventory
-function Core.Classes.Inventory.Update()
+function Core.Classes.Inventory.Update(cb)
     Core.Classes.Inventory:UpdateState("Items", lib.callback.await(Config.ServerEventPrefix .. 'GetPlayerInventory', false))
     local items = Core.Classes.Inventory:GetState("Items")
-    SendNUIMessage({ action = "update", items = items })
+
+    -- Only update if inventory is open
+    if Core.Classes.Inventory:GetState('IsOpen') then
+        SendNUIMessage({ action = "update", items = items })
+    end
+
+    -- Checks player weapon and weapon state against inventory
+    -- to make sure they still have the weapon. If not, it disarms it
+    Core.Classes.Weapon.CheckAgainstInventory()
+
+    -- Send items in callback if applicable
+    if type(cb) == "function" then
+        return cb()
+    end
 end
 
 -- Update external inventory state
@@ -57,6 +72,14 @@ function Core.Classes.Inventory.UpdateExternalState(external, cb)
     if type(cb) == "function" then
         return cb(Core.Classes.Inventory:GetState("External"))
     end
+end
+
+-- Split item
+---@param data table
+function Core.Classes.Inventory.Split(data)
+    local res = lib.callback.await(Config.ServerEventPrefix .. 'Split', false, data)
+    Core.Classes.Inventory.Update()
+    return res
 end
 
 -- Give item
@@ -120,6 +143,22 @@ function Core.Classes.Inventory.Open(data)
 
         Core.Classes.Inventory.Events.OnOpen()
     end)
+end
+
+-- Finds items in inventory by name
+---@param name string
+---@return table
+function Core.Classes.Inventory.FindItemsByName (name)
+    local items = Core.Classes.Inventory:GetState('Items')
+    local res = {}
+
+    for _, item in pairs(items) do
+        if item.name == name then
+            table.insert(res, item)
+        end
+    end
+
+    return res
 end
 
 -- Close Inventory
