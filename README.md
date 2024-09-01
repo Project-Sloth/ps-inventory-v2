@@ -1,6 +1,8 @@
-# PS Inventory V2
+# Project Sloth Inventory V2
 
 Version 2 of Project Sloth's slot based inventory for FiveM. This version is built to work with newer versions of QB Core. While there is an option for backwards compatibility, please note it is not heavily tested and may not work as intended.
+
+*NOTE: For all support questions, ask in our [Discord](https://www.discord.gg/projectsloth) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.*
 
 ### Frameworks Supported
 - QB Core
