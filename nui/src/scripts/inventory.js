@@ -1129,6 +1129,10 @@ const Inventory = {
                 
                 if (itemData) {
 
+                    if (itemData.name.includes('ammo')) {
+                        return false;
+                    }
+
                     if (itemData.useable || itemData.type == "weapon" ) {
                         if (itemData.shouldClose || itemData.type == "weapon") {
                             Nui.request('close')
@@ -1239,7 +1243,7 @@ const Inventory = {
             /**
              * Register the bootstrap menu
              */
-            Inventory.State.BootstrapMenu = new BootstrapMenu('.slot', {
+            Inventory.State.BootstrapMenu = new BootstrapMenu(`${Inventory.Selectors.Hot} .slot, ${Inventory.Selectors.Inventory} .slot`, {
                 fetchElementData: function($el) {
                     return $el
                 },
@@ -1270,10 +1274,11 @@ const Inventory = {
                                                 <img width="60%" height="auto" src="nui://${GetParentResourceName()}/nui/assets/images/${itemData.image}" />
                                             </div>
                                             ${showAttachmentsList ? `
-                                                <div class="w-100 py-2">
+                                                <div class="w-100 py-1">
                                                     ${Inventory.Utilities.BuildAttachmentsList(itemData, itemData.info.attachments)}
                                                 </div>
                                             ` : ''}
+                                            ${Inventory.Utilities.BuildInformationList(itemData)}
                                             ${itemData.amount > 1 ? `
                                                 <hr />
                                                 <div class="w-100 d-flex justify-content-between align-items-center">
@@ -1365,6 +1370,31 @@ const Inventory = {
                                         Inventory.Events.OnUse(slotId, inventoryType, itemData);
                                     }
                                 }
+                            }
+                        },
+                        isEnabled: function($el) {
+                            const item = $el;
+                            const slotData = item.data('slotid').split('-');
+
+                            if (slotData.length == 2) {
+                                const slotId = slotData[1];
+                                const itemData = Inventory.GetItemBySlot(slotId);
+                                
+                                if (itemData) {
+                                    if (itemData.name.includes('ammo')) {
+                                        return false
+                                    }
+
+                                    if (itemData.useable || itemData.type == "weapon") {
+                                        return true
+                                    } else {
+                                        return false
+                                    }
+                                } else {
+                                    return false
+                                }
+                            } else {
+                                return false
                             }
                         }
                     },
@@ -1477,6 +1507,47 @@ const Inventory = {
      */
     Utilities: {
 
+        ConvertCamelCaseToWords: (text) => {
+            const result = text.replace(/([A-Z])/g, " $1");
+            return result.charAt(0).toUpperCase() + result.slice(1);
+        },
+
+        /**
+         * Lists additional item information if applicable
+         * @param {object} itemData 
+         */
+        BuildInformationList: (itemData) => {
+            let res = '<div class="w-100 py-2">{{info}}</div>';
+            let info = '';
+            let ignore = [ 'quality', 'decayed', 'attachments' ];
+            if (typeof itemData.info == 'undefined') { return ''; }
+            if (!itemData.info) { return ''; }
+
+            for (let infoKey in itemData.info) {
+                if (ignore.includes(infoKey)) { continue; }
+
+                let field = Inventory.Utilities.ConvertCamelCaseToWords(infoKey);
+                if (field == "Serie") {
+                    field = "Serial #";
+                }
+
+                info += `
+                    <div class="w-100 d-flex justify-content-between align-items-center text-start p-2 border-rounded" style="background: rgba(255, 255, 255, 0.1);font-size: 11px;">
+                        <div class="w-50">
+                            ${field}
+                        </div>
+
+                        <div class="w-50 text-end">
+                            ${itemData.info[infoKey]}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (info == '') { return ''; }
+            return res.replace('{{info}}', info);
+        },
+
         /**
          * Builds attachment list for weapon attachments
          * @param {array} attachments 
@@ -1488,7 +1559,7 @@ const Inventory = {
                 if (attachments.length) {
                     for (let i = 0; i < attachments.length; i++) {
                         res += `
-                            <div class="mb-1 w-100 d-flex justify-content-between align-items-center text-start p-2 border-rounded" style="background: rgba(255, 255, 255, 0.1);">
+                            <div class="w-100 d-flex justify-content-between align-items-center text-start p-2 border-rounded" style="background: rgba(255, 255, 255, 0.1);">
                                 <div class="w-100">
                                     ${attachments[i].label}
                                 </div>

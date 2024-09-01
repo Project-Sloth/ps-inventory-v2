@@ -59,6 +59,10 @@ function Core.Classes.Weapon.CheckAgainstInventory ()
                 if Core.Utilities.TableLength(inventoryItems) == 0 then
                     return Core.Classes.Weapon.Disarm()
                 end
+
+                if inventoryItems[1].info.quality == 0 then
+                    return Core.Classes.Weapon.Disarm()
+                end
             end
         end
     end
@@ -352,6 +356,15 @@ function Core.Classes.Weapon.Equip (weaponData, isThrowable)
     local weaponName = tostring(weaponData.name)
     local weaponHash = joaat(weaponData.name:upper())
 
+    -- Check weapon quality
+    if weaponData.info then
+        if weaponData.info.quality ~= nil then
+            if weaponData.info.quality == 0 then
+                return false
+            end
+        end
+    end
+
     -- Set ammo based on weapon type
     if isThrowable then
         ammo = 1
@@ -400,12 +413,8 @@ function Core.Classes.Weapon.Equip (weaponData, isThrowable)
     end
 
     -- Set active weapon for ped
+    SetPedAmmo(ped, weaponHash, ammo)
     SetCurrentPedWeapon(ped, weaponHash, true)
-
-    -- If not foced ammo, set it
-    if not Config.Weapons.ForcedAmmoAmount[weaponName] then
-        SetPedAmmo(ped, weaponHash, ammo)
-    end
 
     -- Update state
     Core.Classes.Weapon:UpdateStates({
@@ -449,6 +458,9 @@ function Core.Classes.Weapon.UpdateAmmo (reload)
     -- Checks and balances
     if not weaponState.weapon then return false end
     if not weaponState.data then return false end
+
+    -- If of forced ammo type, return false
+    if Config.Weapons.ForcedAmmoAmount[weaponState.weapon] then return false end
 
     -- If no weapon ammo type, but is removable, make call
     if not weaponState.data.ammotype then 

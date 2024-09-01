@@ -1,7 +1,7 @@
 Config = {
 
     -- Debugging
-    Debugging = false,
+    Debugging = true,
 
     -- Debug logging
     Logging = {

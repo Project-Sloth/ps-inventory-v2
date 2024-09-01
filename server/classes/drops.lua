@@ -36,7 +36,7 @@ function Core.Classes.Drops.Create (source, data)
         local dropData = Core.Classes.Drops.Get(data.dropId)
         if dropData then
             dropId = data.dropId
-            local res = Core.Classes.Drops.AddItem(data.dropId, itemData)
+            local res = Core.Classes.Drops.AddItem(source, data.dropId, itemData)
             if not res then return { success = false } end
         end
     end
@@ -64,6 +64,10 @@ function Core.Classes.Drops.Create (source, data)
             expiration = (Config.Drops.ExpirationTime) + os.time(),
             items = { dropItem }
         })
+
+        if dropItem.name == "money" then
+            Framework.Server.RemoveMoney(source, 'cash', dropItem.amount)
+        end
 
         -- Update state
         Core.Classes.Drops:UpdateState('Drops', drops)
@@ -173,7 +177,7 @@ end
 -- Save drop items
 ---@param dropId string
 ---@param item table
-function Core.Classes.Drops.AddItem (dropId, item)
+function Core.Classes.Drops.AddItem (source, dropId, item)
     local drop = Core.Classes.Drops.Get(dropId)
     if not drop then return false end
     local items = drop.items
@@ -181,6 +185,11 @@ function Core.Classes.Drops.AddItem (dropId, item)
     if not newSlot then return false end
     item.slot = newSlot.slot
     items[newSlot.key] = item
+
+    if item.name == "money" then
+        Framework.Server.RemoveMoney(source, 'cash', item.amount)
+    end
+
     Core.Classes.Drops.SaveItems(dropId, items)
     return true
 end

@@ -280,6 +280,10 @@ function Core.Classes.Weapon.UpdateQuality (src, weaponData)
     -- Decrease the quality
     item.info.quality = item.info.quality - durabilityRate
 
+    if item.info.quality < 0 then
+        item.info.quality = 0
+    end
+
     -- Update the item
     Core.Classes.Inventory.UpdateItem(src, item.slot, item)
     return true
