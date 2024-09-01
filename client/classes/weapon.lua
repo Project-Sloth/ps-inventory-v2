@@ -14,12 +14,7 @@ local defaultWeaponState = {
 }
 
 -- Creates the weapons class
-Core.Classes.New("Weapon", {
-    canFire = true, 
-    currentWeapon = false,
-    currentWeaponData = nil,
-    currentWeaponAmmo = 0
-})
+Core.Classes.New("Weapon", defaultWeaponState)
 
 function Core.Classes.Weapon.Init ()
 
