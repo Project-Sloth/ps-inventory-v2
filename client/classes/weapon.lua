@@ -24,6 +24,9 @@ function Core.Classes.Weapon.Init ()
     -- Start the shot listener
     Core.Classes.Weapon.ShotListener()
 
+    -- Starts the listener for damage modification
+    Core.Classes.Weapon.DamageModifier()
+
     -- If script is restarted, find weapon player has and use
     local playerCurrentWeapon = Core.Classes.Player.CurrentWeapon()
     if playerCurrentWeapon.weapon then
@@ -343,6 +346,11 @@ function Core.Classes.Weapon.Disarm (skipAnimation)
     Core.Classes.Weapon.ResetWeaponState()
     SetCurrentPedWeapon(ped, GetHashKey(UnarmedWeapon), true)
     RemoveAllPedWeapons(ped, true)
+
+    Core.Utilities.Log({
+        title = "Weapon.Disarm()",
+        message = "Weapon has been disarmed"
+    })
 end
 
 -- Equips weapon
@@ -416,6 +424,11 @@ function Core.Classes.Weapon.Equip (weaponData, isThrowable)
         currentWeapon = weaponName,
         currentWeaponData = weaponData,
         currentWeaponAmmo = GetAmmoInPedWeapon(ped, weaponHash)
+    })
+
+    Core.Utilities.Log({
+        title = "Weapon.Equip()",
+        message = ("%s has been equiped"):format(weaponName)
     })
 end
 
@@ -548,6 +561,12 @@ end
 -- Listens for shooting and updates ammo when needed
 function Core.Classes.Weapon.ShotListener ()
     CreateThread(function()
+
+        Core.Utilities.Log({
+            title = "Weapon.ShotListener()",
+            message = "Has started"
+        })
+
         while true do
             local weaponState = Core.Classes.Weapon.CurrentWeaponState()
             if weaponState.weapon and weaponState.data then
@@ -558,6 +577,41 @@ function Core.Classes.Weapon.ShotListener ()
                 end
             end
             Wait(0)
+        end
+    end)
+end
+
+-- Modifies damage for a weapon if set in Config.Weapons.DamageModifier
+function Core.Classes.Weapon.DamageModifier ()
+    CreateThread(function()
+
+        Core.Utilities.Log({
+            title = "Weapon.DamageModifier()",
+            message = "Has started"
+        })
+
+        while true do
+            Wait(0)
+            
+            local ped = PlayerPedId()
+            local weaponHash = GetSelectedPedWeapon(ped)
+
+            if not weaponHash then
+                Wait(500)
+            else
+                local weaponName = Core.Classes.Weapon.GetByHash(weaponHash)
+
+                if weaponName then
+                    local weaponDamageData = Config.Weapons.DamageModifier[weaponName]
+                
+                    if weaponDamageData then
+                        if weaponDamageData.disableCritical then SetPedSuffersCriticalHits(ped, false) end
+                        SetWeaponDamageModifier(weaponHash, weaponDamageData.modifier)
+                    else
+                        Wait(500)
+                    end
+                end
+            end
         end
     end)
 end

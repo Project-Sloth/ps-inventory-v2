@@ -16,6 +16,11 @@ Config.Weapons = {
         'weapon_unarmed'
     },
 
+    -- Modifies damage for weapons
+    DamageModifier = {
+        -- weapon_pistol = { modifier = 0.1, disableCritical = true }
+    },
+
     -- All weapons have a default of 0.15
     -- You can set custom rates here
     -- Example: weapon_pistol = 0.15
@@ -25,8 +30,8 @@ Config.Weapons = {
 
     -- This will set a specific ammo amount for a specific weapon
     ForcedAmmoAmount = {
-        ['weapon_fireextinguisher'] = 4000,
-        ['weapon_petrolcan'] = 1000
+        weapon_fireextinguisher = 4000,
+        weapon_petrolcan = 1000
     },
 
     -- These weapons are considered throwables

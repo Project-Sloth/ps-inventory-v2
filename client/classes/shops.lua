@@ -144,6 +144,11 @@ function Core.Classes.Shops.Open()
     local shopId = Core.Classes.Shops:GetState('nearShopId')
 
     if shopId then
+        Core.Utilities.Log({
+            title = "Shops.Open()",
+            message = "Attempting to open " .. shopId
+        })
+
         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenShop', shopId)
     end
 end

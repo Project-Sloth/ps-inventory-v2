@@ -133,6 +133,11 @@ function Core.Classes.Crafting.Open(id)
     local craftId = Core.Classes.Crafting:GetState('nearCraftId') or id
 
     if craftId then
+        Core.Utilities.Log({
+            title = "Crafting.Open()",
+            message = "Attempting to open " .. craftId
+        })
+
         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenCrafting', craftId)
     end
 end

@@ -13,6 +13,11 @@ function Core.Classes.Vending.Load()
             options = {
                 {
                     action = function ()
+                        Core.Utilities.Log({
+                            title = "Vending.Open()",
+                            message = "Attempting to open vending"
+                        })
+                        
                         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenVending')
                     end,
                     icon = "fas fa-eye",
@@ -68,6 +73,12 @@ end
 
 -- Open Vending
 function Core.Classes.Vending.Open()
+
+    Core.Utilities.Log({
+        title = "Vending.Open()",
+        message = "Attempting to open vending"
+    })
+
     TriggerServerEvent(Config.ServerEventPrefix .. 'OpenVending')
 end
 

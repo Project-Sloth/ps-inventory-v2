@@ -91,6 +91,11 @@ end
 function Core.Classes.Stashes.Open(stashId)
     local stashId = Core.Classes.Stashes:GetState('nearStashId') or stashId
     if stashId then
+        Core.Utilities.Log({
+            title = "Stashes.Open()",
+            message = "Attempting to open " .. stashId
+        })
+
         TriggerServerEvent(Config.ServerEventPrefix .. 'OpenStash', stashId)
     end
 end
