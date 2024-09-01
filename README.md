@@ -25,6 +25,10 @@ Version 2 of Project Sloth's slot based inventory for FiveM. This version is bui
 - Cash as an item
 - Weapons system (replaces qb-weapons)
 
+![Screenshot 2024-09-01 075501](https://github.com/user-attachments/assets/4ae21d3c-7879-4a04-92b6-f6dd323d89ae)
+![Screenshot 2024-09-01 075618](https://github.com/user-attachments/assets/f6ff5107-5502-47a9-94c9-18cc3b347ec1)
+![Screenshot 2024-09-01 075650](https://github.com/user-attachments/assets/c6b53f27-35e1-4b27-ae6f-032345f5704a)
+
 ### Dependencies
 
 - `oxmysql`
