@@ -4,9 +4,6 @@
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-
-        Wait(500)
-
         Core.Classes.Inventory.Load(function (items)
             InventoryLoaded(items)
         end)

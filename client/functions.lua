@@ -1,11 +1,9 @@
 -- Inventory loaded function
 function InventoryLoaded (items)
-    Core.Classes.Player.Init()
+    Wait(500)
     SendNUIMessage(InventoryInitPayload())
     CreateInventoryThreads()
     SendNUIMessage({ action = "update", items = items })
-    Core.Classes.Weapon.Init()
-    Core.Classes.Weapon.ShotListener()
 end
 
 -- Payload for nui init
@@ -33,8 +31,9 @@ function CreateInventoryThreads ()
     -------------------------------------------------
     --- Health updates
     -------------------------------------------------
-    Core.Classes.Player.Reset()
     CreateThread(function ()
+        Core.Classes.Player.Reset()
+
         while true do
             Core.Classes.Player.UpdateHealth(true)
             Wait(2000)
@@ -91,5 +90,12 @@ function CreateInventoryThreads ()
         while true do
             Core.Classes.Vehicles.DistanceCheck()
         end
+    end)
+
+    -------------------------------------------------
+    --- Weapons
+    -------------------------------------------------
+    CreateThread(function ()
+        Core.Classes.Weapon.Init()
     end)
 end

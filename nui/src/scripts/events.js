@@ -13,6 +13,8 @@ const InventoryEvents = {
      */
     init: (data) => {
 
+        console.log(JSON.stringify(data))
+
         // Set debugging
         if (typeof data.debugging !== "undefined") {
             Debugger.enabled = data.debugging

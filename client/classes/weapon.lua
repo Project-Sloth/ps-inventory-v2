@@ -15,7 +15,6 @@ local defaultWeaponState = {
 
 -- Creates the weapons class
 Core.Classes.New("Weapon", {
-    holstered = false,
     canFire = true, 
     currentWeapon = false,
     currentWeaponData = nil,
@@ -23,8 +22,12 @@ Core.Classes.New("Weapon", {
 })
 
 function Core.Classes.Weapon.Init ()
+
     -- Turn off autoreloading
     SetWeaponsNoAutoreload(true)
+
+    -- Start the shot listener
+    Core.Classes.Weapon.ShotListener()
 
     -- If script is restarted, find weapon player has and use
     local playerCurrentWeapon = Core.Classes.Player.CurrentWeapon()
@@ -476,8 +479,6 @@ function Core.Classes.Weapon.UpdateAmmo (reload)
     local ammoInWeapon = GetAmmoInPedWeapon(ped, weaponHash)
 
     local _, ammoInClip = GetAmmoInClip(ped, weaponHash)
-    local overflow = (inventoryAmmo >= ammoInWeapon) and (inventoryAmmo - ammoInWeapon) or 0 -- Problem
-    local ammo = (ammoInWeapon + overflow)
 
     -- Clip validation
     if ammoInClip == clipSize then return false end
@@ -485,7 +486,7 @@ function Core.Classes.Weapon.UpdateAmmo (reload)
     if ammoInClip < 0 then return false end
 
     if Core.Classes.Weapon:GetState('currentWeaponAmmo') == ammoInWeapon then return false end
-    ammo = (Core.Classes.Weapon:GetState('currentWeaponAmmo') - ammoInWeapon + overflow)
+    local ammo = (Core.Classes.Weapon:GetState('currentWeaponAmmo') - ammoInWeapon)
     Core.Classes.Weapon:UpdateState('currentWeaponAmmo', ammoInWeapon)
 
     -- If reload, remove clipsize

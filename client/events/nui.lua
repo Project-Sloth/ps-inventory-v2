@@ -19,7 +19,6 @@ end)
 -- Split item
 RegisterNUICallback('removeAttachment', function(data, cb)
     local res = Core.Classes.Weapon.RemoveAttachment(data)
-    print(json.encode(res))
     cb(res)
 end)
 

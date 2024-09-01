@@ -49,7 +49,18 @@ Framework = {
 
         -- Loads the bridge files based on framework and if server or not
         local frameworkFile = 'framework/' .. Config.Framework .. '/' .. (IsDuplicityVersion() and 'server' or 'client') .. '.lua'
-        Core.Utilities.LoadFile(frameworkFile)
+        local res = Core.Utilities.LoadFile(frameworkFile)
+
+        if not res then
+            Core.Utilities.Log({
+                type = "error",
+                title = "Framework.Determine",
+                message = "Unable to load framework file."
+            })
+
+            return false
+        end
+
         Framework.Core = Framework.GetCoreObject() or nil
         return true
     end,

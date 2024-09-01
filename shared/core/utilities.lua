@@ -44,6 +44,7 @@ Core.Utilities = {
 
         if not file then
             Core.Utilities.Log({
+                type = "error",
                 title = "Utilities.LoadFile",
                 message = "Unable to load " .. filePath
             })
@@ -54,16 +55,22 @@ Core.Utilities = {
         local fileContent, err = load(file)
         if fileContent then 
             Core.Utilities.Log({
+                type = "success",
                 title = "Utilities.LoadFile",
                 message = "Loaded " .. filePath
             })
-            return fileContent() 
+
+            fileContent() 
+            return true
         end
 
         Core.Utilities.Log({
+            type = "error",
             title = "Utilities.LoadFile",
             message = "Unable to load " .. filePath
         })
+
+        return false
     end,
 
     -- Register an export event handler
