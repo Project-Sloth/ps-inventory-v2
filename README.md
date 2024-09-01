@@ -104,7 +104,7 @@ exports['ps-inventory']:OpenInventory(src, external) -- Opens player inventory
 exports['ps-inventory']:CloseInventory(src) -- Closes player inventory
 exports['ps-inventory']:CanCarryItem(source, item, amount, maxWeight) -- Checks if item can be carried
 exports['ps-inventory']:OpenInventoryById(src, target) -- Opens target player inventory
-exports['ps-inventory']:CreateUseableItem(src) -- Creates a useable item
+exports['ps-inventory']:CreateUseableItem(itemName, data) -- Creates a useable item
 exports['ps-inventory']:ValidateAndUseItem(src, itemData) -- Validates item data and uses it
 exports['ps-inventory']:AddItem(source, item, amount, slot, info, reason, created) -- Adds item to inventory
 exports['ps-inventory']:RemoveItem(source, item, amount, slot) -- Removes item from inventory
@@ -126,6 +126,40 @@ exports['ps-inventory']:CloseInventory() -- Closes player inventory
 exports['ps-inventory']:UseWeapon(weaponData, canFire) -- Use weapon
 exports['ps-inventory']:DisarmWeapon() -- Disarms weapon
 exports['ps-inventory']:ReloadWeapon() -- Reloads weapon
+```
+
+### Creating Useable Items
+```
+exports['ps-inventory']:CreateUseableItem(itemName, function (source, item)
+    -- Do logic here
+end)
+```
+
+### Adding Additional Items
+
+- You can add additional items to your framework, or
+- You can add them to the `config/items.config.lua`
+
+Example:
+
+```
+id_card = { 
+    name = 'id_card', 
+    label = 'ID Card', 
+    weight = 0, 
+    type = 'item', 
+    image = 'id_card.png', 
+    unique = true, 
+    useable = true, 
+    shouldClose = false, 
+    description = 'A card containing all your information to identify yourself',
+
+    onUse = function (source, item)
+        -- Do what you want here
+    end
+},
+
+...
 ```
 
 ### Credits
