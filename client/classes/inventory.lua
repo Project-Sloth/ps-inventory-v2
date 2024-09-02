@@ -56,6 +56,7 @@ function Core.Classes.Inventory.Update(cb)
     -- Checks player weapon and weapon state against inventory
     -- to make sure they still have the weapon. If not, it disarms it
     Core.Classes.Weapon.CheckAgainstInventory()
+    Core.Classes.Weapon.UpdatePedAmmo()
 
     -- Send items in callback if applicable
     if type(cb) == "function" then

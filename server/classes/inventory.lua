@@ -674,7 +674,7 @@ end
 ---@param info? table
 ---@param reason? string
 ---@param created? number
-function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason, created, ignoreNotification)
+function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason, created, ignoreNotification, doNotStack)
 
     -- Player information
     local Player = Framework.Server.GetPlayer(source)
@@ -707,6 +707,28 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
 
     -- Check the weight with the new item
     if (totalWeight + (itemInfo.weight * amount)) <= Config.Inventories.Player.MaxWeight then
+
+        -- If forced not to stack, use this logic and skip everything else
+        if doNotStack then
+
+            local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
+            if not availableSlot then return false end
+
+            items[availableSlot.key] = Core.Classes.Inventory.Utilities.ConvertItem(itemInfo, {
+                slot = availableSlot.slot,
+                info = info or {},
+                amount = amount
+            })
+
+            if not ignoreNotification then
+                TriggerClientEvent(Config.ClientEventPrefix .. 'InventoryNotify', source, 'add', itemInfo, amount)
+            end
+
+            Framework.Server.SavePlayerInventory(source, items)
+
+            if Player.Offline then return true end
+            return true
+        end
 
         -- If stackable
         if (slot and items[slot]) and (items[slot].name:lower() == item:lower()) and
@@ -764,7 +786,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
             return true
 
         -- If not stackable
-        elseif itemInfo.unique or (not slot or slot == nil) or itemInfo.type == 'weapon' then
+        elseif itemInfo.unique or (not slot or slot == nil) or itemInfo.type == 'weapon' or doNotStack then
 
             local availableSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Player.MaxSlots)
             if not availableSlot then return false end
@@ -1389,14 +1411,8 @@ end
 ---@param src number
 ---@param data table
 function Core.Classes.Inventory.Split (src, data)
-    local playerInventory = Core.Classes.Inventory.GetPlayerInventory(src)
-    local inventoryItems = Core.Classes.Inventory:GetState("Items")
-
-    local newSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(inventoryItems, Config.Inventories.Player.MaxSlots)
-    if not newSlot then newSlot = { slot = data.item.slot } end
-
+    Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount, nil, data.item.info, nil, nil, true, true)
     Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot, true)
-    Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount, newSlot.slot, data.item.info, nil, nil, true)
     return { success = true }
 end
 

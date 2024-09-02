@@ -13,6 +13,11 @@ local defaultWeaponState = {
     currentWeaponAmmo = 0
 }
 
+local defaultAnimation = {
+    equip  = { 'reaction@intimidation@1h', 'intro', 50, 3.0, 3.0, 1400 },
+    disarm = { 'reaction@intimidation@1h', 'outro', 50, 8.0, 3.0, 1400 }
+}
+
 -- Creates the weapons class
 Core.Classes.New("Weapon", defaultWeaponState)
 
@@ -328,6 +333,7 @@ function Core.Classes.Weapon.Disarm (skipAnimation)
     if not skipAnimation then
         if state.currentWeapon then
             local animation = Core.Classes.Weapon.HasAnimation(state.currentWeapon, 'disarm')
+            if not animation then animation = defaultAnimation.disarm end
             state.currentWeapon = nil
             if animation then
                 Core.Classes.Weapon.PlayAnimation(
@@ -387,6 +393,7 @@ function Core.Classes.Weapon.Equip (weaponData, isThrowable)
     -- Check for animation
     if weaponName ~= UnarmedWeapon then
         local animation = Core.Classes.Weapon.HasAnimation(weaponName, 'equip')
+        if not animation then animation = defaultAnimation.equip end
 
         if animation then
             Core.Classes.Weapon.PlayAnimation(
