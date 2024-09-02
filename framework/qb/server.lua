@@ -54,6 +54,16 @@ Framework.Server.GetPlayerCash = function (src)
 	return Player.PlayerData.money.cash
 end
 
+-- gets players money 
+---@param src number
+---@return number
+Framework.Server.GetPlayerMoney = function (src)
+    local Player = Framework.Server.GetPlayer(src)
+	if not Player then return nil end
+	return Player.PlayerData.money.cash, Player.PlayerData.money.bank
+end
+
+
 -- Charges player
 ---@param src number
 ---@param fundSource string
@@ -63,9 +73,12 @@ end
 Framework.Server.ChargePlayer = function (src, fundSource, amount, reason)
 	local Player = Framework.Server.GetPlayer(src)
 	if not Player then return nil end
-	Player.Functions.RemoveMoney(fundSource, amount, reason and reason or "No description available")
+	if not Player.Functions.RemoveMoney('cash', amount, reason and reason or "No description available") then 
+		if not  Player.Functions.RemoveMoney('bank', amount, reason and reason or "No description available") then return false end
+	end
 	return true
 end
+
 
 -- Gets player identity
 ---@param src number

@@ -53,10 +53,12 @@ function Core.Classes.Shops.BuyItem (source, data)
 
     -- @todo return early
     if Config.Framework == "qb" and Config.OldCore then
-        if Player.Functions.RemoveMoney('cash', data.itemData.item.price * data.amount) then 
+        if Player.Functions.RemoveMoney('cash', data.itemData.item.price * data.amount) or Player.Functions.RemoveMoney('bank', data.itemData.item.price * data.amount)  then 
             Player.Functions.AddItem(data.itemData.item.name, data.amount)
+            return
         else
-            Core.Classes.Inventory.Utilities.Notify(Player, 'You don\'t have enough cash.', 'error')
+            Core.Classes.Inventory.Utilities.Notify(Player, 'You don\'t have enough Money.', 'error')
+            return
         end
     end
 
@@ -88,10 +90,14 @@ function Core.Classes.Shops.BuyItem (source, data)
     end
 
     -- Validate player cash
-    local playerCash = Framework.Server.GetPlayerCash(src)
-    if not playerCash then return { success = false } end
-    if playerCash < price then return { success = false, message = "You do not have enough cash." } end
-
+    local playerCash, playerBank = Framework.Server.GetPlayerMoney(src)
+    
+    if not playerCash or not playerBank then return { success = false } end
+    if playerCash < price then
+        if playerBank < price then 
+            return { success = false, message = "You do not have enough Money." } 
+        end
+    end
     -- Charge player
     local charged = Framework.Server.ChargePlayer(src, "cash", price, "Store purchase")
     if not charged then return { success = false, message = "Unable to charge, please try again."} end
@@ -106,6 +112,7 @@ function Core.Classes.Shops.BuyItem (source, data)
     
     return { success = true }
 end
+
 
 -- Open Shop
 ---@param src number
