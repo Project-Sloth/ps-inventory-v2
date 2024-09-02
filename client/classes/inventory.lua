@@ -2,8 +2,6 @@
 --- Inventory Setup (Runs when server starts)
 -------------------------------------------------
 
--- TODO: Splitting is causing an issue with wiping items?
-
 -- Creates the inventory class
 Core.Classes.New("Inventory", { Loaded = false, Items = {}, IsOpen = false, External = false })
 
