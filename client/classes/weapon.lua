@@ -328,7 +328,7 @@ function Core.Classes.Weapon.Disarm (skipAnimation)
     if not skipAnimation then
         if state.currentWeapon then
             local animation = Core.Classes.Weapon.HasAnimation(state.currentWeapon, 'disarm')
-
+            state.currentWeapon = nil
             if animation then
                 Core.Classes.Weapon.PlayAnimation(
                     animation[1],
