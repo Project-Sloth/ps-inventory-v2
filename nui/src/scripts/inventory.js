@@ -91,6 +91,19 @@ const Inventory = {
      * Inventory events that are fired externally.
      */
     Events: {
+        MoveEvents: {
+            HandleExternalToInventory: (data, payload, res) => {
+                const isExternalToInventory = data.from === "External" && data.to === "Inventory";
+                const isDropExternal = payload.external && payload.external.type === "drop";
+                const isInvalidExternal = !res.external || !Array.isArray(res.external) || res.external.length;
+
+                if (!isExternalToInventory || !isDropExternal || isInvalidExternal) {
+                    return;
+                }
+
+                Nui.request('close');
+            }
+        },
 
         /**
          * When language is set, update dom
@@ -494,20 +507,8 @@ const Inventory = {
                 Inventory.EnableDraggables();
 
                 // Make certain drops with last item taken are closed
-                if (data.from == "External" && data.to == "Inventory") {
-                    if (payload.external) {
-                        if (payload.external.type == "drop") {
-                            if (res.external) {
-                                if (Array.isArray(res.external)) {
-                                    if (!res.external.length) {
-                                        Nui.request('close');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
+                Inventory.Events.MoveEvents.HandleExternalToInventory(data, payload, res);
+                
                 if (res.external) {
                     Inventory.Events.UpdateInventory({
                         external: {
@@ -660,6 +661,65 @@ const Inventory = {
      * Setup methods
      */
     Setup: {
+        SetExternalItems: (data, slots) => {
+            if (data.external?.items) {
+                if (Array.isArray(data.external.items)) {
+                    Inventory.State.ExternalItems = data.external.items;
+
+                    /**
+                     * Finalize rendering
+                     */
+                    Inventory.RenderSlots('External', slots, Inventory.State.ExternalItems, data.external.type);
+                    
+                    // Update weights
+                    Inventory.UpdateInventoryWeights('External', data.external.type)
+                }
+            }
+        },
+        /** Set creafting types */
+        SetExternalTypes: (data) => {
+            if (data.external?.type) {
+                $(Inventory.Selectors.ExternalInventory)
+                .data('type', data.external.type)
+
+                if (data.external.type !== "crafting") {
+                    $(Inventory.Selectors.ExternalInventory).removeClass('height-includes-crafting-queue');
+                    $(Inventory.Selectors.ExternalInventory + ' .box').removeClass('height-includes-crafting-queue');
+                    $(Inventory.Selectors.CraftingQueue).hide();
+
+                    return;
+                }
+
+                $(Inventory.Selectors.ExternalInventory).addClass('height-includes-crafting-queue');
+                $(Inventory.Selectors.ExternalInventory + ' .box').addClass('height-includes-crafting-queue');
+                $(Inventory.Selectors.CraftingQueue).show();       
+            }         
+        },
+        /** Set weight */
+        SetExternalWeight: (data) => {
+            if (data.external?.weight) {
+                Inventory.State.Configuration.MaxExternalInventoryWeight = data.external.weight;
+            }
+        },
+        /** Set id */
+        SetExternalId: (data) => {
+            if (data.external?.id) {
+                $(Inventory.Selectors.ExternalInventory)
+                    .data('id', data.external.id)
+            }
+        },
+        /** Set name */
+        SetExternalName: (data) => {
+            if (data.external?.name) {
+                $(Inventory.Selectors.Titles.ExternalInventory).html(data.external.name)
+                $(Inventory.Selectors.ExternalInventory).data('name', data.external.name)
+            }
+        },
+        SetExternalSlots: (data) => {
+            if (data.external?.slots) {
+                slots = data.external.slots;
+            }
+        },
 
         /**
          * External inventory setup
@@ -669,85 +729,21 @@ const Inventory = {
             let slots = Inventory.State.Configuration.MaxExternalInventorySlots;
 
             /**
-             * If an external inventory is provided
+             * Set slots
              */
-            if (typeof data.external !== "undefined") {
-
-                /**
-                 * Set slots
-                 */
-                if (typeof data.external.slots !== "undefined") {
-                    Inventory.State.Configuration.MaxExternalInventorySlots = data.external.slots;
-                    slots = Inventory.State.Configuration.MaxExternalInventorySlots;
-                }
-
-                /**
-                 * Set weight
-                 */
-                if (typeof data.external.weight !== "undefined") {
-                    Inventory.State.Configuration.MaxExternalInventoryWeight = data.external.weight;
-                }
-
-                /**
-                 * Set id
-                 */
-                if (typeof data.external.id !== "undefined") {
-                    $(Inventory.Selectors.ExternalInventory)
-                        .data('id', data.external.id)
-                }
-
-                /**
-                 * Set type
-                 */
-                if (typeof data.external.type !== "undefined") {
-                    $(Inventory.Selectors.ExternalInventory)
-                        .data('type', data.external.type)
-
-                    if (data.external.type == "crafting") {
-                        $(Inventory.Selectors.ExternalInventory).addClass('height-includes-crafting-queue');
-                        $(Inventory.Selectors.ExternalInventory + ' .box').addClass('height-includes-crafting-queue');
-                        $(Inventory.Selectors.CraftingQueue).show();
-                    } else {
-                        $(Inventory.Selectors.ExternalInventory).removeClass('height-includes-crafting-queue');
-                        $(Inventory.Selectors.ExternalInventory + ' .box').removeClass('height-includes-crafting-queue');
-                        $(Inventory.Selectors.CraftingQueue).hide();
-                    } 
-                }
-
-                /**
-                 * Set name
-                 */
-                if (typeof data.external.name !== "undefined") {
-                    $(Inventory.Selectors.Titles.ExternalInventory).html(data.external.name)
-                    $(Inventory.Selectors.ExternalInventory).data('name', data.external.name)
-                }
-
-                /**
-                 * Set slots
-                 */
-                if (typeof data.external.slots !== "undefined") {
-                    slots = data.external.slots;
-                }
-
-                /**
-                 * Set items
-                 */
-                if (typeof data.external.items !== "undefined") {
-                    if (Array.isArray(data.external.items)) {
-                        Inventory.State.ExternalItems = data.external.items;
-
-                        /**
-                         * Finalize rendering
-                         */
-                        Inventory.RenderSlots('External', slots, Inventory.State.ExternalItems, data.external.type);
-                        
-                        // Update weights
-                        Inventory.UpdateInventoryWeights('External', data.external.type)
-                    }
-                }
-
-                $(Inventory.Selectors.ExternalInventory).fadeIn();
+            if (data.external?.slots) {
+                Inventory.State.Configuration.MaxExternalInventorySlots = data.external.slots;
+                slots = Inventory.State.Configuration.MaxExternalInventorySlots;
             }
+
+            Inventory.Setup.SetExternalWeight(data);
+            Inventory.Setup.SetExternalWeight(data);
+            Inventory.Setup.SetExternalId(data);
+            Inventory.Setup.SetExternalTypes(data);
+            Inventory.Setup.SetExternalName(data);
+            Inventory.Setup.SetExternalItems(data, slots);
+            
+            $(Inventory.Selectors.ExternalInventory).fadeIn();
         }
     },
 
@@ -889,20 +885,19 @@ const Inventory = {
         if (!items) items = [];
 
         for (let i = 0; i < items.length; i++) {
-            if (items[i]) {
-                if (items[i].slot == slot) {
-                    if (inventory == "External") {
-                        Inventory.State.ExternalItems[i] = {
-                            ...items[i],
-                            [key]: value
-                        };
-                    } else {
-                        Inventory.State.Items[i] = {
-                            ...items[i],
-                            [key]: value
-                        };
-                    }
-                }
+            if (!items[i] && items[i].slot !== slot) {
+                continue;
+            }
+        
+            const updatedItem = {
+                ...items[i],
+                [key]: value
+            };
+        
+            if (inventory === "External") {
+                Inventory.State.ExternalItems[i] = updatedItem;
+            } else {
+                Inventory.State.Items[i] = updatedItem;
             }
         }
     },
@@ -964,11 +959,11 @@ const Inventory = {
 
         if (!$(slot).length) { return false; }
 
-        if (typeof newData.amount !== 'undefined') {
+        if (newData.amount) {
             $(`${slot} .amount`).html(newData.amount + 'x');
         }
 
-        if (typeof newData.name !== 'undefined') {
+        if (newData.name) {
             $(`${slot} .name`).html(newData.label + 'x');
         }
 
@@ -1129,10 +1124,8 @@ const Inventory = {
                 
                 if (itemData) {
 
-                    if (itemData.name.includes('ammo')) {
-                        return false;
-                    }
-
+            if (!itemData.useable && itemData.type !== "weapon") return;
+            
                     if (itemData.useable || itemData.type == "weapon" ) {
                         if (itemData.shouldClose || itemData.type == "weapon") {
                             Nui.request('close')
@@ -1428,28 +1421,30 @@ const Inventory = {
                     {
                         name: Language.Locale('drop'),
                         onClick: function($el) {
+                            if (slotData.length !== 2) {
+                                return;
+                            }
+
+                            if (!itemData) {
+                                return;
+                            }
+                            
                             const item = $el;
                             const slotData = item.data('slotid').split('-');
                             const inventoryType = item.data('inventory');
-
-                            if (slotData.length == 2) {
-                                const slotId = slotData[1];
-                                const itemData = Inventory.GetItemBySlot(slotId);
-                                
-                                if (itemData) {
-
-                                    const amountElement = $(`#slot-${slotId}-amount`);
-                                    if (amountElement.length) {
-                                        itemData.amount = parseInt($(`#slot-${slotId}-amount`).val());
-                                    }
-
-                                    Inventory.Events.Drop({
-                                        slot: slotId,
-                                        inventory: inventoryType,
-                                        item: itemData
-                                    });
-                                }
+                            const slotId = slotData[1];
+                            const itemData = Inventory.GetItemBySlot(slotId);
+                            const amountElement = $(`#slot-${slotId}-amount`);
+                            
+                            if (amountElement.length) {
+                                itemData.amount = parseInt($(`#slot-${slotId}-amount`).val());
                             }
+
+                            Inventory.Events.Drop({
+                                slot: slotId,
+                                inventory: inventoryType,
+                                item: itemData
+                            });
                         }
                     }
                 ]
