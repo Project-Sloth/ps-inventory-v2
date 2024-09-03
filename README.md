@@ -5,8 +5,8 @@ Version 2 of Project Sloth's slot based inventory for FiveM. This version is bui
 *NOTE: For all support questions, ask in our [Discord](https://www.discord.gg/projectsloth) support chat. Do not create issues if you need help. Issues are for bug reporting and new features only.*
 
 ### Frameworks Supported
-- QB Core
-
+- [QBCore](https://github.com/qbcore-framework)
+- [QBOX](https://github.com/Qbox-project) - Coming soon
 ### Features
 - Slot based inventory
 - Stash system
