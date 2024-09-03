@@ -476,7 +476,7 @@ function Core.Classes.Weapon.UpdateAmmo (reload)
 
     -- If of forced ammo type, return false
     if Config.Weapons.ForcedAmmoAmount[weaponState.weapon] then return false end
-
+    if Core.Classes.Weapon.InventoryAmmo(weaponState.data.ammotype) == 0 then  Core.Classes.Weapon.Disarm() weaponState.weapon = nil return end
     -- If no weapon ammo type, but is removable, make call
     if not weaponState.data.ammotype then 
         if Core.Classes.Weapon.IsRemovable(weaponState.weapon) then
