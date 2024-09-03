@@ -36,7 +36,17 @@ function Core.Classes.Shops.BuyItem (source, data)
     -- Validate player
     local src = source
     local Player = Framework.Server.GetPlayer(src)
-    if not data.shop then return { success = false } end
+
+    if not data.shop then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Shops.BuyItem",
+            message = "No shop data was passed"
+        })
+
+        return { success = false } 
+    end
+
     local items = {}
     -- If shop id is vending, skip shop validation
     if data.shop.id == 'vending' then
@@ -72,7 +82,15 @@ function Core.Classes.Shops.BuyItem (source, data)
     end
     
     -- If item was verified
-    if not itemVerified then return { success = false } end
+    if not itemVerified then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Shops.BuyItem",
+            message = "Unable to verify item"
+        })
+
+        return { success = false } 
+    end
 
     -- If it requires a license
     if itemVerified.license then
@@ -81,7 +99,16 @@ function Core.Classes.Shops.BuyItem (source, data)
     end
 
     -- Calculate price
-    if tonumber(data.amount) < 1 then return { success = false } end
+    if tonumber(data.amount) < 1 then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Shops.BuyItem",
+            message = "Incorrect amount passed for item"
+        })
+
+        return { success = false } 
+    end
+
     local price = tonumber(itemVerified.price) * tonumber(data.amount)
 
     -- Weight check
@@ -100,7 +127,15 @@ function Core.Classes.Shops.BuyItem (source, data)
     end
     -- Charge player
     local charged = Framework.Server.ChargePlayer(src, "cash", price, "Store purchase")
-    if not charged then return { success = false, message = "Unable to charge, please try again."} end
+    if not charged then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Shops.BuyItem",
+            message = "Unable to charge player"
+        })
+
+        return { success = false, message = "Unable to charge, please try again."} 
+    end
 
     -- Info check
     local info = {}

@@ -52,24 +52,91 @@ end
 function Core.Classes.Weapon.RemoveAttachment (src, attachmentData, weaponState)
 
     -- Payload validation
-    if not attachmentData.slot then return { success = false } end
-    if not attachmentData.attachment then return { success = false } end
-    if not attachmentData.component then return { success = false } end
+    if not attachmentData.slot then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Invalid payload for attachmentData - slot is missing"
+        })
+
+        return { success = false } 
+    end
+
+    if not attachmentData.attachment then
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Invalid payload for attachmentData - attachment is missing"
+        })
+        
+        return { success = false } 
+    end
+
+    if not attachmentData.component then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Invalid payload for attachmentData - component is missing"
+        })
+
+        return { success = false } 
+    end
 
     -- Get player inventory
     local inventory = Core.Classes.Inventory.GetPlayerInventory(src)
-    if not inventory then return { success = false } end
+    if not inventory then
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Unable to retrieve player inventory"
+        })
+
+        return { success = false } 
+    end
 
     -- Get the slot data
     local slot = Core.Classes.Inventory.Utilities.GetSlotBySlotNumber(inventory, attachmentData.slot)
-    if not slot then return { success = false } end
+    if not slot then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Unable to get slot data"
+        })
+
+        return { success = false } 
+    end
 
     -- Get the slot key
     local slotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(inventory, attachmentData.slot)
-    if not slotKey then return false end
+    if not slotKey then
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Unable to retrieve slotKey for slot data"
+        })
 
-    if not slot.info then return false end
-    if not slot.info.attachments then return false end
+        return false 
+    end
+
+    if not slot.info then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Unable to retrieve slot.info - does it exist for this item?"
+        })
+
+        return false 
+    end
+
+    if not slot.info.attachments then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Unable to retrieve slot.info.attachments for this item"
+        })
+
+        return false 
+    end
 
     -- Retrieve the attachment key
     local attachmentKey = false
@@ -78,7 +145,16 @@ function Core.Classes.Weapon.RemoveAttachment (src, attachmentData, weaponState)
             attachmentKey = k
         end
     end
-    if not attachmentKey then return false end
+
+    if not attachmentKey then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.RemoveAttachment",
+            message = "Unable to find the key for specified attachment"
+        })
+
+        return false 
+    end
 
     -- Remove from table
     table.remove(slot.info.attachments, attachmentKey)
@@ -119,24 +195,66 @@ function Core.Classes.Weapon.EquipAttachment (src, attachmentItem)
     -- Get the weapon for the ped
     local weaponHash = GetSelectedPedWeapon(ped)
     local weaponName = Core.Classes.Weapon.GetByHash(weaponHash)
-    if not weaponName then return false end
+
+    if not weaponName then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.EquipAttachment",
+            message = "Unable to retrieve weaponName for " .. weaponHash
+        })
+
+        return false 
+    end
+
     if weaponName:upper() == UnarmedWeapon then return false end
 
     -- Get the attachment component
     local attachmentComponent = Core.Classes.Weapon.TakesAttachment(attachmentItem, weaponName)
-    if not attachmentComponent then return false end
+    if not attachmentComponent then
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.EquipAttachment",
+            message = "Unable to retrieve attachment component"
+        })
+
+        return false 
+    end
 
     -- Get player inventory
     local inventory = Core.Classes.Inventory.GetPlayerInventory(src)
-    if not inventory then return false end
+    if not inventory then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.EquipAttachment",
+            message = "Unable to retrieve player inventory"
+        })
+
+        return false 
+    end
 
     -- Get the weapon slot
     local weaponSlot = Core.Classes.Inventory.Utilities.GetItemFromListByName(inventory, weaponName)
-    if not weaponSlot then return false end
+    if not weaponSlot then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.EquipAttachment",
+            message = "Unable to retrieve weapon slot"
+        })
+
+        return false 
+    end
 
     -- Get the slot key
     local slotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(inventory, weaponSlot.slot)
-    if not slotKey then return false end
+    if not slotKey then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Weapon.EquipAttachment",
+            message = "Unable to retrieve slotKey based on weapon slot data"
+        })
+
+        return false 
+    end
 
     -- Check if weapon has attachment
     local hasAttachment = Core.Classes.Weapon.HasAttachment(attachmentComponent.component, weaponSlot)
@@ -277,9 +395,15 @@ function Core.Classes.Weapon.UpdateQuality (src, weaponData)
 
     local durabilityRate = Config.Weapons.DurabilityRateOverrides[item.name] or 0.15
 
+    -- If for some reason quality isn't in info, add it
+    if not item.info.quality then
+        item.info.quality = 100
+    end
+
     -- Decrease the quality
     item.info.quality = item.info.quality - durabilityRate
 
+    -- If quality drops below 0, keep it at 0
     if item.info.quality < 0 then
         item.info.quality = 0
     end

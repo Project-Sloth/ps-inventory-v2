@@ -84,7 +84,7 @@ end
 -- Updates current weapon and data
 ---@return table
 function Core.Classes.Weapon.UpdateCurrentWeaponState (weapon, data)
-    Core.Classes.Weapon:UpdateStates({
+    Core.Classes.Weapon:UpdateState({
         currentWeapon = weapon,
         currentWeaponData = data
     })
@@ -191,7 +191,7 @@ end
 -- Resets weapons state
 ---@return boolean
 function Core.Classes.Weapon.ResetWeaponState ()
-    return Core.Classes.Weapon:UpdateStates(defaultWeaponState)
+    return Core.Classes.Weapon:UpdateState(defaultWeaponState)
 end
 
 -- Remove weapon attachment
@@ -427,7 +427,7 @@ function Core.Classes.Weapon.Equip (weaponData, isThrowable)
     SetCurrentPedWeapon(ped, weaponHash, true)
 
     -- Update state
-    Core.Classes.Weapon:UpdateStates({
+    Core.Classes.Weapon:UpdateState({
         currentWeapon = weaponName,
         currentWeaponData = weaponData,
         currentWeaponAmmo = GetAmmoInPedWeapon(ped, weaponHash)
@@ -515,9 +515,6 @@ function Core.Classes.Weapon.UpdateAmmo (reload)
     if Core.Classes.Weapon:GetState('currentWeaponAmmo') == ammoInWeapon then return false end
     local ammo = (Core.Classes.Weapon:GetState('currentWeaponAmmo') - ammoInWeapon)
     Core.Classes.Weapon:UpdateState('currentWeaponAmmo', ammoInWeapon)
-
-    -- If reload, remove clipsize
-    if reload == true then ammo = clipSize end
 
     -- Calls the backend and updates ammo total
     local res = lib.callback.await(Config.ServerEventPrefix .. 'UpdateWeaponAmmo', false, weaponState.data, ammo)
