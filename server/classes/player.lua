@@ -34,17 +34,51 @@ end
 ---@param data table
 ---@return boolean
 function Core.Classes.Player.SaveInventoryPreferences (src, data)
-    if not data.theme then return false end
-    if not Config.Themes[data.theme] then return false end
+    if not data.theme then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Player.SaveInventoryPreferences",
+            message = "Incorrect payload sent"
+        })
+
+        return false 
+    end
+
+    if not Config.Themes[data.theme] then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Player.SaveInventoryPreferences",
+            message = "Unable to save, theme[" .. data.theme .. "] does not exist in configuration"
+        })
+
+        return false 
+    end
 
     local PlayerIdentifier = Framework.Server.GetPlayerIdentifier(src)
-    if not PlayerIdentifier then return false end
+    if not PlayerIdentifier then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Player.SaveInventoryPreferences",
+            message = "Unable to retrieve player identifier"
+        })
+
+        return false 
+    end
     
     local res = MySQL.update.await('UPDATE inventory_preferences SET preferences = ? WHERE identifier = ?', {
         json.encode(data),
         PlayerIdentifier
     })
 
-    if not res then return false end
+    if not res then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Player.SaveInventoryPreferences",
+            message = "An error occurred during the update query"
+        })
+
+        return false 
+    end
+
     return true
 end

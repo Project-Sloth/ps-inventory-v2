@@ -189,8 +189,27 @@ end
 ---@param queueId string
 function Core.Classes.Crafting.CancelItem (source, queueId)
     local queue = Core.Classes.Crafting:GetState('Queue')
-    if not queue[source] then return false end
-    if not queue[source][queueId] then return false end
+
+    if not queue[source] then
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Crafting.CancelItem",
+            message = "Unable to cancel queue item, queue does not exist"
+        })
+
+        return false 
+    end
+
+    if not queue[source][queueId] then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Crafting.CancelItem",
+            message = "Unable to cancel queue item, queue item does not exist"
+        })
+
+        return false 
+    end
+
     queue[source][queueId] = nil
     Core.Classes.Crafting.UpdateQueue(queue)
     TriggerClientEvent(Config.ClientEventPrefix .. "RemoveCraftingQueueItem", source, queueId)
@@ -205,7 +224,16 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
     local src = source
     local Player = Framework.Server.GetPlayer(src)
     local Experience = Framework.Server.GetExp(src, 'crafting')
-    if not data.crafting then return false end
+
+    if not data.crafting then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Crafting.CanCraftItem",
+            message = "No crafting data found for item: " .. data.itemData.item.name
+        })
+
+        return false 
+    end
 
     -- Return all categories
     local recipeCategories = {}
@@ -224,7 +252,15 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
         end
     end
 
-    if not itemToCraft then return false end
+    if not itemToCraft then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Crafting.CanCraftItem",
+            message = "Unable to find recipe for item: " .. data.itemData.item.name
+        })
+
+        return false 
+    end
 
     if itemToCraft.crafting.exp.required > Experience then
         return { success = false, message = "Not enough experience" }

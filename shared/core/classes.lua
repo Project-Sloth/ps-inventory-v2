@@ -67,33 +67,20 @@ Core.Classes = {
         
         -- Updates the state of the class
         ---@param self table
-        ---@param key string
-        ---@param value any
+        ---@param key string|table
+        ---@param value? any
         ---@param cb? function
         UpdateState = function (self, key, value, cb)
-            self.state[key] = value
+            if type(key) == "table" then
+                for k, v in pairs(key) do
+                    self.state[k] = v
+                end
+            else
+                self.state[key] = value
+            end
             
             if not cb then return self.state[key] end
-            if type(cb) == "function" then
-                cb(self.state[key])
-            end
-        end,
-        
-        -- Updates multiple states of class
-        ---@param self table
-        ---@param data table
-        ---@param cb? function
-        UpdateStates = function (self, data, cb)
-            if type(data) ~= "table" then return false end
-
-            for key, val in pairs(data) do
-                self.state[key] = val
-            end
-            
-            if not cb then return self.state end
-            if type(cb) == "function" then
-                cb(self.state)
-            end
+            if type(cb) == "function" then cb(self.state[key]) end
         end
     },
 }

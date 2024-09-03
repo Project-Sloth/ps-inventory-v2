@@ -14,11 +14,29 @@ function Core.Classes.Drops.Create (source, data)
     -- Validate item
     local inventory = Core.Classes.Inventory.GetPlayerInventory(source)
     local itemData = Core.Classes.Inventory.Utilities.GetItemFromListByName(inventory, data.item.name, data.item.slot) or false
-    if not itemData then return { success = false } end
+
+    if not itemData then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Drops.Create",
+            message = "Unable to find item " .. data.item.name .. " data"
+        })
+
+        return { success = false } 
+    end
 
     -- Validate ped exists
     local ped = GetPlayerPed(source)
-    if not DoesEntityExist(ped) then return { success = false } end
+
+    if not DoesEntityExist(ped) then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Drops.Create",
+            message = "Unable to verify that entity exists"
+        })
+
+        return { success = false } 
+    end
 
     -- Get player coords
     local playerCoords = GetEntityCoords(ped)
@@ -179,10 +197,30 @@ end
 ---@param item table
 function Core.Classes.Drops.AddItem (source, dropId, item)
     local drop = Core.Classes.Drops.Get(dropId)
-    if not drop then return false end
+
+    if not drop then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Drops.AddItem",
+            message = "Unable to find data for drop: " .. dropId
+        })
+
+        return false 
+    end
+
     local items = drop.items
     local newSlot = Core.Classes.Inventory.Utilities.GetFirstEmptySlot(items, Config.Inventories.Drop.MaxSlots)
-    if not newSlot then return false end
+    
+    if not newSlot then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Drops.AddItem",
+            message = "Unable to determine new empty slot for drop: " .. dropId
+        })
+
+        return false 
+    end
+
     item.slot = newSlot.slot
     items[newSlot.key] = item
 

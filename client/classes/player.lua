@@ -7,7 +7,7 @@ Core.Classes.New("Player", { CurrentHealth = 100 })
 
 -- Init player data
 function Core.Classes.Player.Init ()
-    Core.Classes.Player:UpdateStates({
+    Core.Classes.Player:UpdateState({
         Ped = PlayerPedId(),
         CurrentHealth = GetEntityHealth(PlayerPedId())
     })

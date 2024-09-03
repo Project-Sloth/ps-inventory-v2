@@ -500,13 +500,37 @@ end
 ---@param src number
 ---@param target number
 function Core.Classes.Inventory.OpenInventoryById(src, target)
-    if src == target then return false end
+    if src == target then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.OpenInventoryById",
+            message = "Source " .. src .. " attempted to open their own inventory"
+        })
+
+        return false 
+    end
 
     local player = Framework.Server.GetPlayer(src)
-    if not player then return false end
+    if not player then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.OpenInventoryById",
+            message = "Unable to retrieve player information for source: " .. src
+        })
+
+        return false 
+    end
 
     local Target = Framework.Server.GetPlayer(target)
-    if not Target then return false end
+    if not Target then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.OpenInventoryById",
+            message = "Unable to retrieve target information for source: " .. target
+        })
+
+        return false 
+    end
 
     Core.Classes.Inventory.CloseInventory(target)
 
@@ -586,11 +610,6 @@ end
 -- Export: exports['ps-inventory']:UseItem(item)
 ---@param item table
 function Core.Classes.Inventory.UseItem(item, ...)
-    Core.Utilities.Log({
-        title = "UseItem",
-        message = "Attempting to use item"
-    })
-
     local itemData = Framework.Server.GetUseableItem(item)
     local callback = type(itemData) == 'table' and
                          (rawget(itemData, '__cfx_functionReference') and itemData or itemData.cb or itemData.callback) or
@@ -598,7 +617,7 @@ function Core.Classes.Inventory.UseItem(item, ...)
     if not callback then
         return Core.Utilities.Log({
             type = "error",
-            title = "UseItem",
+            title = "Core.Classes.Inventory.UseItem",
             message = "Unable to use item, no callback found."
         })
     end
@@ -616,7 +635,15 @@ function Core.Classes.Inventory.CanCarryItem (source, item, amount, maxWeight)
 
     -- Player information
     local Player = Framework.Server.GetPlayer(source)
-    if not Player then return false end
+    if not Player then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.CanCarryItem",
+            message = "Unable to retrieve player information for source: " .. source
+        })
+
+        return false 
+    end
 
     local items = Core.Classes.Inventory.GetPlayerInventory(source)
 
@@ -643,7 +670,16 @@ end
 ---@param count number
 function Core.Classes.Inventory.SetItem(source, itemName, count)
     local Player = Framework.Server.GetPlayer(source)
-    if not Player then return false end
+
+    if not Player then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.SetItem",
+            message = "Unable to retrieve player information for source: " .. source
+        })
+
+        return false 
+    end
 
     if itemName and count >= 0 then
         local item = Core.Classes.Inventory.GetSlotWithItem(source, itemName)
@@ -678,7 +714,16 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
 
     -- Player information
     local Player = Framework.Server.GetPlayer(source)
-    if not Player then return false end
+
+    if not Player then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.AddItem",
+            message = "Unable to retrieve player information for source: " .. source
+        })
+
+        return false 
+    end
 
     local items = Core.Classes.Inventory.GetPlayerInventory(source)
 
@@ -689,7 +734,15 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
     local itemInfo = Core.Classes.Inventory:GetState('Items')[item:lower()]
 
     -- If the item does not exist, or the
-    if not itemInfo then return false end
+    if not itemInfo then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.AddItem",
+            message = "Unable to retrieve item data for : " .. item:lower()
+        })
+
+        return false 
+    end
 
     -- Set the quanity
     amount = tonumber(amount) or 1
@@ -822,14 +875,31 @@ function Core.Classes.Inventory.RemoveItem(source, item, amount, slot, ignoreNot
 
     -- Validate player
     local Player = Framework.Server.GetPlayer(source)
-    if not Player then return false end
+
+    if not Player then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.RemoveItem",
+            message = "Unable to retrieve player information for source: " .. source
+        })
+
+        return false 
+    end
 
     -- Get player inventory
     local items = Core.Classes.Inventory.GetPlayerInventory(source)
 
     -- Validate item
     local itemData = Core.Classes.Inventory:GetState("Items")[item:lower()]
-    if not itemData then return end
+    if not itemData then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.RemoveItem",
+            message = "Unable to retrieve item data for: " .. item:lower()
+        })
+
+        return false
+    end
 
     amount = tonumber(amount) or 1
 
@@ -909,14 +979,31 @@ end
 function Core.Classes.Inventory.UpdateItem(source, slot, itemData)
     -- Validate player
     local Player = Framework.Server.GetPlayer(source)
-    if not Player then return false end
+
+    if not Player then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.UpdateItem",
+            message = "Unable to retrieve player information for source: " .. source
+        })
+
+        return false 
+    end
 
     -- Get player inventory
     local items = Core.Classes.Inventory.GetPlayerInventory(source)
 
     -- Get slot key
     local slotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(items, slot)
-    if not slotKey then return false end
+    if not slotKey then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.UpdateItem",
+            message = "Unable to retrieve slotKey for slot: " .. slot
+        })
+
+        return false 
+    end
 
     -- Override item data
     items[slotKey] = itemData
@@ -957,18 +1044,47 @@ end
 ---@param inventoryId string
 ---@param items table
 function Core.Classes.Inventory.SaveExternalInventory (type, inventoryId, items)
-	if not items then return false end
+	if not items then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.SaveExternalInventory",
+            message = "Parameter 3 (items) is required"
+        })
+
+        return false 
+    end
+
     items = Core.Classes.Inventory.ValidateItems(items)
 
     if type == 'drop' then
         local res = Core.Classes.Drops.SaveItems(inventoryId, items)
-        if not res then return false end
+
+        if not res then 
+            Core.Utilities.Log({
+                type = "error",
+                title = "Core.Classes.Inventory.SaveExternalInventory",
+                message = "Unable to save items for drop " .. inventoryId
+            })
+
+            return false 
+        end
+
         return true
     elseif type == "player" then
         return Core.Classes.Inventory.SavePlayerInventory(inventoryId, items)
     else
         local res = Framework.Server.SaveExternalInventory(type, inventoryId, items)
-        if not res then return false end
+
+        if not res then 
+            Core.Utilities.Log({
+                type = "error",
+                title = "Core.Classes.Inventory.SaveExternalInventory",
+                message = "Unable to save items for external inventory: " .. inventoryId
+            })
+
+            return false 
+        end
+
         return true
     end
 end
@@ -1009,6 +1125,12 @@ function Core.Classes.Inventory.LoadExternalInventory (type, typeId)
         local items = Core.Classes.Inventory.GetPlayerInventory(typeId) or {}
         return items
     end
+
+    Core.Utilities.Log({
+        type = "error",
+        title = "Core.Classes.Inventory.LoadExternalInventory",
+        message = "Invalid type passed"
+    })
 
     return false
 end
@@ -1117,16 +1239,48 @@ end
 ---@param items table
 function Core.Classes.Inventory.SwapSlots (src, invType, inventory, items)
     -- Is items a table
-    if type(items) ~= "table" then return false end
+    if type(items) ~= "table" then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.SwapSlots",
+            message = "Parameter items is expected to be a table"
+        })
+
+        return false 
+    end
 
     -- Is it empty
-    if table.type(items) == "empty" then return false end
+    if table.type(items) == "empty" then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.SwapSlots",
+            message = "Parameter items should not be empty"
+        })
+
+        return false 
+    end
 
     -- Is it 2 items in length
-    if Core.Utilities.TableLength(items) ~= 2 then return false end
+    if Core.Utilities.TableLength(items) ~= 2 then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.SwapSlots",
+            message = "Parameter items should be a table with 2 items"
+        })
+
+        return false 
+    end
 
     -- If item 1 is not found
-    if not items[1].item then return false end
+    if not items[1].item then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.SwapSlots",
+            message = "items[1].item should be provided"
+        })
+
+        return false 
+    end
 
     -- If going to same spot, return false
     if tonumber(items[1].slot) == tonumber(items[1].newSlot) then return false end
@@ -1195,15 +1349,41 @@ end
 function Core.Classes.Inventory.Transfer (src, origin, destination, item, destinationSlotId, originItems, destinationItems)
     -- Get loaded inventory items
     local inventoryItems = Core.Classes.Inventory:GetState("Items")
-    if not item then return false end
+
+    if not item then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.Transfer",
+            message = "Invalid payload for item"
+        })
+
+        return false 
+    end
 
     -- Validate that it is a real item
     local itemData = inventoryItems[item.name:lower()] or false
-    if not itemData then return false end
+    if not itemData then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.Transfer",
+            message = "Unable to find specified item in server inventory items list"
+        })
+
+        return false 
+    end
 
     -- Get slot key of origin item
     local itemSlotKey = Core.Classes.Inventory.Utilities.GetSlotKeyForItemBySlotNumber(originItems, item.slot) or false
-    if not itemSlotKey then return false end
+
+    if not itemSlotKey then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.Transfer",
+            message = "Unable to find slotKey for item"
+        })
+
+        return false 
+    end
 
     -- Check that target slot is empty
     local targetSlotHasItem = Core.Classes.Inventory.Utilities.GetSlotBySlotNumber(destinationItems, destinationSlotId) or false
@@ -1296,9 +1476,35 @@ function Core.Classes.Inventory.Move (src, data)
     if data.action == "transfer" then
         
         -- Get necessary variables first
-        if not data.target then return false end
-        if not data.external then return false end
-        if type(data.external) ~= "table" then return false end
+        if not data.target then 
+            Core.Utilities.Log({
+                type = "error",
+                title = "Core.Classes.Inventory.Move",
+                message = "Invalid payload for data.target"
+            })
+
+            return false 
+        end
+
+        if not data.external then
+            Core.Utilities.Log({
+                type = "error",
+                title = "Core.Classes.Inventory.Move",
+                message = "Invalid payload for data.external"
+            })
+
+            return false 
+        end
+
+        if type(data.external) ~= "table" then 
+            Core.Utilities.Log({
+                type = "error",
+                title = "Core.Classes.Inventory.Move",
+                message = "Invalid payload for data.external"
+            })
+
+            return false 
+        end
 
         -- Loads the external inventory items
         local externalItems = Core.Classes.Inventory.LoadExternalInventory(data.external.type, data.external.id) or {}
@@ -1411,6 +1617,17 @@ end
 ---@param src number
 ---@param data table
 function Core.Classes.Inventory.Split (src, data)
+
+    if not data then 
+        Core.Utilities.Log({
+            type = "error",
+            title = "Core.Classes.Inventory.Split",
+            message = "Invalid payload for data"
+        })
+
+        return { success = false }
+    end
+
     Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount, nil, data.item.info, nil, nil, true, true)
     Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot, true)
     return { success = true }
