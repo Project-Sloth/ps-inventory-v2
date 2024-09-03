@@ -3,11 +3,11 @@ Config.Crafting = {
     Locations = {
 
         -- Example of a crafting bench
-        ['weaponbench1'] = {
-            name = "Weapon Crafting Bench",
+        ['bench_1'] = {
+            name = "Crafting Bench",
             prop = 'gr_prop_gr_bench_01b',
             location = vector4(-61.4, -149.13, 56.33, 66.5),
-            recipes = { 'weapons' },
+            recipes = { 'healing', 'tools', 'weapons', 'attachments' },
             blip = { sprite = 110, scale = 0.6, color = 0 },
             --group = { ['police'] = 0 }
         }
@@ -15,7 +15,37 @@ Config.Crafting = {
 
     Recipes = {
 
-        -- Recipes by category
+        ['healing'] = {
+            {
+                item = 'bandage',
+                time = 15,
+                amount = 1,
+                materials = {
+                    { item = "cloth", amount = 10 },
+                },
+                exp = {
+                    required = 0,
+                    awarded  = 1
+                }
+            }
+        },
+
+        ['tools'] = {
+            {
+                item = 'lockpick',
+                time = 15,
+                amount = 1,
+                materials = {
+                    { item = "metalscrap", amount = 10 },
+                },
+                exp = {
+                    required = 0,
+                    awarded  = 1
+                }
+            }
+        },
+
+        
         ['weapons'] = {
             {
                 item = 'weapon_pistol',
@@ -80,10 +110,25 @@ Config.Crafting = {
                     { item = "rubber", amount = 50 },
                 },
                 exp = {
-                    required = 10,
+                    required = 25,
                     awarded  = 10
                 }
             },
+        },
+
+        ['attachments'] = {
+            {
+                item = 'suppressor_attachment',
+                time = 25,
+                amount = 1,
+                materials = {
+                    { item = "metalscrap", amount = 50 },
+                },
+                exp = {
+                    required = 10,
+                    awarded  = 10
+                }
+            }
         }
     },
 }

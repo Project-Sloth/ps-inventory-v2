@@ -355,11 +355,11 @@ function Core.Classes.Placeables.Pickup(propId)
         ClearPedTasks(ped)
 
         -- Show pickup as a progress
-        Framework.Client.Progressbar("pickup_item", Core.Language.Locale('placeablesPickingUp'), 200, false, true, {
-            disableMovement = false,
-            disableCarMovement = false,
+        Framework.Client.Progressbar("pickup_item", Core.Language.Locale('placeablesPickingUp'), (itemData.item.placeable.pickupTime and itemData.item.placeable.pickupTime * 1000 or Config.Placeables.PickupTime * 1000), false, true, {
+            disableMovement = Config.Placeables.PickupDisablesMovement,
+            disableCarMovement = Config.Placeables.PickupDisablesCarMovement,
             disableMouse = false,
-            disableCombat = true,
+            disableCombat = Config.Placeables.PickupDisablesCombat,
         }, {
             animDict = animationDict,
             anim = animation,

@@ -106,6 +106,14 @@ Config = {
         -- Radius for Interaction or Target
         Radius = 1.5, 
 
+        -- How many seconds to pickup
+        PickupTime = 1,
+
+        -- Progress configurables
+        PickupDisablesMovement = true,
+        PickupDisablesCarMovement = true,
+        PickupDisablesCombat = true,
+
         -- Placeables placement mode configuration
         ItemPlacementModeRadius = 10.0,
         MinZOffset = -2.0,

@@ -292,8 +292,8 @@ end
 Framework.Server.GetExp = function (source, type)
     local Player = Framework.Core.Functions.GetPlayer(source)
 	if not Player then return false end
-    if not Player.PlayerData.metadata[type] then return 0 end
-	return Player.PlayerData.metadata[type]
+    if not Player.PlayerData.metadata['rep'][type] then return 0 end
+	return Player.PlayerData.metadata['rep'][type]
 end
 
 Framework.Server.AddMoney = function (source, type, amount)
