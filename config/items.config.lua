@@ -6,6 +6,8 @@
 -------------------------------------------------
 Config.Items = {
 
+    -- Placeables
+
     crafting_bench = { 
         name = 'crafting_bench', 
         label = 'Crafting Bench', 
@@ -26,6 +28,7 @@ Config.Items = {
         placeable = {
             type = "crafting",
             prop = 'gr_prop_gr_bench_01b',
+            pickupTime = 3,
             option = {
                 icon = "fas fa-eye",
                 label = "Open Crafting",
@@ -38,6 +41,8 @@ Config.Items = {
         }
     },
 
+    -- Currency
+
     money = { 
         name = 'money', 
         label = 'Money', 
@@ -48,6 +53,8 @@ Config.Items = {
         useable = false, 
         shouldClose = false
     },
+
+    -- Identification
 
     id_card = { 
         name = 'id_card', 
@@ -79,5 +86,19 @@ Config.Items = {
         onUse = function (source, item)
             -- Do what you want here
         end
+    },
+
+    -- Materials
+
+    cloth = { 
+        name = 'cloth', 
+        label = 'Cloth', 
+        weight = 100, 
+        type = 'item', 
+        image = 'cloth.png', 
+        unique = false, 
+        useable = false, 
+        shouldClose = false, 
+        description = 'Piece of cloth to craft things with' 
     },
 }
