@@ -1,34 +1,34 @@
 {
-    "inventoryReady": "Inventory is ready for use",
+	"inventoryReady": "Inventory is ready for use",
 
-    "craftingTarget": "Access crafting",
-    "craftingInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access crafting",
+	"craftingTarget": "Access crafting",
+	"craftingInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access crafting",
 
-    "shopTarget": "Open {{shopName}}",
-    "shopInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access shop",
+	"shopTarget": "Open {{shopName}}",
+	"shopInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access shop",
 
-    "stashTarget": "Open {{stashName}}",
-    "stashInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access stash",
+	"stashTarget": "Open {{stashName}}",
+	"stashInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access stash",
 
-    "vendingTarget": "Open vending machine",
-    "vendingInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access vending",
+	"vendingTarget": "Open vending machine",
+	"vendingInteractive": "Press [<span class=\"active-color\">{{key}}</span>] to access vending",
 
-    "placeablesPickingUp": "Picking up item",
-    "placeablesPickup": "Press [<span class=\"active-color\">SHIFT + E</span>] to pickup",
-    "placeablesPickupTarget": "Pick up",
-    "placeablesInteractType": "Press [<span class=\"active-color\">{{key}}</span>] to access {{interactType}}<br />",
-    "placeablesPlace": "Press [<span class=\"active-color\">{{key}}</span>] to place<br />",
-    "placeablesRotate": "Scroll [<span class=\"active-color\">{{key}}</span>] to rotate<br />",
-    "placeablesCancel": "Press [<span class=\"active-color\">{{key}}</span>] to cancel",
+	"placeablesPickingUp": "Picking up item",
+	"placeablesPickup": "Press [<span class=\"active-color\">SHIFT + E</span>] to pickup",
+	"placeablesPickupTarget": "Pick up",
+	"placeablesInteractType": "Press [<span class=\"active-color\">{{key}}</span>] to access {{interactType}}<br />",
+	"placeablesPlace": "Press [<span class=\"active-color\">{{key}}</span>] to place<br />",
+	"placeablesRotate": "Scroll [<span class=\"active-color\">{{key}}</span>] to rotate<br />",
+	"placeablesCancel": "Press [<span class=\"active-color\">{{key}}</span>] to cancel",
 
-    "split": "Split",
-    "drop": "Drop",
-    "use": "Use",
-    "give": "Give",
+	"split": "Split",
+	"drop": "Drop",
+	"use": "Use",
+	"give": "Give",
 
-    "itemDecayed": "Item is decayed",
-    "unableToComplete": "Unable to complete action",
+	"itemDecayed": "Item is decayed",
+	"unableToComplete": "Unable to complete action",
 
-    "settings": "Settings",
-    "overweight": "You Can't Carry Anything Else!"
+	"settings": "Settings",
+	"overweight": "You Can't Carry Anything Else!"
 }
