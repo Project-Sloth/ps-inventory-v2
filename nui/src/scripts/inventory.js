@@ -1633,20 +1633,22 @@ const Inventory = {
 						{
 							name: Language.Locale('drop'),
 							onClick: function ($el) {
+								const item = $el;
+								const slotData = item.data('slotid').split('-');
+
 								if (slotData.length !== 2) {
 									return;
 								}
+
+								const inventoryType = item.data('inventory');
+								const slotId = slotData[1];
+								const itemData =
+									Inventory.GetItemBySlot(slotId);
 
 								if (!itemData) {
 									return;
 								}
 
-								const item = $el;
-								const slotData = item.data('slotid').split('-');
-								const inventoryType = item.data('inventory');
-								const slotId = slotData[1];
-								const itemData =
-									Inventory.GetItemBySlot(slotId);
 								const amountElement = $(
 									`#slot-${slotId}-amount`
 								);
