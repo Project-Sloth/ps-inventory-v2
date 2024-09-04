@@ -21,7 +21,7 @@ const Language = {
      * @returns 
      */
     Locale: (key, mergeTags = {}) => {
-        if (typeof Language.Locales[key] == 'undefined') {
+        if (!Language.Locales[key]) {
             return Debugger.log(`Unable to find Locale[${key}]`);
         }
 

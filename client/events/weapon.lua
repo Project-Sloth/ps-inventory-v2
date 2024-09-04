@@ -1,12 +1,18 @@
 RegisterNetEvent(Config.ClientEventPrefix .. 'CheckWeapon', function(weaponName)
+    if source == '' then return end
+
     return Core.Classes.Weapon.Check(weaponName)
 end)
 
 RegisterNetEvent(Config.ClientEventPrefix .. 'UseWeapon', function(weaponData, canFire)
+    if source == '' then return end
+
     return Core.Classes.Weapon.Use(weaponData, canFire)
 end)
 
 RegisterNetEvent(Config.ClientEventPrefix .. 'DisarmWeapon', function()
+    if source == '' then return end
+    
     return Core.Classes.Weapon.Disarm()
 end)
 

@@ -1,5 +1,7 @@
 -- Handles syncing of inventory
 RegisterNetEvent(Config.ClientEventPrefix .. 'InventoryNotify', function (action, item, amount)
+    if source == '' then return end
+    
     if action == "add" then
         Core.Classes.InventoryNotify.AddItem(item, amount)
     elseif action == "remove" then

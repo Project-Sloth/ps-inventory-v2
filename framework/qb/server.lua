@@ -49,18 +49,18 @@ end
 ---@param src number
 ---@return number
 Framework.Server.GetPlayerCash = function (src)
-    local Player = Framework.Server.GetPlayer(src)
-	if not Player then return nil end
-	return Player.PlayerData.money.cash
+    local player = Framework.Server.GetPlayer(src)
+	if not player then return nil end
+	return player.PlayerData.money.cash
 end
 
 -- gets players money 
 ---@param src number
 ---@return number
 Framework.Server.GetPlayerMoney = function (src)
-    local Player = Framework.Server.GetPlayer(src)
-	if not Player then return nil end
-	return Player.PlayerData.money.cash, Player.PlayerData.money.bank
+    local player = Framework.Server.GetPlayer(src)
+	if not player then return nil end
+	return player.PlayerData.money.cash, player.PlayerData.money.bank
 end
 
 
@@ -71,10 +71,10 @@ end
 ---@param reason? string
 ---@return boolean
 Framework.Server.ChargePlayer = function (src, fundSource, amount, reason)
-	local Player = Framework.Server.GetPlayer(src)
-	if not Player then return nil end
-	if not Player.Functions.RemoveMoney('cash', amount, reason and reason or "No description available") then 
-		if not  Player.Functions.RemoveMoney('bank', amount, reason and reason or "No description available") then return false end
+	local player = Framework.Server.GetPlayer(src)
+	if not player then return nil end
+	if not player.Functions.RemoveMoney('cash', amount, reason and reason or "No description available") then 
+		if not  player.Functions.RemoveMoney('bank', amount, reason and reason or "No description available") then return false end
 	end
 	return true
 end
@@ -84,17 +84,17 @@ end
 ---@param src number
 ---@return table
 Framework.Server.GetPlayerIdentity = function (src)
-    local Player = Framework.Server.GetPlayer(src)
-	if not Player then return nil end
+    local player = Framework.Server.GetPlayer(src)
+	if not player then return nil end
 
 	-- Return compatible table
 	return {
-		identifier = Player.PlayerData.citizenid,
-		name = ('%s %s'):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname),
-		firstname = Player.PlayerData.charinfo.firstname,
-		lastname = Player.PlayerData.charinfo.lastname,
-		birthdate = Player.PlayerData.charinfo.birthdate,
-		gender = Player.PlayerData.charinfo.gender
+		identifier = player.PlayerData.citizenid,
+		name = ('%s %s'):format(player.PlayerData.charinfo.firstname, player.PlayerData.charinfo.lastname),
+		firstname = player.PlayerData.charinfo.firstname,
+		lastname = player.PlayerData.charinfo.lastname,
+		birthdate = player.PlayerData.charinfo.birthdate,
+		gender = player.PlayerData.charinfo.gender
 	}
 end
 
@@ -102,9 +102,9 @@ end
 ---@param src number
 ---@return table
 Framework.Server.GetPlayerInventory = function (src)
-    local Player = Framework.Server.GetPlayer(src)
-	if not Player then return end
-	return Player.PlayerData.items
+    local player = Framework.Server.GetPlayer(src)
+	if not player then return end
+	return player.PlayerData.items
 end
 
 -- Saves player inventory
@@ -113,11 +113,11 @@ end
 ---@param database boolean
 ---@return boolean
 Framework.Server.SavePlayerInventory = function (src, inventory, database)
-	local Player = Framework.Server.GetPlayer(src)
-	if not Player then return false end
+	local player = Framework.Server.GetPlayer(src)
+	if not player then return false end
 
 	if type(inventory) == "table" then
-		Player.Functions.SetPlayerData("items", inventory)
+		player.Functions.SetPlayerData("items", inventory)
 	else
 		inventory = Framework.Server.GetPlayerInventory(src)
 	end
@@ -130,13 +130,13 @@ Framework.Server.SavePlayerInventory = function (src, inventory, database)
 	if (Config.Player.DatabaseSyncingThread == true and database == true) or (not Config.Player.DatabaseSyncingThread and database == false)  then
 		MySQL.prepare('UPDATE players SET inventory = ? WHERE citizenid = ?', { 
 			(table.type(inventory) == "empty" and "[]" or json.encode(inventory)), 
-			Player.PlayerData.citizenid 
+			player.PlayerData.citizenid 
 		})
 
 		Core.Utilities.Log({
 			type = "success",
 			title = "PlayerInventory",
-			message = "Saved inventory for " .. Player.PlayerData.citizenid
+			message = "Saved inventory for " .. player.PlayerData.citizenid
 		})
 	end
 
@@ -149,9 +149,9 @@ end
 ---@param val any
 ---@return boolean
 Framework.Server.UpdatePlayer = function (src, key, val)
-	local Player = Framework.Server.GetPlayer(src)
-	if not Player then return end
-    return Player.Functions.SetPlayerData(key, val)
+	local player = Framework.Server.GetPlayer(src)
+	if not player then return end
+    return player.Functions.SetPlayerData(key, val)
 end
 
 -- Gets player name
@@ -159,21 +159,21 @@ end
 ---@return string
 Framework.Server.GetPlayerName = function (src)
     -- Attempt to get Player table
-    local Player = Framework.Core.Functions.GetPlayer(src)
+    local player = Framework.Core.Functions.GetPlayer(src)
         
     -- If unavailable, return server player name
-    if Player == nil then return GetPlayerName(src) end
+    if player == nil then return GetPlayerName(src) end
 
     -- Return player name
-    return Player.PlayerData.charinfo.firstname .. " " .. Player.PlayerData.charinfo.lastname
+    return player.PlayerData.charinfo.firstname .. " " .. player.PlayerData.charinfo.lastname
 end
 
 -- Gets player identifier
 ---@param src number
 ---@return string|number
 Framework.Server.GetPlayerIdentifier = function (src)
-    local Player = Framework.Core.Functions.GetPlayer(src)
-    return Player.PlayerData.citizenid
+    local player = Framework.Core.Functions.GetPlayer(src)
+    return player.PlayerData.citizenid
 end
 
 -- Creates useable item
@@ -238,9 +238,9 @@ end
 ---@return boolean
 Framework.Server.HasLicense = function (src, licenseType)
 	if not licenseType then return false end
-	local Player = Framework.Core.Functions.GetPlayer(src)
-	if not Player then return false end
-	local licenses = Player.PlayerData.metadata["licences"]
+	local player = Framework.Core.Functions.GetPlayer(src)
+	if not player then return false end
+	local licenses = player.PlayerData.metadata["licences"]
 	if type(licenses[licenseType]) == nil then return false end
 	if licenses[licenseType] == true then return true end
 end
@@ -249,11 +249,11 @@ end
 ---@param src number
 ---@return boolean
 Framework.Server.HasGroup = function(src, group)
-	local Player = Framework.Core.Functions.GetPlayer(src)
+	local player = Framework.Core.Functions.GetPlayer(src)
 
 	local groups = {
-        [Player.PlayerData.job.name] = Player.PlayerData.job.grade.level,
-        [Player.PlayerData.gang.name] = Player.PlayerData.gang.grade.level
+        [player.PlayerData.job.name] = player.PlayerData.job.grade.level,
+        [player.PlayerData.gang.name] = player.PlayerData.gang.grade.level
     }
 
 	if type(group) == 'table' then
@@ -277,11 +277,11 @@ end
 ---@param type string
 ---@return boolean
 Framework.Server.IncreaseExp = function (source, amount, type)
-    local Player = Framework.Core.Functions.GetPlayer(source)
-	if not Player then return false end
-    local current = Player.Functions.GetRep(type)
+    local player = Framework.Core.Functions.GetPlayer(source)
+	if not player then return false end
+    local current = player.Functions.GetRep(type)
 	local new = current + amount
-	Player.Functions.AddRep(type, new)
+	player.Functions.AddRep(type, new)
 	return true
 end
 
@@ -290,82 +290,82 @@ end
 ---@param type string
 ---@return number
 Framework.Server.GetExp = function (source, type)
-    local Player = Framework.Core.Functions.GetPlayer(source)
-	if not Player then return false end
-    if not Player.PlayerData.metadata['rep'][type] then return 0 end
-	return Player.PlayerData.metadata['rep'][type]
+    local player = Framework.Core.Functions.GetPlayer(source)
+	if not player then return false end
+    if not player.PlayerData.metadata['rep'][type] then return 0 end
+	return player.PlayerData.metadata['rep'][type]
 end
 
 Framework.Server.AddMoney = function (source, type, amount)
-	local Player = Framework.Core.Functions.GetPlayer(source)
-	if not Player then return false end
-	return Player.Functions.AddMoney(type, amount)
+	local player = Framework.Core.Functions.GetPlayer(source)
+	if not player then return false end
+	return player.Functions.AddMoney(type, amount)
 end
 
 Framework.Server.RemoveMoney = function (source, type, amount)
-	local Player = Framework.Core.Functions.GetPlayer(source)
-	if not Player then return false end
-	return Player.Functions.RemoveMoney(type, amount)
+	local player = Framework.Core.Functions.GetPlayer(source)
+	if not player then return false end
+	return player.Functions.RemoveMoney(type, amount)
 end
 
 -- Override QB Functions
-Framework.Server.SetupPlayer = function (Player, initial)
+Framework.Server.SetupPlayer = function (player, initial)
 
-	Player.PlayerData.identifier = Player.PlayerData.citizenid
-	Player.PlayerData.name = ('%s %s'):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname)
+	player.PlayerData.identifier = player.PlayerData.citizenid
+	player.PlayerData.name = ('%s %s'):format(player.PlayerData.charinfo.firstname, player.PlayerData.charinfo.lastname)
 
-	Core.Classes.Inventory.SetItem(Player.PlayerData.source, 'money', Player.PlayerData.money.cash)
+	Core.Classes.Inventory.SetItem(player.PlayerData.source, 'money', player.PlayerData.money.cash)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "AddItem", function(item, amount, slot, info)
-		return Core.Classes.Inventory.AddItem(Player.PlayerData.source, item, amount, slot, info)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "AddItem", function(item, amount, slot, info)
+		return Core.Classes.Inventory.AddItem(player.PlayerData.source, item, amount, slot, info)
 	end)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "RemoveItem", function(item, amount, slot)
-		return Core.Classes.Inventory.RemoveItem(Player.PlayerData.source, item, amount, slot)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "RemoveItem", function(item, amount, slot)
+		return Core.Classes.Inventory.RemoveItem(player.PlayerData.source, item, amount, slot)
 	end)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "GetItemBySlot", function(slot)
-		return Core.Classes.Inventory.GetSlot(Player.PlayerData.source, slot)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "GetItemBySlot", function(slot)
+		return Core.Classes.Inventory.GetSlot(player.PlayerData.source, slot)
     end)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "GetItemByName", function(itemName)
-		return Core.Classes.Inventory.GetSlotWithItem(Player.PlayerData.source, itemName)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "GetItemByName", function(itemName)
+		return Core.Classes.Inventory.GetSlotWithItem(player.PlayerData.source, itemName)
 	end)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "GetItemsByName", function(itemName)
-		return Core.Classes.Inventory.GetSlotsWithItem(Player.PlayerData.source, itemName)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "GetItemsByName", function(itemName)
+		return Core.Classes.Inventory.GetSlotsWithItem(player.PlayerData.source, itemName)
 	end)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "ClearInventory", function(filterItems)
-		return Core.Classes.Inventory.ClearInventory(Player.PlayerData.source, filterItems)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "ClearInventory", function(filterItems)
+		return Core.Classes.Inventory.ClearInventory(player.PlayerData.source, filterItems)
 	end)
 
-	Framework.Core.Functions.AddPlayerMethod(Player.PlayerData.source, "SetInventory", function(items)
-		return Framework.Server.UpdatePlayer(Player.PlayerData.source, items)
+	Framework.Core.Functions.AddPlayerMethod(player.PlayerData.source, "SetInventory", function(items)
+		return Framework.Server.UpdatePlayer(player.PlayerData.source, items)
 	end)
 end
 
 -- Sets player inventory and function overrides
----@param Player number
-function PlayerLoadedEvent (Player)
-	local citizenid = Player.PlayerData.citizenid
+---@param player number
+function PlayerLoadedEvent (player)
+	local citizenid = player.PlayerData.citizenid
 	local inventory = {}
 	local inventoryRes = MySQL.single.await('SELECT inventory FROM players WHERE citizenid = ?', { citizenid })
 	if inventoryRes then inventory = json.decode(inventoryRes.inventory) end
-	Player.Functions.SetPlayerData('items', inventory)
-	Framework.Server.SetupPlayer(Player, true)
+	player.Functions.SetPlayerData('items', inventory)
+	Framework.Server.SetupPlayer(player, true)
 end
 
 -- Reset overrides on restart
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-		for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(Player) end
+		for _, player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(player) end
     end
 end)
 
 -- Load inventory items on playerload then setup
-AddEventHandler('QBCore:Server:PlayerLoaded', function (Player)
-	PlayerLoadedEvent(Player)
+AddEventHandler('QBCore:Server:PlayerLoaded', function (player)
+	PlayerLoadedEvent(player)
 end)
 
 -- Money update event
@@ -391,7 +391,7 @@ SetTimeout(500, function()
 		end
 	end
 
-	for _, Player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(Player) end
+	for _, player in pairs(Framework.Core.Functions.GetQBPlayers()) do PlayerLoadedEvent(player) end
 end)
 
 -- Event overrides

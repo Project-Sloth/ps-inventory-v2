@@ -4,21 +4,6 @@ Core.Language.SetLanguage(Config.Language).LoadLocales()
 -- Determine the framework
 local determined = Framework.Determine()
 
--- Get version
-local version = GetResourceMetadata(GetCurrentResourceName(), 'version')
-
-print('--------------------------------------------------')
-print('|                                                |')
-print('|                   PS INVENTORY                 |')
-if determined then
-print('|                     STARTED                    |')
-else
-print('|                   ^1NOT STARTED^0                  |')
-end
-print('|                  VERSION ' .. version .. '                 |')
-print('|                                                |')
-print('--------------------------------------------------')
-
 -- Determine framework
 if not determined then
     Core.Utilities.Log({

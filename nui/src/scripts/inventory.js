@@ -91,7 +91,9 @@ const Inventory = {
      * Inventory events that are fired externally.
      */
     Events: {
+
         MoveEvents: {
+            
             HandleExternalToInventory: (data, payload, res) => {
                 const isExternalToInventory = data.from === "External" && data.to === "Inventory";
                 const isDropExternal = payload.external && payload.external.type === "drop";
@@ -109,9 +111,9 @@ const Inventory = {
          * When language is set, update dom
          */
         OnLanguageSet: () => {
-            $('#drop').html(Language.Locale('drop'));
-            $('#use').html(Language.Locale('use'));
-            $('#settings-modal-title').html(Language.Locale('settings'))
+            $('#drop').html(_.escape(Language.Locale('drop')));
+            $('#use').html(_.escape(Language.Locale('use')));
+            $('#settings-modal-title').html(_.escape(Language.Locale('settings')))
         },
 
         /**
@@ -122,7 +124,7 @@ const Inventory = {
          */
         OnUse: async (slotId, inventoryType, item) => {
 
-            if (typeof item.info !== 'undefined') {
+            if (item.info) {
                 if (item.info.decayed) {
                     return InventoryNotify.Events.Process({
                         process: "notification",
@@ -146,8 +148,8 @@ const Inventory = {
         OnOpen: () => {
             Inventory.Settings.DisableHotbar();
 
-            $(Inventory.Selectors.Titles.PlayerName).html(Inventory.State.Player.name);
-            $(Inventory.Selectors.Titles.MyInventory).html(Inventory.State.Player.name);
+            $(Inventory.Selectors.Titles.PlayerName).html(_.escape(Inventory.State.Player.name));
+            $(Inventory.Selectors.Titles.MyInventory).html(_.escape(Inventory.State.Player.name));
             Inventory.State.Open = true;
 
             if (window.Interact.State.Show) {
@@ -161,7 +163,7 @@ const Inventory = {
         OnClose: () => {
             Inventory.Settings.EnableHotbar();
 
-            $(Inventory.Selectors.Titles.ExternalInventory).html(Inventory.State.Titles.ExternalInventory);
+            $(Inventory.Selectors.Titles.ExternalInventory).html(_.escape(Inventory.State.Titles.ExternalInventory));
 
             Inventory.State.ExternalItems = [];
             $(Inventory.Selectors.ExternalInventory).hide();
@@ -205,14 +207,14 @@ const Inventory = {
          * @param {object} data 
          */
         UpdateInventory: (data) => {
-            if (typeof data.items !== "undefined") {
+            if (data.items) {
                 Inventory.State.Items = data.items;
                 Inventory.RenderSlots('Hot', 5, data.items);
                 Inventory.RenderSlots('Inventory', (Inventory.State.Configuration.MaxInventorySlots - 5), data.items);
                 Inventory.UpdateInventoryWeights('Inventory')
             }
 
-            if (typeof data.external !== "undefined") {
+            if (data.external) {
                 Inventory.Setup.ExternalInventory(data);
             }
         },
@@ -376,7 +378,7 @@ const Inventory = {
                 // Make request
                 const res = await Nui.request('drop', payload);
 
-                if (typeof res.items !== 'undefined' || typeof res.external !== 'undefined') {
+                if (res.items || res.external) {
                     Inventory.Events.UpdateInventory(res)
                 }
 
@@ -711,7 +713,7 @@ const Inventory = {
         /** Set name */
         SetExternalName: (data) => {
             if (data.external?.name) {
-                $(Inventory.Selectors.Titles.ExternalInventory).html(data.external.name)
+                $(Inventory.Selectors.Titles.ExternalInventory).html(_.escape(data.external.name))
                 $(Inventory.Selectors.ExternalInventory).data('name', data.external.name)
             }
         },
@@ -753,7 +755,7 @@ const Inventory = {
     UpdateInventoryWeights: (inventory, type) => {
 
         // Check type passed
-        if (typeof type !== 'undefined') {
+        if (type) {
             if (type == "shop" || type == "crafting") {
                 $('#external-weights').hide();
                 return false;
@@ -778,8 +780,8 @@ const Inventory = {
             }
         }
 
-        $(Inventory.Selectors.Weights[`${inventory == "External" ? "External" : ""}InventoryWeight`]).html(Inventory.GetTotalWeight(inventory))
-        $(Inventory.Selectors.Weights[`${inventory == "External" ? "External" : ""}InventoryMaxWeight`]).html(Inventory.GetMaxWeight(inventory))
+        $(Inventory.Selectors.Weights[`${inventory == "External" ? "External" : ""}InventoryWeight`]).html(_.escape(Inventory.GetTotalWeight(inventory)))
+        $(Inventory.Selectors.Weights[`${inventory == "External" ? "External" : ""}InventoryMaxWeight`]).html(_.escape(Inventory.GetMaxWeight(inventory)))
         Inventory.SetWeightCirculars(inventory, percent);
         $('#external-weights').css('display', 'flex');
     },
@@ -794,12 +796,12 @@ const Inventory = {
             ...data
         };
 
-        if (typeof data.name !== "undefined") {
+        if (data.name) {
             $(Inventory.Selectors.Titles.PlayerName).html(Inventory.State.Player.name);
-            $(Inventory.Selectors.Titles.MyInventory).data('id', Inventory.State.Player.identifier).html(data.name);
+            $(Inventory.Selectors.Titles.MyInventory).data('id', Inventory.State.Player.identifier).html(_.escape(data.name));
         }
 
-        if (typeof data.preferences !== "undefined") {
+        if (data.preferences) {
             if (data.preferences.theme) {
                 Inventory.Settings.SetTheme(data.preferences.theme);
             }
@@ -959,11 +961,11 @@ const Inventory = {
         if (!$(slot).length) { return false; }
 
         if (newData.amount) {
-            $(`${slot} .amount`).html(newData.amount + 'x');
+            $(`${slot} .amount`).html(_.escape(newData.amount + 'x'));
         }
 
         if (newData.name) {
-            $(`${slot} .name`).html(newData.label + 'x');
+            $(`${slot} .name`).html(_.escape(newData.label + 'x'));
         }
 
         return true;
@@ -989,7 +991,7 @@ const Inventory = {
             let slot = `<div class="slot-container ${slotNumber > 0 & slotNumber < 6 & inv == "Hot" ? 'limited' : ''}" data-slotid="${inv}-${slotNumber}">{slotMeta}</div>`;
             let slotMeta = '';
             
-            if (typeof data.info == 'undefined') {
+            if (!data.info) {
                 data.info = {
                     quality: 100
                 }
@@ -1517,7 +1519,6 @@ const Inventory = {
             let res = '<div class="w-100 py-2">{{info}}</div>';
             let info = '';
             let ignore = [ 'quality', 'decayed', 'attachments' ];
-            if (typeof itemData.info == 'undefined') { return ''; }
             if (!itemData.info) { return ''; }
 
             for (let infoKey in itemData.info) {
@@ -1581,7 +1582,7 @@ const Inventory = {
         UpdateAmountBadge: (e, el, target) => {
             e.preventDefault();
             const amount = $(el).val();
-            $(target).html(amount);
+            $(target).html(_.escape(amount));
         },
 
         /**
@@ -1722,7 +1723,8 @@ const Inventory = {
          * Sets the inventory theme
          */
         SetTheme: (theme) => {
-            if (typeof Inventory.Themes[theme] == "undefined") { return false }
+            if (!Inventory.Themes[theme]) { return false }
+            
             $("body").get(0).style.setProperty("--ui-highlight-color", Inventory.Themes[theme].color);
 
             if (Inventory.Themes[theme].shadowColor) {

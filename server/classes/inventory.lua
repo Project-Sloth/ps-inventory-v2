@@ -3,11 +3,11 @@ Core.Classes.New("Inventory", { Items = {} })
 -- Inventory utility methods
 Core.Classes.Inventory.Utilities = {
 
-    Notify = function (Player, text, type)
+    Notify = function (player, text, type)
         if Config.Notify == 'qb' then
-            TriggerClientEvent("QBCore:Notify", Player.PlayerData.source, text, type)
+            TriggerClientEvent("QBCore:Notify", player.PlayerData.source, text, type)
         elseif Config.Notify == 'ox' then
-            lib.notify(Player.PlayerData.source, { title = text, type = type})
+            lib.notify(player.PlayerData.source, { title = text, type = type})
         end
     end,
 
@@ -420,18 +420,18 @@ end
 ---@param src number
 ---@param slot number
 function Core.Classes.Inventory.GetSlot(src, slot)
-    local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
+    local inventory = Core.Classes.Inventory.GetPlayerInventory(src)
     slot = tonumber(slot)
     local slotKey = false
 
-    for k, item in pairs(Inventory) do
+    for k, item in pairs(inventory) do
         if tonumber(item.slot) == tonumber(slot) then
             slotKey = k
         end
     end
 
     if not slotKey then return false end
-    return Inventory[slotKey]
+    return inventory[slotKey]
 end
 
 -- Get player slot number with item
@@ -439,9 +439,9 @@ end
 ---@param src number
 ---@param itemName string
 function Core.Classes.Inventory.GetSlotNumberWithItem(src, itemName)
-    local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
+    local inventory = Core.Classes.Inventory.GetPlayerInventory(src)
 
-    for slot, item in pairs(Inventory) do
+    for slot, item in pairs(inventory) do
         if item.name:lower() == itemName:lower() then
             return tonumber(slot)
         end
@@ -456,9 +456,9 @@ end
 ---@param itemName string
 ---@param items table
 function Core.Classes.Inventory.GetSlotWithItem(src, itemName, items)
-    local Inventory = items and items or Core.Classes.Inventory.GetPlayerInventory(src)
+    local inventory = items and items or Core.Classes.Inventory.GetPlayerInventory(src)
 
-    for slot, item in pairs(Inventory) do
+    for slot, item in pairs(inventory) do
         if item.name:lower() == itemName:lower() then
             return item
         end
@@ -475,10 +475,10 @@ end
 ---@param returnType string
 function Core.Classes.Inventory.GetSlotsWithItem(src, itemName, returnType)
     returnType = returnType or 'keys'
-    local Inventory = Core.Classes.Inventory.GetPlayerInventory(src)
+    local inventory = Core.Classes.Inventory.GetPlayerInventory(src)
     local slots = {}
 
-    for slot, item in pairs(Inventory) do
+    for slot, item in pairs(inventory) do
         if item.name:lower() == itemName:lower() then
             table.insert(slots, returnType == 'slots' and item.slot or slot)
         end
@@ -499,7 +499,7 @@ end
 -- Export: exports['ps-inventory']:OpenInventoryById(src, target)
 ---@param src number
 ---@param target number
-function Core.Classes.Inventory.OpenInventoryById(src, target)
+function Core.Classes.Inventory.OpenInventoryById(src, targetSrc)
     if src == target then 
         Core.Utilities.Log({
             type = "error",
@@ -521,27 +521,27 @@ function Core.Classes.Inventory.OpenInventoryById(src, target)
         return false 
     end
 
-    local Target = Framework.Server.GetPlayer(target)
-    if not Target then 
+    local target = Framework.Server.GetPlayer(targetSrc)
+    if not target then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.OpenInventoryById",
-            message = "Unable to retrieve target information for source: " .. target
+            message = "Unable to retrieve target information for source: " .. targetSrc
         })
 
         return false 
     end
 
-    Core.Classes.Inventory.CloseInventory(target)
+    Core.Classes.Inventory.CloseInventory(targetSrc)
 
-    if not Player(target).state.inventoryBusy then
-        Player(target).state.inventoryBusy = true
+    if not Player(targetSrc).state.inventoryBusy then
+        Player(targetSrc).state.inventoryBusy = true
     end
 
-    local items = Core.Classes.Inventory.LoadExternalInventory('player', target)
+    local items = Core.Classes.Inventory.LoadExternalInventory('player', targetSrc)
     return Core.Classes.Inventory.OpenInventory(src, {
         type = "player",
-        id = target,
+        id = targetSrc,
         name = Framework.Server.GetPlayerName(src),
         slots = #items,
         items = items,
@@ -634,8 +634,8 @@ end
 function Core.Classes.Inventory.CanCarryItem (source, item, amount, maxWeight)
 
     -- Player information
-    local Player = Framework.Server.GetPlayer(source)
-    if not Player then 
+    local player = Framework.Server.GetPlayer(source)
+    if not player then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.CanCarryItem",
@@ -669,9 +669,9 @@ end
 ---@param itemName string
 ---@param count number
 function Core.Classes.Inventory.SetItem(source, itemName, count)
-    local Player = Framework.Server.GetPlayer(source)
+    local player = Framework.Server.GetPlayer(source)
 
-    if not Player then 
+    if not player then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.SetItem",
@@ -713,9 +713,9 @@ end
 function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason, created, ignoreNotification, doNotStack)
 
     -- Player information
-    local Player = Framework.Server.GetPlayer(source)
+    local player = Framework.Server.GetPlayer(source)
 
-    if not Player then 
+    if not player then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.AddItem",
@@ -779,7 +779,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
 
             Framework.Server.SavePlayerInventory(source, items)
 
-            if Player.Offline then return true end
+            if player.Offline then return true end
             return true
         end
 
@@ -803,7 +803,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
                 end
 
                 Framework.Server.SavePlayerInventory(source, items)
-                if Player.Offline then return true end
+                if player.Offline then return true end
 
                 return true
 
@@ -816,7 +816,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
                 end
 
                 Framework.Server.SavePlayerInventory(source, items)
-                if Player.Offline then return true end
+                if player.Offline then return true end
 
                 return true
             end
@@ -834,7 +834,7 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
             end
 
             Framework.Server.SavePlayerInventory(source, items)
-            if Player.Offline then return true end
+            if player.Offline then return true end
 
             return true
 
@@ -856,12 +856,13 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
 
             Framework.Server.SavePlayerInventory(source, items)
 
-            if Player.Offline then return true end
+            if player.Offline then return true end
             return true
         end
     else
-        Core.Classes.Inventory.Utilities.Notify(Player, Core.Language.Locale('overweight'), 'error')
+        Core.Classes.Inventory.Utilities.Notify(player, Core.Language.Locale('overweight'), 'error')
     end
+
     return false
 end
 
@@ -874,9 +875,9 @@ end
 function Core.Classes.Inventory.RemoveItem(source, item, amount, slot, ignoreNotification)
 
     -- Validate player
-    local Player = Framework.Server.GetPlayer(source)
+    local player = Framework.Server.GetPlayer(source)
 
-    if not Player then 
+    if not player then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.RemoveItem",
@@ -978,9 +979,9 @@ end
 
 function Core.Classes.Inventory.UpdateItem(source, slot, itemData)
     -- Validate player
-    local Player = Framework.Server.GetPlayer(source)
+    local player = Framework.Server.GetPlayer(source)
 
-    if not Player then 
+    if not player then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.UpdateItem",
@@ -1649,7 +1650,9 @@ function Core.Classes.Inventory.Give (src, data)
     if not closestPlayer then return { success = false, message = "No nearby players" } end
     if closestPlayer == src then return { success = false, message = "No nearby players" } end
 
-    Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot)
+    local removed = Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot)
+    if not removed then return { success = false } end
+
     Core.Classes.Inventory.AddItem(closestPlayer, data.item.name, data.item.amount, nil, data.item.info)
     return { success = true }
 end
@@ -1659,7 +1662,7 @@ end
 ---@param src number
 ---@param stashId string
 function Core.Classes.Inventory.OpenStash (src, stashId)
-    local Player = Framework.Server.GetPlayer(src)
+    local player = Framework.Server.GetPlayer(src)
     local stash = Config.Stashes[stashId]
 
     if not stash then

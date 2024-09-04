@@ -1,7 +1,7 @@
 -- Determine language
-local LanguageLocales = lib.callback.await(Config.ServerEventPrefix .. 'RetrieveLocales', false)
-if LanguageLocales then
-    Core.Language.SetLanguage(Config.Language).SetLocales(LanguageLocales)
+local languageLocales = lib.callback.await(Config.ServerEventPrefix .. 'RetrieveLocales', false)
+if languageLocales then
+    Core.Language.SetLanguage(Config.Language).SetLocales(languageLocales)
 end
 
 -- Determine framework
