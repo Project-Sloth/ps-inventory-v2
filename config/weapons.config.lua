@@ -807,5 +807,25 @@ Config.Weapons = {
         'weapon_specialcarbine_mk2',
         'weapon_stone_hatchet',
         'weapon_fireextinguisher'
+    },
+    melee = {
+        weapon_knife = true,
+        weapon_nightstick = true,
+        weapon_bread = true,
+        weapon_flashlight = true,
+        weapon_hammer = true,
+        weapon_bat = true,
+        weapon_golfclub = true,
+        weapon_crowbar = true,
+        weapon_bottle = true,
+        weapon_dagger = true,
+        weapon_hatchet = true,
+        weapon_machete = true,
+        weapon_switchblade = true,
+        weapon_battleaxe = true,
+        weapon_poolcue = true,
+        weapon_wrench = true,
+        weapon_knuckle = true,
+        weapon_stone_hatchet = true,
     }
 }
