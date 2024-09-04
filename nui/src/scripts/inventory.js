@@ -737,7 +737,6 @@ const Inventory = {
             }
 
             Inventory.Setup.SetExternalWeight(data);
-            Inventory.Setup.SetExternalWeight(data);
             Inventory.Setup.SetExternalId(data);
             Inventory.Setup.SetExternalTypes(data);
             Inventory.Setup.SetExternalName(data);
@@ -1421,19 +1420,22 @@ const Inventory = {
                     {
                         name: Language.Locale('drop'),
                         onClick: function($el) {
+                            
+                            const item = $el;
+                            const slotData = item.data('slotid').split('-');
+
                             if (slotData.length !== 2) {
                                 return;
                             }
 
-                            if (!itemData) {
-                                return;
-                            }
-                            
-                            const item = $el;
-                            const slotData = item.data('slotid').split('-');
                             const inventoryType = item.data('inventory');
                             const slotId = slotData[1];
                             const itemData = Inventory.GetItemBySlot(slotId);
+
+                            if (!itemData) {
+                                return;
+                            }
+
                             const amountElement = $(`#slot-${slotId}-amount`);
                             
                             if (amountElement.length) {
