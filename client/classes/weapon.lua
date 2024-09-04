@@ -473,7 +473,7 @@ function Core.Classes.Weapon.UpdateAmmo (reload)
     -- Checks and balances
     if not weaponState.weapon then return false end
     if not weaponState.data then return false end
-
+    if Config.Weapons.melee[weaponState.weapon] then return true end -- checks if melee weapon and if it is it returns true so it wont kick the weapon back to your pockets
     -- If of forced ammo type, return false
     if Config.Weapons.ForcedAmmoAmount[weaponState.weapon] then return false end
     if Core.Classes.Weapon.InventoryAmmo(weaponState.data.ammotype) == 0 then  Core.Classes.Weapon.Disarm() weaponState.weapon = nil return end
