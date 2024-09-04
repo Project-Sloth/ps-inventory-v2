@@ -15,27 +15,27 @@ end
 -- Get player name
 Framework.Client.GetPlayerName = function ()
     -- Attempt to get Player table
-    local Player = Framework.Core.Functions.GetPlayerData()
+    local player = Framework.Core.Functions.GetPlayerData()
         
     -- If unavailable, return server player name
-    if Player == nil then return GetPlayerName(source) end
+    if player == nil then return GetPlayerName(source) end
 
     -- Return player name
-    return Player.charinfo.firstname .. " " .. Player.charinfo.lastname
+    return player.charinfo.firstname .. " " .. player.charinfo.lastname
 end
 
 -- Get player identifier
 ---@return string
 Framework.Client.GetPlayerIdentifier = function ()
-    local Player = Framework.Core.Functions.GetPlayerData()
-    return Player.citizenid
+    local player = Framework.Core.Functions.GetPlayerData()
+    return player.citizenid
 end
 
 -- Get player cash
 ---@return number
 Framework.Client.GetPlayerCash = function ()
-    local Player = Framework.Core.Functions.GetPlayerData()
-    return Player.money.cash
+    local player = Framework.Core.Functions.GetPlayerData()
+    return player.money.cash
 end
 
 -- Check weapon
@@ -48,10 +48,10 @@ end
 -- Can open inventory
 ---@return boolean
 Framework.Client.CanOpenInventory = function ()
-    local PlayerData = Framework.Core.Functions.GetPlayerData()
-    if not PlayerData then return false end
+    local playerData = Framework.Core.Functions.GetPlayerData()
+    if not playerData then return false end
 
-    if PlayerData.metadata["isdead"] or PlayerData.metadata["inlaststand"] or PlayerData.metadata["ishandcuffed"] or IsPauseMenuActive() then
+    if playerData.metadata["isdead"] or playerData.metadata["inlaststand"] or playerData.metadata["ishandcuffed"] or IsPauseMenuActive() then
 		return false
 	end
 
@@ -69,12 +69,12 @@ end
 -- Has Group
 ---@param group table
 Framework.Client.HasGroup = function(group)
-    local PlayerData = Framework.Core.Functions.GetPlayerData()
-    if not PlayerData.job then return false end
+    local playerData = Framework.Core.Functions.GetPlayerData()
+    if not playerData.job then return false end
 
     local groups = {
-        [PlayerData.job.name] = PlayerData.job.grade.level,
-        [PlayerData.gang.name] = PlayerData.gang.grade.level,
+        [playerData.job.name] = playerData.job.grade.level,
+        [playerData.gang.name] = playerData.gang.grade.level,
     }
 
 	if type(group) == 'table' then
@@ -122,9 +122,9 @@ Framework.Client.Progressbar = function (
 end
 
 -- When player data is updated
-RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(playerData)
 	if not source or source == '' then return end
-	if PlayerData.metadata["isdead"] or PlayerData.metadata["inlaststand"] or PlayerData.metadata["ishandcuffed"] then
+	if playerData.metadata["isdead"] or playerData.metadata["inlaststand"] or playerData.metadata["ishandcuffed"] then
 		Core.Classes.Inventory.Close()
 	end
 end)

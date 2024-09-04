@@ -22,7 +22,7 @@ const Nui = {
      * @param {object} eventData 
      */
     processEvent: (eventName, eventData) => {
-      if (typeof InventoryEvents[eventName] == "undefined") {
+      if (!InventoryEvents[eventName]) {
         return false;
       }
 
@@ -30,7 +30,7 @@ const Nui = {
       InventoryEvents[eventName](eventData);
 
       // Update inventory when data.items comes through
-      if (typeof eventData.items !== 'undefined' && eventName !== 'open') {
+      if (eventData.items && eventName !== 'open') {
         InventoryEvents.update(eventData);
       }
     }

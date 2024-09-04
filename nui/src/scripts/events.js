@@ -21,18 +21,18 @@ const InventoryEvents = {
         }
 
         // Build themes
-        if (typeof data.themes !== 'undefined') {
+        if (data.themes) {
             Inventory.Settings.BuildThemes(data.themes)
         }
 
         // Set player information
-        if (typeof data.player !== "undefined") {
+        if (data.player) {
             Debugger.log(JSON.stringify(data.player));
             Inventory.UpdatePlayerInformation(data.player);
         }
 
         // Set inventory configuration
-        if (typeof data.inventory !== "undefined") {
+        if (data.inventory) {
             Inventory.State.Configuration = {
                 ...Inventory.State.Configuration,
                 ...data.inventory
@@ -40,7 +40,7 @@ const InventoryEvents = {
         }
 
         // Set language
-        if (typeof data.locales !== 'undefined') {
+        if (data.locales) {
             Language.SetLocales(data.locales);
             Inventory.Events.OnLanguageSet();
         }

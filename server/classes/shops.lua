@@ -35,7 +35,7 @@ end
 function Core.Classes.Shops.BuyItem (source, data)
     -- Validate player
     local src = source
-    local Player = Framework.Server.GetPlayer(src)
+    local player = Framework.Server.GetPlayer(src)
 
     if not data.shop then 
         Core.Utilities.Log({
@@ -63,11 +63,11 @@ function Core.Classes.Shops.BuyItem (source, data)
 
     -- @todo return early
     if Config.Framework == "qb" and Config.OldCore then
-        if Player.Functions.RemoveMoney('cash', data.itemData.item.price * data.amount) or Player.Functions.RemoveMoney('bank', data.itemData.item.price * data.amount)  then 
-            Player.Functions.AddItem(data.itemData.item.name, data.amount)
+        if player.Functions.RemoveMoney('cash', data.itemData.item.price * data.amount) or player.Functions.RemoveMoney('bank', data.itemData.item.price * data.amount)  then 
+            player.Functions.AddItem(data.itemData.item.name, data.amount)
             return
         else
-            Core.Classes.Inventory.Utilities.Notify(Player, 'You don\'t have enough Money.', 'error')
+            Core.Classes.Inventory.Utilities.Notify(player, 'You don\'t have enough Money.', 'error')
             return
         end
     end
@@ -153,7 +153,7 @@ end
 ---@param src number
 ---@param shopId string
 function Core.Classes.Shops.Open (src, shopId, name)
-    local Player = Framework.Server.GetPlayer(src)
+    local player = Framework.Server.GetPlayer(src)
     local shop = Config.Shops[shopId]
 
     -- Handle vending

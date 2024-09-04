@@ -178,8 +178,8 @@ Framework.Server.GetExp = function (source, type)
 end
 
 -- Setup player
----@param Player number
+---@param player number
 ---@param initial boolean
-Framework.Server.SetupPlayer = function (Player, initial)
+Framework.Server.SetupPlayer = function (player, initial)
 	-- Do player setup here
 end

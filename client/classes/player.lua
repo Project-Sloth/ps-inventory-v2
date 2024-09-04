@@ -3,13 +3,13 @@
 -------------------------------------------------
 
 -- Creates the inventory class
-Core.Classes.New("Player", { CurrentHealth = 100 })
+Core.Classes.New("Player", { currentHealth = 100 })
 
 -- Init player data
 function Core.Classes.Player.Init ()
     Core.Classes.Player:UpdateState({
         Ped = PlayerPedId(),
-        CurrentHealth = GetEntityHealth(PlayerPedId())
+        currentHealth = GetEntityHealth(PlayerPedId())
     })
 end
 
@@ -40,18 +40,18 @@ end
 
 -- Resets the state for the class
 function Core.Classes.Player.Reset ()
-    Core.Classes.Player:UpdateState('CurrentHealth', GetEntityHealth(PlayerPedId()))
+    Core.Classes.Player:UpdateState('currentHealth', GetEntityHealth(PlayerPedId()))
 end
 
 -- Gets current health for player
 function Core.Classes.Player.GetHealth ()
-    return Core.Classes.Player:GetState('CurrentHealth')
+    return Core.Classes.Player:GetState('currentHealth')
 end
 
 -- Updates the health for player
 ---@param updateInventory? boolean
 function Core.Classes.Player.UpdateHealth (updateInventory)
-    Core.Classes.Player:UpdateState('CurrentHealth', GetEntityHealth(PlayerPedId()))
+    Core.Classes.Player:UpdateState('currentHealth', GetEntityHealth(PlayerPedId()))
 
     if updateInventory then
         Core.Classes.Player.PushUpdateToInventory()

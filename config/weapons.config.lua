@@ -808,7 +808,8 @@ Config.Weapons = {
         'weapon_stone_hatchet',
         'weapon_fireextinguisher'
     },
-    melee = {
+    
+    Melee = {
         weapon_knife = true,
         weapon_nightstick = true,
         weapon_bread = true,

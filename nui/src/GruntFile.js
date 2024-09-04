@@ -3,6 +3,7 @@ module.exports = function (grunt) {
     concat: {
       js: {
         src: [
+          "./scripts/plugins/lodash.js",
           "./scripts/plugins/bootstrap-context-menu.js",
           "./scripts/debugger.js",
           "./scripts/language.js",

@@ -7,18 +7,18 @@ Core.Classes.New("Player", {
 -- Gets the inventory preferences for a player
 ---@param src number
 function Core.Classes.Player.GetInventoryPreferences (src)
-    local PlayerIdentifier = Framework.Server.GetPlayerIdentifier(src)
+    local playerIdentifier = Framework.Server.GetPlayerIdentifier(src)
 
     -- If no player identifer, return default preferences
-    if not PlayerIdentifier then
+    if not playerIdentifier then
         return Core.Classes.Player:GetState('defaultPreferences')
     end
 
     -- Get player preferences
-    local row = MySQL.single.await("SELECT * FROM inventory_preferences WHERE identifier = ?", { PlayerIdentifier })
+    local row = MySQL.single.await("SELECT * FROM inventory_preferences WHERE identifier = ?", { playerIdentifier })
     if not row then
         MySQL.insert.await('INSERT INTO inventory_preferences(identifier, preferences) VALUES(?, ?)', {
-            PlayerIdentifier,
+            playerIdentifier,
             json.encode(Core.Classes.Player:GetState('defaultPreferences'))
         })
 
@@ -54,8 +54,8 @@ function Core.Classes.Player.SaveInventoryPreferences (src, data)
         return false 
     end
 
-    local PlayerIdentifier = Framework.Server.GetPlayerIdentifier(src)
-    if not PlayerIdentifier then 
+    local playerIdentifier = Framework.Server.GetPlayerIdentifier(src)
+    if not playerIdentifier then 
         Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Player.SaveInventoryPreferences",
@@ -67,7 +67,7 @@ function Core.Classes.Player.SaveInventoryPreferences (src, data)
     
     local res = MySQL.update.await('UPDATE inventory_preferences SET preferences = ? WHERE identifier = ?', {
         json.encode(data),
-        PlayerIdentifier
+        playerIdentifier
     })
 
     if not res then 

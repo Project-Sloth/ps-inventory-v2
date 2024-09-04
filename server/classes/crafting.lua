@@ -27,8 +27,8 @@ end
 ---@param src number
 ---@param item table
 function Core.Classes.Crafting.OpenByPlaceable (src, item)
-    local Player = Framework.Server.GetPlayer(src)
-    local Experience = Framework.Server.GetExp(src, 'crafting')
+    local player = Framework.Server.GetPlayer(src)
+    local experience = Framework.Server.GetExp(src, 'crafting')
     local itemData = Core.Classes.Inventory:GetState('Items')[item]
 
     if not itemData then
@@ -51,7 +51,7 @@ function Core.Classes.Crafting.OpenByPlaceable (src, item)
 
     -- Validate requirements for items
     for k, item in pairs(items) do
-        if item.crafting.exp.required > Experience then
+        if item.crafting.exp.required > experience then
             table.remove(items, k)
         end
     end
@@ -69,8 +69,8 @@ end
 ---@param src number
 ---@param craftId string
 function Core.Classes.Crafting.Open (src, craftId)
-    local Player = Framework.Server.GetPlayer(src)
-    local Experience = Framework.Server.GetExp(src, 'crafting')
+    local player = Framework.Server.GetPlayer(src)
+    local experience = Framework.Server.GetExp(src, 'crafting')
     local crafting = Config.Crafting.Locations[craftId]
     if not crafting then
         return Core.Utilities.Log({
@@ -84,7 +84,7 @@ function Core.Classes.Crafting.Open (src, craftId)
 
     -- Validate requirements for items
     for k, item in pairs(items) do
-        if item.crafting.exp.required > Experience then
+        if item.crafting.exp.required > experience then
             table.remove(items, k)
         end
     end
@@ -222,8 +222,8 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
 
     -- Validate player
     local src = source
-    local Player = Framework.Server.GetPlayer(src)
-    local Experience = Framework.Server.GetExp(src, 'crafting')
+    local player = Framework.Server.GetPlayer(src)
+    local experience = Framework.Server.GetExp(src, 'crafting')
 
     if not data.crafting then 
         Core.Utilities.Log({
@@ -262,7 +262,7 @@ function Core.Classes.Crafting.CanCraftItem (source, data)
         return false 
     end
 
-    if itemToCraft.crafting.exp.required > Experience then
+    if itemToCraft.crafting.exp.required > experience then
         return { success = false, message = "Not enough experience" }
     end
 
