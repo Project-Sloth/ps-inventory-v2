@@ -1,10 +1,13 @@
 const Debugger = {
+	enabled: true,
 
-    enabled: true,
-
-    log: (msg) => {
-        if (Debugger.enabled) {
-            console.log("[Debugger]: " + typeof msg == "object" || Array.isArray(msg) ? JSON.stringify(msg) : msg)
-        }
-    }
-}
+	log: (msg) => {
+		if (Debugger.enabled) {
+			console.log(
+				'[Debugger]: ' + typeof msg == 'object' || Array.isArray(msg)
+					? JSON.stringify(msg)
+					: msg
+			);
+		}
+	},
+};
