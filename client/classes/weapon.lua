@@ -467,9 +467,9 @@ end
 --@param itemremove self explanitory
 --@param itemgain self explanitory
 
-function Core.Classes.Weapon.AmmoBoxes(itemremove, itemgain)
+function Core.Classes.Weapon.AmmoBoxes(itemRemove, itemGain)
     if not Framework.Client.Progressbar('Unpacking Box Of Ammo', 4000, 'picklock', {disable = {}}) then return end
-    TriggerServerEvent(Config.ServerEventPrefix .. 'UseAmmoBox', itemremove, itemgain)
+    TriggerServerEvent(Config.ServerEventPrefix .. 'UseAmmoBox', itemRemove, itemGain)
 end
 -- Updates weapon ammo
 ---@param reload? boolean
