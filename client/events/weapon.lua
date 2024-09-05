@@ -16,10 +16,10 @@ RegisterNetEvent(Config.ClientEventPrefix .. 'DisarmWeapon', function()
     return Core.Classes.Weapon.Disarm()
 end)
 
-RegisterNetEvent(Config.ClientEventPrefix .. 'UseAmmoBox', function(itemremove, itemgain)
+RegisterNetEvent(Config.ClientEventPrefix .. 'UseAmmoBox', function(itemRemove, itemGain)
     if source == '' then return end
         
-    return Core.Classes.Weapon.AmmoBoxes(itemremove, itemgain)
+    return Core.Classes.Weapon.AmmoBoxes(itemRemove, itemGain)
 end)
 
 -- Recoil handler
