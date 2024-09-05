@@ -14,9 +14,9 @@ function Core.Classes.Placeables.Load()
 
     for id, item in pairs(items) do
         if not props[id] then
-            local entity = Core.Classes.Placeables.Place(item.item, item.coords, item.heading, item.shouldSnapToGround, id)
-            item.entity = entity
-            props[id] = item
+            if Core.Classes.Placeables.Place(item.item, item.coords, item.heading, item.shouldSnapToGround, id) then
+                props[id] = item
+            end
         end
     end
 
@@ -60,7 +60,7 @@ function Core.Classes.Placeables.Update(items)
 
     for id, prop in pairs(props) do
         if not items[id] then
-            if prop.entity then Core.Classes.Placeables.RemoveObject(prop.entity) end
+            if prop.entity then Core.Classes.Placeables.RemoveObject(id) end
             Core.Classes.Placeables.RemoveZone(id)
             props[id] = nil
         end
@@ -68,9 +68,10 @@ function Core.Classes.Placeables.Update(items)
 
     for id, item in pairs(items) do
         if not props[id] then
-            local entity = Core.Classes.Placeables.Place(item.item, item.coords, item.heading, item.shouldSnapToGround, id)
-            item.entity = entity
-            props[id] = item
+
+            if Core.Classes.Placeables.Place(item.item, item.coords, item.heading, item.shouldSnapToGround, id) then
+                props[id] = item
+            end
         end
     end
 
@@ -131,80 +132,97 @@ end
 function Core.Classes.Placeables.Place(item, coords, heading, shouldSnapToGround, id)
     if not item.placeable then return false end
 
-    coords = vector3(coords.x, coords.y, coords.z)
+    -- Generate the ped id
+    local propId = ("placeable__%s"):format(id)
 
-    local ped = PlayerPedId()
-    local itemName = item.item
-    local itemModel = item.placeable.prop
-    local shouldFreezeItem = item.isFrozen
+    -- Register the ped in the spawn manager
+    Core.SpawnManager.Register('object', {
+        id = propId,
+        isNetwork = false,
+        prop = item.placeable.prop,
+        location = vector3(coords.x, coords.y, coords.z),
+        onCreate = function ()
+            coords = vector3(coords.x, coords.y, coords.z)
 
-    -- Cancel any active animation
-    ClearPedTasks(ped)
+            local ped = PlayerPedId()
+            local itemName = item.item
+            local itemModel = item.placeable.prop
+            local shouldFreezeItem = item.isFrozen
 
-    -- Stop playing the animation
-    StopAnimTask(ped, animationDict, animation, 1.0)
+            -- Cancel any active animation
+            ClearPedTasks(ped)
 
-    Core.Utilities.LoadModelHash(itemModel)
+            -- Stop playing the animation
+            StopAnimTask(ped, animationDict, animation, 1.0)
 
-    local obj = CreateObject(itemModel, coords, true)
-    if obj == 0 then return false end
+            Core.Utilities.LoadModelHash(itemModel)
 
-    SetEntityRotation(obj, 0.0, 0.0, heading, false, false)
-    SetEntityCoords(obj, coords)
+            local obj = CreateObject(itemModel, coords, true)
+            if obj == 0 then return false end
 
-    if shouldFreezeItem then
-        FreezeEntityPosition(obj, true)
-    end
+            SetEntityRotation(obj, 0.0, 0.0, heading, false, false)
+            SetEntityCoords(obj, coords)
 
-    if shouldSnapToGround then
-        PlaceObjectOnGroundProperly(obj)
-    end
+            if shouldFreezeItem then
+                FreezeEntityPosition(obj, true)
+            end
 
-    Entity(obj).state:set('itemName', itemName, true)
-    item.entity = obj
-    item.location = coords
+            if shouldSnapToGround then
+                PlaceObjectOnGroundProperly(obj)
+            end
 
-    SetModelAsNoLongerNeeded(itemModel)
+            Entity(obj).state:set('itemName', itemName, true)
+            item.entity = obj
+            item.location = coords
 
-    if Config.UseTarget then
-        local options = {}
+            SetModelAsNoLongerNeeded(itemModel)
 
-        if item.placeable.option then
-            table.insert(options, {
-                action = function ()
-                    Core.Classes.Placeables.Open(id)
-                end,
-                icon = item.placeable.option.icon,
-                label = item.placeable.option.label
-            })
-        end
+            if Config.UseTarget then
+                local options = {}
 
-        Core.Classes.Placeables.AttachTarget(obj, id, options)
-    else
-        Core.Classes.Placeables.AddZone(id, lib.zones.sphere({
-            coords = vector3(item.location.x, item.location.y, item.location.z),
-            radius = Config.Placeables.Radius or 3,
-            debug = false,
-            onEnter = function ()
-                local interactType = ""
                 if item.placeable.option then
-                    interactType = Core.Language.Locale('placeablesInteractType', {
-                        key = Config.InteractKey.Label,
-                        interactType = item.placeable.option.label
+                    table.insert(options, {
+                        action = function ()
+                            Core.Classes.Placeables.Open(id)
+                        end,
+                        icon = item.placeable.option.icon,
+                        label = item.placeable.option.label
                     })
                 end
 
-                Core.Classes.Interact.Show(interactType .. Core.Language.Locale('placeablesPickup'))
-                Core.Classes.Placeables:UpdateState('nearPropId', id)
-            end,
-            onExit = function ()
-                Core.Classes.Interact.Hide()
-                Core.Classes.Placeables:UpdateState('nearPropId', false)
-            end
-        }))
-    end
+                Core.Classes.Placeables.AttachTarget(obj, id, options)
+            else
+                Core.Classes.Placeables.AddZone(id, lib.zones.sphere({
+                    coords = vector3(item.location.x, item.location.y, item.location.z),
+                    radius = Config.Placeables.Radius or 3,
+                    debug = false,
+                    onEnter = function ()
+                        local interactType = ""
+                        if item.placeable.option then
+                            interactType = Core.Language.Locale('placeablesInteractType', {
+                                key = Config.InteractKey.Label,
+                                interactType = item.placeable.option.label
+                            })
+                        end
 
-    return obj
+                        Core.Classes.Interact.Show(interactType .. Core.Language.Locale('placeablesPickup'))
+                        Core.Classes.Placeables:UpdateState('nearPropId', id)
+                    end,
+                    onExit = function ()
+                        Core.Classes.Interact.Hide()
+                        Core.Classes.Placeables:UpdateState('nearPropId', false)
+                    end
+                }))
+            end
+
+            return {
+                entityId = obj,
+                networkId = NetworkGetNetworkIdFromEntity(obj)
+            }
+        end
+    })
+
+    return propId
 end
 
 -- Sends item to server to save
@@ -346,7 +364,12 @@ function Core.Classes.Placeables.Pickup(propId)
     local ped = PlayerPedId()
     if not Core.Classes.Placeables:GetState('nearPropId') and not propId then return false end
     local itemData = Core.Classes.Placeables:GetState('props')[Core.Classes.Placeables:GetState('nearPropId') or propId]
-    local itemEntity = itemData.entity
+
+    -- Get item data from spawn manager
+    local spawnedItemKey, spawnedItemData = Core.SpawnManager.Get('object', ("placeable__%s"):format(propId))
+    if not spawnedItemKey then return false end
+
+    local itemEntity = spawnedItemData.entityId
     local itemModel = itemData.item.placeable.prop
     local itemName = Entity(itemEntity).state.prop or itemData.item.placeable.prop
 
@@ -373,7 +396,7 @@ function Core.Classes.Placeables.Pickup(propId)
 
             -- Remove the object
             local coords = GetEntityCoords(itemEntity)
-            Core.Classes.Placeables.RemoveObject(itemEntity)
+            Core.Classes.Placeables.RemoveObject(propId)
             Core.Classes.Placeables.RemoveZone(propId)
 
             -- Delete object server-side
@@ -389,9 +412,9 @@ end
 
 -- Removes object
 ---@param itemEntity number
-function Core.Classes.Placeables.RemoveObject (itemEntity)
-    local netId = NetworkGetNetworkIdFromEntity(itemEntity)
-    Core.Utilities.DeleteEntity({ EntityId = itemEntity, EntityNetworkId = netId }, 'object')
+function Core.Classes.Placeables.RemoveObject (id)
+    local propId = ("placeable__%s"):format(id)
+    Core.SpawnManager.Remove('object', propId)
 end
 
 -- Adds new zone

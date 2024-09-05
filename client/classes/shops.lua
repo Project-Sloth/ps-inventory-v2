@@ -18,40 +18,37 @@ function Core.Classes.Shops.Load()
             if shop.npc then
                 if type(shop.npc) == "table" then
 
-                    local ped = Core.Utilities.CreatePed(
-                        false,
-                        shop.npc.model, 
-                        location.x, 
-                        location.y, 
-                        (location.z - 1), 
-                        location.w,
-                        shop.npc.scenario
-                    )
+                    -- Generate the ped id
+                    local pedId = ("%s_%s_%s"):format(shopId, "ped", locationKey)
 
-                    if ped then
-                        if ped.EntityId then
-                            local peds = Core.Classes.Shops:GetState("peds")
-                            table.insert(peds, ped)
-                            Core.Classes.Shops:UpdateState("peds", peds)
+                    -- Register the ped in the spawn manager
+                    Core.SpawnManager.Register('ped', {
+                        id = pedId,
+                        isNetwork = false,
+                        modelHash = shop.npc.model,
+                        location = location,
+                        heading = location.w,
+                        scenario = shop.npc.scenario,
+                        target = Config.UseTarget and {
+                            options = {
+                                {
+                                    action = function ()
+                                        TriggerServerEvent(Config.ServerEventPrefix .. 'OpenShop', shopId)
+                                    end,
+                                    icon = "fas fa-shopping-basket",
+                                    label = Core.Language.Locale('shopTarget', {
+                                        shopName = shop.name
+                                    })
+                                }
+                            },
+                            distance = shop.radius or 1.5
+                        } or false
+                    })
 
-                            if Config.UseTarget then
-                                Framework.Client.AddTargetEntity(ped.EntityId, {
-                                    options = {
-                                        {
-                                            action = function ()
-                                                TriggerServerEvent(Config.ServerEventPrefix .. 'OpenShop', shopId)
-                                            end,
-                                            icon = "fas fa-hshopping-basket",
-                                            label = Core.Language.Locale('shopTarget', {
-                                                shopName = shop.name
-                                            })
-                                        }
-                                    },
-                                    distance = shop.radius or 1.5
-                                })
-                            end
-                        end
-                    end
+                    -- Update shop peds state
+                    local peds = Core.Classes.Shops:GetState("peds")
+                    table.insert(peds, pedId)
+                    Core.Classes.Shops:UpdateState("peds", peds)
                 end
             end
 
@@ -155,15 +152,6 @@ end
 
 -- Cleanup peds and blips on resourceStop
 function Core.Classes.Shops.Cleanup()
-    local peds = Core.Classes.Shops:GetState("peds")
-    for _, ped in pairs(peds) do
-        Core.Utilities.DeleteEntity(ped)
-
-        if Config.UseTarget then
-            Framework.Client.RemoveTargetEntity(ped.EntityId)
-        end
-    end
-
     local blips = Core.Classes.Shops:GetState("blips")
     for _, blip in pairs(blips) do RemoveBlip(blip) end
 

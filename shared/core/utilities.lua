@@ -234,11 +234,6 @@ Core.Utilities = {
     ---@param settings table
     ---@param coords vector3|table
     CreateBlip = function (settings, coords)
-        Core.Utilities.Log({
-            title = "Core.Utilities.CreateBlip",
-            message = ("Creating blip with name %s"):format(settings.name)
-        })
-
         AddTextEntry('TEST', settings.name)
         local blip = AddBlipForCoord(coords)
         SetBlipSprite(blip, settings.sprite)

@@ -12,6 +12,7 @@ end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
+        Core.SpawnManager.OnResourceStop()
         Core.Classes.Player.Reset()
         Core.Classes.Crafting.Cleanup()
         Core.Classes.Inventory.Close()

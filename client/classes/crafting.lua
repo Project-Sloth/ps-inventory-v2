@@ -16,27 +16,33 @@ function Core.Classes.Crafting.Load()
         
         -- If it provides a prop
         if crafting.prop then
-            local prop = Core.Utilities.CreateObject(true, crafting.prop, crafting.location)
-            if prop then
-                local props = Core.Classes.Crafting:GetState("props")
-                table.insert(props, prop)
-                Core.Classes.Crafting:UpdateState("props", props)
 
-                if Config.UseTarget then
-                    Framework.Client.AddTargetEntity(prop.EntityId, {
-                        options = {
-                            {
-                                action = function ()
-                                    Core.Classes.Crafting.Open(craftId)
-                                end,
-                                icon = "fas fa-eye",
-                                label = Core.Language.Locale('craftingTarget')
-                            }
-                        },
-                        distance = crafting.radius or 1.5
-                    })
-                end
-            end
+            -- Generate the ped id
+            local propId = ("crafting__%s"):format(craftId)
+
+            -- Register the ped in the spawn manager
+            Core.SpawnManager.Register('object', {
+                id = propId,
+                isNetwork = false,
+                prop = crafting.prop,
+                location = crafting.location,
+                target = Config.UseTarget and {
+                    options = {
+                        {
+                            action = function ()
+                                Core.Classes.Crafting.Open(craftId)
+                            end,
+                            icon = "fas fa-eye",
+                            label = Core.Language.Locale('craftingTarget')
+                        }
+                    },
+                    distance = crafting.radius or 1.5
+                } or false
+            })
+
+            local props = Core.Classes.Crafting:GetState("props")
+            table.insert(props, propId)
+            Core.Classes.Crafting:UpdateState("props", props)
         end
 
         -- If blip has settings
@@ -144,9 +150,6 @@ end
 
 -- Cleanup props and blips on resourceStop
 function Core.Classes.Crafting.Cleanup()
-    local props = Core.Classes.Crafting:GetState("props")
-    for _, prop in pairs(props) do Core.Utilities.DeleteEntity(prop, 'object') end
-
     local blips = Core.Classes.Crafting:GetState("blips")
     for _, blip in pairs(blips) do RemoveBlip(blip) end
 
