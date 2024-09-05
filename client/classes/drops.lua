@@ -27,14 +27,14 @@ function Core.Classes.Drops.UpdateDrops(drops)
                 if externalData then
                     if externalData.type == "drop" and externalData.id == dropId then
                         Core.Classes.Inventory.Open({
-                            external = nil
+                            external = false
                         })
                     end
                 end
 
                 if Core.Classes.Drops:GetState('nearDropId') == dropId then
                     Core.Classes.Inventory.Open({
-                        external = nil
+                        external = false
                     })
                 end
             end
