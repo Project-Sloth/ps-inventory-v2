@@ -106,10 +106,12 @@ const Inventory = {
 					!isDropExternal ||
 					isInvalidExternal
 				) {
-					return;
+					return false;
 				}
 
-				Nui.request('close');
+				Inventory.State.ExternalItems = [];
+				$(Inventory.Selectors.ExternalInventory).hide();
+				return true;
 			},
 		},
 
@@ -528,13 +530,13 @@ const Inventory = {
 				Inventory.EnableDraggables();
 
 				// Make certain drops with last item taken are closed
-				Inventory.Events.MoveEvents.HandleExternalToInventory(
+				const closedExternal = Inventory.Events.MoveEvents.HandleExternalToInventory(
 					data,
 					payload,
 					res
 				);
 
-				if (res.external) {
+				if (res.external && !closedExternal) {
 					Inventory.Events.UpdateInventory({
 						external: {
 							items: res.external,

@@ -114,6 +114,18 @@ end
 function Core.Classes.Inventory.CanOpen()
     if not Framework.Client.CanOpenInventory() then return false end
     if LocalPlayer.state.inventoryBusy == true then return false end
+
+    -- Check progress bars
+    if GetResourceState('progressbar') ~= "missing" then
+        if exports['progressbar']:isDoingSomething() then 
+            return false 
+        end
+    end
+
+    if lib.progressActive() then
+        return false
+    end
+
     return true
 end
 

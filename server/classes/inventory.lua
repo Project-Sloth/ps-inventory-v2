@@ -682,17 +682,17 @@ function Core.Classes.Inventory.SetItem(source, itemName, count)
     end
 
     if itemName and count >= 0 then
-        local item = Core.Classes.Inventory.GetSlotWithItem(source, itemName)
+        local slot = Core.Classes.Inventory.GetSlotWithItem(source, itemName)
 
-        if item then
-            Core.Classes.Inventory.RemoveItem(source, item.name, item.amount, nil, true)
+        if slot then
+            Core.Classes.Inventory.RemoveItem(source, slot.name, slot.amount, nil, true)
         end
 
         return Core.Classes.Inventory.AddItem(
             source, 
             itemName, 
             count, 
-            nil, 
+            slot and slot.slot or nil, 
             nil, 
             nil,
             nil,
@@ -750,12 +750,15 @@ function Core.Classes.Inventory.AddItem(source, item, amount, slot, info, reason
     -- Set the slot number, or if it exists get that slot number
     slot = tonumber(slot) or Core.Classes.Inventory.GetSlotNumberWithItem(source, item)
 
+    -- If created time is passed, set it
+    if created then itemInfo.created = created end
+
     -- Make sure info is a table
-    info = type(info) == "table" and info or { quality = 100 } -- Make sure it's not an empty string and is a table
+    info = type(info) == "table" and Core.Utilities.MergeTables((itemInfo.info or {}), info) or {}
 
     -- If is a weapon, set the serial number and quality
     if itemInfo.type == 'weapon' then
-        info.serie = info.serie or nil
+        info.serie = info.serie or Core.Utilities.GenerateSerialNumber()
     end
 
     -- Check the weight with the new item
@@ -1629,7 +1632,7 @@ function Core.Classes.Inventory.Split (src, data)
         return { success = false }
     end
 
-    Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount, nil, data.item.info, nil, nil, true, true)
+    Core.Classes.Inventory.AddItem(src, data.item.name, data.item.amount, nil, data.item.info, nil, data.item.created, true, true)
     Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot, true)
     return { success = true }
 end
@@ -1653,7 +1656,7 @@ function Core.Classes.Inventory.Give (src, data)
     local removed = Core.Classes.Inventory.RemoveItem(src, data.item.name, data.item.amount, data.item.slot)
     if not removed then return { success = false } end
 
-    Core.Classes.Inventory.AddItem(closestPlayer, data.item.name, data.item.amount, nil, data.item.info)
+    Core.Classes.Inventory.AddItem(closestPlayer, data.item.name, data.item.amount, nil, data.item.info, nil, data.item.created)
     return { success = true }
 end
 
