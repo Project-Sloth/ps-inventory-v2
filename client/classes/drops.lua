@@ -75,12 +75,22 @@ end
 ---@param location vector3
 function Core.Classes.Drops.AddProp (dropId, location)
 	local props = Core.Classes.Drops:GetState('props')
+
     if not props[dropId] then
-        local res = Core.Utilities.CreateObject(true, Config.Drops.Prop, location)
-        if res then
-            props[dropId] = res
-        end
+        -- Generate the ped id
+        local propId = ("drop__%s"):format(dropId)
+
+        -- Register the ped in the spawn manager
+        Core.SpawnManager.Register('object', {
+            id = propId,
+            isNetwork = false,
+            prop = Config.Drops.Prop,
+            location = location
+        })
+
+        props[dropId] = propId
     end
+
     Core.Classes.Drops:UpdateState('props', props)
 end
 
@@ -89,7 +99,7 @@ end
 function Core.Classes.Drops.RemoveProp (dropId)
 	local props = Core.Classes.Drops:GetState('props')
     if props[dropId] then
-        Core.Utilities.DeleteEntity(props[dropId], 'object')
+        Core.SpawnManager.Remove('object', props[dropId])
         props[dropId] = nil
     end
     Core.Classes.Drops:UpdateState('props', props)
@@ -153,9 +163,6 @@ end
 
 -- Cleanup props on resourceStop
 function Core.Classes.Drops.Cleanup()
-    local props = Core.Classes.Drops:GetState('props')
-    for _, prop in pairs(props) do Core.Utilities.DeleteEntity(prop, 'object') end
-
     local zones = Core.Classes.Crafting:GetState("zones")
     for id, zone in pairs(zones) do Core.Classes.Drops.RemoveZone(id) end
 end

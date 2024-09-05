@@ -29,6 +29,8 @@ else
         end)
     end
 
+    Core.SpawnManager.Thread()
+
     -- Reload weapon
     lib.addKeybind({
         name = 'reload_weapon',

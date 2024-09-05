@@ -37,6 +37,7 @@ shared_script {
     "shared/core/language.lua",
     "shared/core/classes.lua",
     "shared/core/crons.lua",
+    "shared/core/spawn-manager.lua",
     "framework/framework.lua"
 }
 
