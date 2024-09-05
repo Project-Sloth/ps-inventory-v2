@@ -122,7 +122,16 @@ Config.Weapons = {
         AMMO_SNIPER = 'snp_ammo',
         AMMO_EMPLAUNCHER = 'emp_ammo'
     },
-
+    -- key is item name, value.item = receive item, value.amount = amount to receive
+    AmmoBoxes = {
+        pistolammo_box = {item = 'pistol_ammo', amount = 12},
+        rifleammo_box = {item = 'rifle_ammo', amount = 30},
+        smgammo_box = {item = 'smg_ammo', amount = 30},
+        shotgunammo_box = {item = 'shotgun_ammo', amount = 8},
+        mgammo_box = {item = 'mg_ammo', amount = 54},
+        sniperammo_box = {item = 'snp_ammo', amount = 8},
+        emplauncher_box = {item = 'emp_ammo', amount = 6}
+    },
     -- Attachment definitions
     Attachments = {
 
