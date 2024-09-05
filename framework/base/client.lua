@@ -59,22 +59,60 @@ Framework.Client.HasGroup = function(group)
 end
 
 -- Progress bar
-Framework.Client.Progressbar = function (
-    name, 
-    label, 
-    duration, 
-    useWhileDead, 
-    canCancel, 
-    disableControls, 
-    animation, 
-    prop, 
-    propTwo, 
-    onFinish, 
-    onCancel
-)
-    -- @todo
+Framework.Client.Progressbar = function (text, time, anim, data)
+    TriggerEvent('animations:client:EmoteCommandStart', {anim}) 
+	if Config.Progressbar == 'oxbar' then 
+	  if lib.progressBar({ duration = time, label = text, useWhileDead = data.useWhileDead or false, canCancel = data.canCancel or true,
+            disable = { car = data.disable.car or true, move = data.disable.move or true, combat = data.disable.combat or true, sprint = data.disable.sprint or true,},}) then 
+		if GetResourceState('scully_emotemenu') == 'started' then
+			exports.scully_emotemenu:cancelEmote()
+		else
+			TriggerEvent('animations:client:EmoteCommandStart', {"c"}) 
+		end
+		return true
+	  end	 
+	elseif Config.Progressbar == 'oxcircle' then
+	  if lib.progressCircle({ position = 'bottom', duration = time, label = text, useWhileDead = data.useWhileDead or false, canCancel = data.canCancel or true,
+            disable = { car = data.disable.car or true, move = data.disable.move or true, combat = data.disable.combat or true, sprint = data.disable.sprint or true,},}) then 
+		if GetResourceState('scully_emotemenu') == 'started' then
+			exports.scully_emotemenu:cancelEmote()
+		else
+			TriggerEvent('animations:client:EmoteCommandStart', {"c"}) 
+		end
+		return true
+	  end
+	elseif Config.Progressbar == 'qb' then
+	local test = false
+		local cancelled = false
+        Framework.Core.Functions.Progressbar("drink_something", text, time, false, true, { 
+        disableMovement = data.disable.move or true, 
+        disableCarMovement = data.disable.car or true,
+        disableMouse = data.disable.mouse or true, 
+        disableCombat = data.disable.combat or true, 
+        disableInventory = true,
+	  }, {}, {}, {}, function()-- Done
+		test = true
+		if GetResourceState('scully_emotemenu') == 'started' then
+			exports.scully_emotemenu:cancelEmote()
+		else
+			TriggerEvent('animations:client:EmoteCommandStart', {"c"}) 
+		end
+	  end, function()
+		cancelled = true
+		if GetResourceState('scully_emotemenu') == 'started' then
+			exports.scully_emotemenu:cancelEmote()
+		else
+			TriggerEvent('animations:client:EmoteCommandStart', {"c"}) 
+		end
+	end)
+	  repeat 
+		Wait(100)
+	  until cancelled or test
+	  if test then return true end
+	else
+		print"dude, it literally tells you what you need to set it as in the config"
+	end	  
 end
-
 -- Targetting: Add target model
 ---@param modelName string|number|table
 ---@param targetOptions table
