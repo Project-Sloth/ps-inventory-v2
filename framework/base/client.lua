@@ -110,7 +110,11 @@ Framework.Client.Progressbar = function (text, time, anim, data)
 	  until cancelled or test
 	  if test then return true end
 	else
-		print"dude, it literally tells you what you need to set it as in the config"
+	  Core.Utilities.Log({
+                type = "error",
+                title = "Wrong Config.Progressbar Choice",
+                message = "Invalid Option for Config.Progressbar. Choose Between oxbar, oxcircle, qb"
+            })
 	end	  
 end
 -- Targetting: Add target model
