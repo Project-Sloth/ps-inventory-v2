@@ -186,7 +186,7 @@ Core.SpawnManager = {
         if not data then return false end
         if not data.id then return false end
         if Core.SpawnManager.Get(type, data.id) then return false end
-        data.Rendered = false
+        data.rendered = false
         table.insert(Core.SpawnManager.Items[type], data)
         return true
     end,
