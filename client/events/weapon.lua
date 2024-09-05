@@ -16,6 +16,12 @@ RegisterNetEvent(Config.ClientEventPrefix .. 'DisarmWeapon', function()
     return Core.Classes.Weapon.Disarm()
 end)
 
+RegisterNetEvent(Config.ClientEventPrefix .. 'UseAmmoBox', function(itemremove, itemgain)
+    if source == '' then return end
+        
+    return Core.Classes.Weapon.AmmoBoxes(itemremove, itemgain)
+end)
+
 -- Recoil handler
 AddEventHandler('CEventGunShot', function(entities, eventEntity, args)
     local ped = PlayerPedId()
