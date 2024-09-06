@@ -11,11 +11,13 @@ function Core.Classes.Weapon.Init ()
             Core.Classes.Weapon.EquipAttachment(source, item.name)
         end)
     end
-    -- creates useable ammo boxes
+
+    -- Creates useable ammo boxes
     for take, recieve in pairs (Config.Weapons.AmmoBoxes) do
         Core.Classes.Inventory.CreateUseableItem(take, function(source, item)
             local Player = Framework.Server.GetPlayer(source)
             local check = Framework.Server.HasItem(source, take, 1)
+            
             if check then 
                 TriggerClientEvent(Config.ClientEventPrefix .. 'UseAmmoBox', source, take, recieve.item)
             end

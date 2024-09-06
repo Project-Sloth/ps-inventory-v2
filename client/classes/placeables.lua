@@ -366,7 +366,12 @@ function Core.Classes.Placeables.Pickup(propId)
     local ped = PlayerPedId()
     if not Core.Classes.Placeables:GetState('nearPropId') and not propId then return false end
     local itemData = Core.Classes.Placeables:GetState('props')[Core.Classes.Placeables:GetState('nearPropId') or propId]
-    local itemEntity = itemData.entity
+
+    -- Get item data from spawn manager
+    local spawnedItemKey, spawnedItemData = Core.SpawnManager.Get('object', ("placeable__%s"):format(propId))
+    if not spawnedItemKey then return false end
+
+    local itemEntity = spawnedItemData.entityId
     local itemModel = itemData.item.placeable.prop
     local itemName = Entity(itemEntity).state.prop or itemData.item.placeable.prop
 
@@ -377,18 +382,19 @@ function Core.Classes.Placeables.Pickup(propId)
         -- Show pickup as a progress
         if not Framework.Client.Progressbar(Core.Language.Locale('placeablesPickingUp'), 
         (itemData.item.placeable.pickupTime and itemData.item.placeable.pickupTime * 1000 or Config.Placeables.PickupTime * 1000), 'pickup',{disable = {}}) then return end
-            lib.callback.await(Config.ServerEventPrefix .. 'AddItem', false, itemData.item)
+        
+        lib.callback.await(Config.ServerEventPrefix .. 'AddItem', false, itemData.item)
 
-            -- Remove the object
-            local coords = GetEntityCoords(itemEntity)
-            Core.Classes.Placeables.RemoveObject(itemEntity)
-            Core.Classes.Placeables.RemoveZone(propId)
+        -- Remove the object
+        local coords = GetEntityCoords(itemEntity)
+        Core.Classes.Placeables.RemoveObject(propId)
+        Core.Classes.Placeables.RemoveZone(propId)
 
-            -- Delete object server-side
-            lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId') or propId)
+        -- Delete object server-side
+        lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId') or propId)
 
-            -- Hide interaction text
-            Core.Classes.Interact.Hide()
+        -- Hide interaction text
+        Core.Classes.Interact.Hide()
     end
 end
 

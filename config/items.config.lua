@@ -101,8 +101,10 @@ Config.Items = {
         shouldClose = false, 
         description = 'Piece of cloth to craft things with' 
     },
-    -- ammo boxes
- pistolammo_box = { 
+
+    -- Ammo boxes
+    
+    pistolammo_box = { 
         name = 'pistolammo_box',
         label = 'Pistol Ammo Box',
         weight = 200,
@@ -113,6 +115,7 @@ Config.Items = {
         shouldClose = true,
         description = 'Box Of Pistol Ammo'
     },
+
     rifleammo_box = { 
         name = 'rifleammo_box',
         label = 'Rifle Ammo Box',
@@ -124,6 +127,7 @@ Config.Items = {
         shouldClose = true,
         description = 'Box Of Ammo for Rifles'
     },
+
     smgammo_box = { 
         name = 'smgammo_box',
         label = 'SMG Ammo Box',
@@ -135,7 +139,8 @@ Config.Items = {
         shouldClose = true,
         description = 'Box Of Ammo for Sub Machine Guns'
     },
-    shotgunammo_box  = { 
+
+    shotgunammo_box = { 
         name = 'shotgunammo_box',   
         label = 'Shotgun Ammo Box', 
         weight = 500,  
@@ -146,6 +151,7 @@ Config.Items = {
         shouldClose = true,
         description = 'Box Of Ammo for Shotguns'
     },
+
     mgammo_box = { 
         name = 'mgammo_box',        
         label = 'MG Ammo Box',      
@@ -157,7 +163,8 @@ Config.Items = {
         shouldClose = true, 
         description = 'Box Of Ammo for Machine Guns' 
     },
-    sniperammo_box   = { 
+
+    sniperammo_box = { 
         name = 'sniperammo_box',    
         label = 'Sniper Ammo Box',  
         weight = 1000,
@@ -168,7 +175,8 @@ Config.Items = {
         shouldClose = true,
         description = 'Box Of Ammo for Sniper Rifles' 
     },
-    emplauncher_box  = { 
+
+    emplauncher_box = { 
         name = 'emplauncher_box',   
         label = 'EMP Ammo Box',     
         weight = 200,
