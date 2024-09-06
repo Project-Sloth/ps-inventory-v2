@@ -4,7 +4,7 @@ RegisterNetEvent(Config.ServerEventPrefix .. 'UseAmmoBox', function(itemRemove, 
     local check = Framework.Server.HasItem(source, itemRemove, 1)
     if not check then return end
     local data = {item = Config.Weapons.AmmoBoxes[itemRemove].item, amount = Config.Weapons.AmmoBoxes[itemRemove].amount}
-    if data.item ~= itemgain then return end
+    if data.item ~= itemGain then return end
     if Core.Classes.Inventory.RemoveItem(source, itemRemove, 1) then
         Core.Classes.Inventory.AddItem(source, data.item, data.amount)
     end
