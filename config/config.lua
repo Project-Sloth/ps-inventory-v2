@@ -20,6 +20,7 @@ Config = {
 
     -- Progressbar Options
     Progressbar = 'qb', -- options: qb, oxbar, oxcircle
+    
     -- An alert to interact with shops, stashes, etc will show
     Interact = true,
 
