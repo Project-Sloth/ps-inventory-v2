@@ -124,10 +124,11 @@ Framework.Client.Progressbar = function(text, time, anim, data)
         Core.Utilities.Log({
             type = "error",
             title = "Wrong Config.Progressbar Choice",
-            message = "Invalid Option for Config.Progressbar. Choose Between oxbar, oxcircle, qb"
+            message = "Invalid option for Config.Progressbar. Set to any of the following: oxbar, oxcircle, qb"
         })
     end
 end
+
 -- Targetting: Add target model
 ---@param modelName string|number|table
 ---@param targetOptions table

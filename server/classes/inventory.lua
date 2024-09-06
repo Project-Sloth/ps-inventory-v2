@@ -1464,12 +1464,12 @@ function Core.Classes.Inventory.Move (src, data)
             if res then 
                 if res.success then
                     Core.Classes.Inventory.SaveExternalInventory(data.external.type, data.external.id, res.inventory)
-                    return {success = true, external = { items = res.inventory }}
+                    return {success = true, external = res.inventory}
                 else
-                    return {success = false, external = { items = externalItems }}
+                    return {success = false, external = externalItems}
                 end
             else
-                return {success = false, external = { items = externalItems }}
+                return {success = false, external = externalItems}
             end
 
         end
