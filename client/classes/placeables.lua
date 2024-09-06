@@ -360,6 +360,8 @@ end
 
 -- Picks up item
 ---@param propId number
+-- Picks up item
+---@param propId number
 function Core.Classes.Placeables.Pickup(propId)
     local ped = PlayerPedId()
     if not Core.Classes.Placeables:GetState('nearPropId') and not propId then return false end
@@ -378,37 +380,24 @@ function Core.Classes.Placeables.Pickup(propId)
         ClearPedTasks(ped)
 
         -- Show pickup as a progress
-        Framework.Client.Progressbar("pickup_item", Core.Language.Locale('placeablesPickingUp'), (itemData.item.placeable.pickupTime and itemData.item.placeable.pickupTime * 1000 or Config.Placeables.PickupTime * 1000), false, true, {
-            disableMovement = Config.Placeables.PickupDisablesMovement,
-            disableCarMovement = Config.Placeables.PickupDisablesCarMovement,
-            disableMouse = false,
-            disableCombat = Config.Placeables.PickupDisablesCombat,
-        }, {
-            animDict = animationDict,
-            anim = animation,
-            flags = 0,
-        }, nil, nil, function() -- Done
-            -- Stop playing the animation
-            StopAnimTask(ped, animationDict, animation, 1.0)
+        if not Framework.Client.Progressbar(Core.Language.Locale('placeablesPickingUp'), 
+        (itemData.item.placeable.pickupTime and itemData.item.placeable.pickupTime * 1000 or Config.Placeables.PickupTime * 1000), 'pickup',{disable = {}}) then return end
+        
+        lib.callback.await(Config.ServerEventPrefix .. 'AddItem', false, itemData.item)
 
-            -- Add the item to the inventory
-            lib.callback.await(Config.ServerEventPrefix .. 'AddItem', false, itemData.item)
+        -- Remove the object
+        local coords = GetEntityCoords(itemEntity)
+        Core.Classes.Placeables.RemoveObject(propId)
+        Core.Classes.Placeables.RemoveZone(propId)
 
-            -- Remove the object
-            local coords = GetEntityCoords(itemEntity)
-            Core.Classes.Placeables.RemoveObject(propId)
-            Core.Classes.Placeables.RemoveZone(propId)
+        -- Delete object server-side
+        lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId') or propId)
 
-            -- Delete object server-side
-            lib.callback.await(Config.ServerEventPrefix .. 'RemovePlaceable', false, Core.Classes.Placeables:GetState('nearPropId') or propId)
-
-            -- Hide interaction text
-            Core.Classes.Interact.Hide()
-        end, function() -- Cancel
-            StopAnimTask(ped, animationDict, animation, 1.0)
-        end)
+        -- Hide interaction text
+        Core.Classes.Interact.Hide()
     end
 end
+
 
 -- Removes object
 ---@param itemEntity number

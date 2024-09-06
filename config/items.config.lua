@@ -101,4 +101,90 @@ Config.Items = {
         shouldClose = false, 
         description = 'Piece of cloth to craft things with' 
     },
+
+    -- Ammo boxes
+    
+    pistolammo_box = { 
+        name = 'pistolammo_box',
+        label = 'Pistol Ammo Box',
+        weight = 200,
+        type = 'item',
+        image = 'pistol_ammopack.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Box Of Pistol Ammo'
+    },
+
+    rifleammo_box = { 
+        name = 'rifleammo_box',
+        label = 'Rifle Ammo Box',
+        weight = 1000,
+        type = 'item',
+        image = 'smg_ammopack.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Box Of Ammo for Rifles'
+    },
+
+    smgammo_box = { 
+        name = 'smgammo_box',
+        label = 'SMG Ammo Box',
+        weight = 500,
+        type = 'item',
+        image = 'smg_ammo.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Box Of Ammo for Sub Machine Guns'
+    },
+
+    shotgunammo_box = { 
+        name = 'shotgunammo_box',   
+        label = 'Shotgun Ammo Box', 
+        weight = 500,  
+        type = 'item',
+        image = 'shutgun_ammopack2.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Box Of Ammo for Shotguns'
+    },
+
+    mgammo_box = { 
+        name = 'mgammo_box',        
+        label = 'MG Ammo Box',      
+        weight = 1000, 
+        type = 'item', 
+        image = 'ammocrate2.png',         
+        unique = false, 
+        useable = true, 
+        shouldClose = true, 
+        description = 'Box Of Ammo for Machine Guns' 
+    },
+
+    sniperammo_box = { 
+        name = 'sniperammo_box',    
+        label = 'Sniper Ammo Box',  
+        weight = 1000,
+        type = 'item',
+        image = 'rifle_ammopack2.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Box Of Ammo for Sniper Rifles' 
+    },
+
+    emplauncher_box = { 
+        name = 'emplauncher_box',   
+        label = 'EMP Ammo Box',     
+        weight = 200,
+        type = 'item',
+        image = 'hipower_crate.png',
+        unique = false,
+        useable = true,
+        shouldClose = true,
+        description = 'Box Of Ammo for EMP Launcher' 
+    },
 }

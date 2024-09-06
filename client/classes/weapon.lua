@@ -463,6 +463,14 @@ function Core.Classes.Weapon.IsRemovable (weaponName)
     return Core.Utilities.TableHasValue(Config.Weapons.Removables, weaponName)
 end
 
+-- Checks data to remove and add items from ammo boxes
+---@param itemRemove string
+---@param itemGain string
+function Core.Classes.Weapon.AmmoBoxes(itemRemove, itemGain)
+    if not Framework.Client.Progressbar('Unpacking Box Of Ammo', 4000, 'picklock', { disable = {} }) then return end
+    TriggerServerEvent(Config.ServerEventPrefix .. 'UseAmmoBox', itemRemove, itemGain)
+end
+
 -- Updates weapon ammo
 ---@param reload? boolean
 function Core.Classes.Weapon.UpdateAmmo (reload)

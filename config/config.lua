@@ -18,6 +18,9 @@ Config = {
     -- Notify options
     Notify = 'ox', -- qb or ox
 
+    -- Progressbar Options
+    Progressbar = 'qb', -- options: qb, oxbar, oxcircle
+    
     -- An alert to interact with shops, stashes, etc will show
     Interact = true,
 
@@ -29,7 +32,7 @@ Config = {
 
     -- Framework
     Framework = "qb", -- "qb"
-
+    
     -- QB specific
     OldCore = false, -- If you are using an older version of QB Core
     ConvertInventories = false, -- Convert old QB core inventories
