@@ -692,7 +692,7 @@ function Core.Classes.Inventory.SetItem(source, itemName, count)
             source, 
             itemName, 
             count, 
-            slot and slot.slot or nil, 
+            nil, 
             nil, 
             nil,
             nil,
