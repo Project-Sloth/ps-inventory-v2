@@ -1,0 +1,19 @@
+# .github/dependabot.yml
+version: 2
+updates:
+    - package-ecosystem: 'npm'
+      directory: '/nui/src/'
+      schedule:
+          interval: 'weekly'
+      versioning-strategy: 'increase-if-necessary'
+      open-pull-requests-limit: 5
+      groups:
+          minor-and-patch:
+              patterns:
+                  - dependency-name: '*'
+              update-types:
+                  - 'version-update:semver-minor'
+                  - 'version-update:semver-patch'
+      ignore:
+          - dependency-name: '*'
+            update-types: ['version-update:semver-major']
