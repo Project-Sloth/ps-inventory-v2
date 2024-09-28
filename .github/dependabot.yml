@@ -5,14 +5,15 @@ updates:
       directory: '/nui/src/'
       schedule:
           interval: 'weekly'
-      versioning-strategy: 'increase-if-necessary'
+      versioning-strategy: 'increase'
       open-pull-requests-limit: 5
       groups:
           minor-updates:
               patterns:
                   - '*'
-              update-types:
-                  - 'version-update:semver-minor'
+              match:
+                  update-types:
+                      - 'version-update:semver-minor'
       ignore:
           - dependency-name: '*'
             update-types:
