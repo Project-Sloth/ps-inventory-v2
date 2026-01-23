@@ -268,6 +268,8 @@ end
 
 -- Creates useables defined in useables.config.lua
 function Core.Classes.Inventory.CreateUseables ()
+    local items = Core.Classes.Inventory:GetState("Items") or {}
+
     for item, itemData in pairs(Config.Items) do
         if itemData.useable and itemData.onUse then
             if type(itemData.onUse) == "function" then
@@ -280,6 +282,31 @@ function Core.Classes.Inventory.CreateUseables ()
             Core.Classes.Inventory.CreateUseableItem(item, function (source, item)
                 Core.Classes.Placeables.Place(source, item)
             end)
+        end
+    end
+
+    local registered = {}
+    for _, itemName in pairs(Config.Weapons.AmmoItems) do
+        if itemName and not registered[itemName] and items[itemName] then
+            registered[itemName] = true
+            Core.Classes.Inventory.CreateUseableItem(itemName, function (source)
+                TriggerClientEvent(Config.ClientEventPrefix .. 'ReloadWeapon', source)
+            end)
+        end
+    end
+
+    for itemName, itemData in pairs(items) do
+        local isWeapon = itemData.type == "weapon" or (type(itemName) == "string" and itemName:sub(1, 7) == "weapon_")
+        if itemData.useable and not isWeapon then
+            if not Framework.Server.GetUseableItem(itemName) then
+                local label = itemData.label or itemName
+                Core.Classes.Inventory.CreateUseableItem(itemName, function (source)
+                    local player = Framework.Server.GetPlayer(source)
+                    if player then
+                        Core.Classes.Inventory.Utilities.Notify(player, (label .. " has no use action configured"), "error")
+                    end
+                end)
+            end
         end
     end
 end
@@ -571,9 +598,10 @@ end
 function Core.Classes.Inventory.ValidateAndUseItem(src, itemData)
     if itemData then
         local itemInfo = Core.Classes.Inventory:GetState("Items")[itemData.name]
+        local isWeapon = itemData.type == "weapon" or (type(itemData.name) == "string" and itemData.name:sub(1, 7) == "weapon_")
 
         -- Handle weapon types
-        if itemData.type == "weapon" then
+        if isWeapon then
 
             -- Validate quality
             if itemData.info.quality then
@@ -612,13 +640,13 @@ end
 function Core.Classes.Inventory.UseItem(item, ...)
     local itemData = Framework.Server.GetUseableItem(item)
     local callback = type(itemData) == 'table' and
-                         (rawget(itemData, '__cfx_functionReference') and itemData or itemData.cb or itemData.callback) or
+                         (rawget(itemData, '__cfx_functionReference') and itemData or itemData.cb or itemData.callback or itemData.func) or
                          type(itemData) == 'function' and itemData
     if not callback then
         return Core.Utilities.Log({
             type = "error",
             title = "Core.Classes.Inventory.UseItem",
-            message = "Unable to use item, no callback found."
+            message = ("Unable to use item '%s', no callback found."):format(tostring(item))
         })
     end
 
