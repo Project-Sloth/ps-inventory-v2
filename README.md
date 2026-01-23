@@ -46,6 +46,7 @@ Version 2 of Project Sloth's slot based inventory for FiveM. This version is bui
 - Delete and remove `qb-inventory`
 - Delete and remove `qb-shops`
 - Delete and remove `qb-weapons`
+- Replace all `exports['qb-inventory']` for `exports['ps-inventory']`
 - Restart server
 
 ### Old QB Core Conversion:
