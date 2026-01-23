@@ -41,6 +41,7 @@ Version 2 of Project Sloth's slot based inventory for FiveM. This version is bui
 
 - Download the resource from the repo
 - Drop the resource into your qb server resources
+- Rename to `ps-inventory`
 - Run `__install/database.sql` in your database
 - Start resource in server.cfg after qb-core or esx core (If using targetting, make sure qb-target or ox_target is started before)
 - Delete and remove `qb-inventory`
