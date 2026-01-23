@@ -189,3 +189,52 @@ end
 
 exports('OpenInventory', Core.Classes.Inventory.Open)
 exports('CloseInventory', Core.Classes.Inventory.Close)
+exports('HasItem', function(items, amount)
+    local inventory = Core.Classes.Inventory:GetState('Items') or {}
+
+    if not Core.Classes.Inventory:GetState('Loaded') then
+        Core.Classes.Inventory.Load()
+        inventory = Core.Classes.Inventory:GetState('Items') or {}
+    end
+
+    local function countItem(name)
+        local total = 0
+        for _, item in pairs(inventory) do
+            if item.name == name then
+                total = total + (item.amount or 1)
+            end
+        end
+        return total
+    end
+
+    local function hasItem(name, required)
+        return countItem(name) >= (required or 1)
+    end
+
+    if type(items) == 'string' then
+        return hasItem(items, amount)
+    elseif type(items) == 'table' then
+        if items[1] ~= nil then
+            for _, itemName in pairs(items) do
+                if not hasItem(itemName, amount) then
+                    return false
+                end
+            end
+            return true
+        end
+
+        for itemName, required in pairs(items) do
+            if not hasItem(itemName, required) then
+                return false
+            end
+        end
+
+        return true
+    end
+
+    return false
+end)
+
+Core.Utilities.ExportHandler('qb-inventory', 'HasItem', function(items, amount)
+    return exports['ps-inventory']:HasItem(items, amount)
+end)

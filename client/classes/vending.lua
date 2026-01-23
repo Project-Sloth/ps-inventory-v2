@@ -35,7 +35,7 @@ end
 ---@param model number
 function Core.Classes.Vending.IsModelVendingProp (model)
     for _, prop in pairs(Config.Vending.Props) do
-        if GetHashkey(prop) == model then
+        if GetHashKey(prop) == model then
             return true
         end
     end
