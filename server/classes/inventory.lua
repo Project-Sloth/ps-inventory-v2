@@ -1089,6 +1089,16 @@ function Core.Classes.Inventory.SaveExternalInventory (type, inventoryId, items)
     items = Core.Classes.Inventory.ValidateItems(items)
 
     if type == 'drop' then
+        if not Core.Classes.Drops.Get(inventoryId) then
+            Core.Utilities.Log({
+                type = "warning",
+                title = "Core.Classes.Inventory.SaveExternalInventory",
+                message = "Drop no longer exists, skipping save for drop " .. inventoryId
+            })
+
+            return true
+        end
+
         local res = Core.Classes.Drops.SaveItems(inventoryId, items)
 
         if not res then 
